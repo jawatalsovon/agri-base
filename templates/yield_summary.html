@@ -1,0 +1,41 @@
+<!-- templates/yield_summary.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yield Summary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Yield Summary</h1>
+    <canvas id="yieldChart" width="800" height="400"></canvas>
+    <script>
+        fetch('/get_yield_data')
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => item.Crop);
+                const yields = data.map(item => item['2023-24_Per_Acre_Yield_Kg']);
+                new Chart('yieldChart', {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Yield (Kg/Acre) 2023-24',
+                            data: yields,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            });
+    </script>
+    <a href="/">Back to Home</a>
+</body>
+</html>
