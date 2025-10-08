@@ -1,19 +1,18 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AgriBase</title>
+    <meta charset="UTF-8">
+    <title>Agricultural Data Webapp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>🌾 AgriBase: Crop Info & Yield Assistant</h1>
-  <form method="get" action="/">
-    <input type="text" name="q" value="{{ q }}" placeholder="Search crops...">
-    <button type="submit">Search</button>
-  </form>
-
-  <ul>
-    {% for c in crops %}
-      <li><a href="{{ url_for('crop_detail', crop_id=c.id) }}">{{ c.name }}</a></li>
-    {% endfor %}
-  </ul>
+    <h1>Agricultural Data Analysis</h1>
+    <ul>
+        <li><a href="/yield_summary">Yield Summary</a></li>
+        <li><a href="/area_summary">Area Summary</a></li>
+        <li><a href="/region_data">Area and Yield by Region</a></li>
+        <li><a href="/analysis">Analysis Options</a></li>
+    </ul>
 </body>
 </html>
