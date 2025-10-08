@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 import pandas as pd
@@ -20,7 +19,7 @@ def yield_summary():
 @app.route('/get_yield_data')
 def get_yield_data():
     conn = get_db()
-    df = pd.read_sql('SELECT * FROM crop_summary', conn)
+    df = pd.read_sql('SELECT * FROM yield_summary', conn)
     data = df.to_dict(orient='records')
     conn.close()
     return jsonify(data)
@@ -32,7 +31,7 @@ def area_summary():
 @app.route('/get_area_data')
 def get_area_data():
     conn = get_db()
-    df = pd.read_sql('SELECT * FROM crop_summary', conn)
+    df = pd.read_sql('SELECT * FROM area_summary', conn)
     data = df.to_dict(orient='records')
     conn.close()
     return jsonify(data)
