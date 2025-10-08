@@ -45,14 +45,11 @@ def crop_search():
         'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
         'wheat_area'
     ]
-    districts = set()
-    for table in tables_with_districts:
-        try:
-            df = pd.read_sql_query(f"SELECT DISTINCT District_Division FROM aman_total_by_district", conn)
-            districts.update(df['District'].tolist())
-        except:
-            continue
-    districts = sorted(list(districts))  # Sort for consistent display
+     all_districts = set()
+    for table in district_files:
+        df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
+        all_districts.update(df['District_Division'].dropna().unique())
+    districts = sorted(list(all_districts))
     conn.close()
 
     if request.method == 'POST':
