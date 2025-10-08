@@ -1,17 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Agriculture WebApp</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agricultural Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="container mt-5">
-    <h1>Welcome to Agriculture Data WebApp</h1>
-    <ul>
-        <li><a href="/area_summary">Area Summary</a></li>
-        <li><a href="/yield_summary">Yield Summary</a></li>
-        <li><a href="/crop_search">Crop and District Search</a></li>
-        <li><a href="/best">Best Crop/District Options</a></li>
-    </ul>
+<body>
+    <h1>Welcome to Agricultural Data Dashboard</h1>
+    <div class="container">
+        <p>Select a district to explore data:</p>
+        <label for="districtSelect">District:</label>
+        <input type="text" id="districtSelect" placeholder="Type to search district..." onkeyup="filterDistricts()">
+        <div id="districtDropdown" class="dropdown-content"></div>
+        <div id="districtData" class="data-section"></div>
+    </div>
+    <div class="navigation">
+        <a href="{{ url_for('area_summary') }}">Area Summary</a> |
+        <a href="{{ url_for('yield_summary') }}">Yield Summary</a> |
+        <a href="{{ url_for('crop_search') }}">Crop Search</a> |
+        <a href="{{ url_for('best') }}">Best Analysis</a>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
