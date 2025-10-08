@@ -88,9 +88,9 @@ if __name__ == '__main__':
             except Exception as e:
                 results[table] = f"<p>Error fetching data: {str(e)}</p>"
         conn.close()
-        return render_template('crop_search.html', crops=crops, districts=districts, results=results, selected_crop=crop, selected_district=district)
 
     return render_template('crop_search.html', crops=crops, districts=districts)
+
 @app.route('/search_districts', methods=['GET'])
 def search_districts():
     conn = get_db_connection()
