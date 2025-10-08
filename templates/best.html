@@ -1,44 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Best Crop/District Options</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="container mt-5">
-    <h1>Find Best Crop or Districts</h1>
-    <form method="post">
-        <div class="form-group">
-            <label>Query Type:</label>
-            <div class="form-check">
-                <input type="radio" name="query_type" value="best_crop" class="form-check-input" checked>
-                <label class="form-check-label">Best Crop for a District</label>
-            </div>
-            <div class="form-check">
-                <input type="radio" name="query_type" value="best_districts" class="form-check-input">
-                <label class="form-check-label">Best Districts for a Crop</label>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="value">Enter District or Select Crop:</label>
-            <select name="value" id="value" class="form-control">
-                <!-- Dynamically change based on radio, but for simplicity, use select for both -->
-                {% for dist in districts %}
-                    <option value="{{ dist }}">{{ dist }} (District)</option>
-                {% endfor %}
-                {% for crop in crops %}
-                    <option value="{{ crop }}">{{ crop | capitalize }} (Crop)</option>
-                {% endfor %}
+<body>
+    <h1>Best Analysis</h1>
+    <div class="container">
+        <form method="POST">
+            <label for="query_type">Query Type:</label>
+            <select name="query_type" id="query_type">
+                <option value="best_crop">Best Crop</option>
+                <option value="best_districts">Best Districts</option>
             </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Find</button>
-    </form>
-
-    {% if result %}
-        <h2>{{ result }}</h2>
-        {{ table | safe }}
-    {% endif %}
-
-    <a href="/" class="btn btn-primary mt-3">Back to Home</a>
+            {% if request.method == 'POST' and query_type == 'best_crop' %}
+                <label for="districtSelect">Select District:</label>
+                <input type="text" id="districtSelect" name="value" placeholder="Type to search district..." onkeyup="filterDistricts()">
+                <div id="districtDropdown" class="dropdown-content"></div>
+            {% elif request.method == 'POST' and query_type == 'best_districts' %}
+                <label for="crop">Select Crop:</label>
+                <select name="value" id="crop">
+                    {% for crop in crops %}
+                        <option value="{{ crop }}">{{ crop }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <label for="value">Select Value:</label>
+                <input type="text" id="districtSelect" name="value" placeholder="Type to search district or select crop..." onkeyup="filterDistricts()">
+                <div id="districtDropdown" class="dropdown-content"></div>
+            {% endif %}
+            <button type="submit">Analyze</button>
+        </form>
+        {% if result %}
+            <h2>{{ result }}</h2>
+            {{ table | safe }}
+        {% endif %}
+    </div>
+    <div class="navigation">
+        <a href="{{ url_for('index') }}">Home</a> |
+        <a href="{{ url_for('area_summary') }}">Area Summary</a> |
+        <a href="{{ url_for('yield_summary') }}">Yield Summary</a> |
+        <a href="{{ url_for('crop_search') }}">Crop Search</a>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
