@@ -45,7 +45,7 @@ def crop_search():
         'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
         'wheat_area'
     ]
-     all_districts = set()
+    all_districts = set()
     for table in district_files:
         df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
         all_districts.update(df['District_Division'].dropna().unique())
