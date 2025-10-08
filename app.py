@@ -55,6 +55,17 @@ def crop_search():
     districts = sorted(list(all_districts))
     conn.close()
 
+    query = request.args.get('q', '').lower()
+    if query:
+        filtered_districts = [d for d in districts if query in d.lower()]
+    else:
+        filtered_districts = districts
+    return jsonify(filtered_districts[:10])  # Limit to top 10 suggestions
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
     if request.method == 'POST':
         crop = request.form['crop']
         district = request.form['district']
