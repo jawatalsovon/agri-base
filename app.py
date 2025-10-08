@@ -62,11 +62,7 @@ def crop_search():
         filtered_districts = districts
     return jsonify(filtered_districts[:10])  # Limit to top 10 suggestions
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-    if request.method == 'POST':
+ if request.method == 'POST':
         crop = request.form['crop']
         district = request.form['district']
         conn = get_db_connection()
@@ -90,6 +86,7 @@ if __name__ == '__main__':
         conn.close()
 
     return render_template('crop_search.html', crops=crops, districts=districts)
+
 
 @app.route('/search_districts', methods=['GET'])
 def search_districts():
