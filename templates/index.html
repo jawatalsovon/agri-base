@@ -1,17 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Agricultural Data Webapp</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Agriculture WebApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
-    <h1>Agricultural Data Analysis</h1>
+<body class="container mt-5">
+    <h1>Welcome to Agriculture Data WebApp</h1>
     <ul>
-        <li><a href="/yield_summary">Yield Summary</a></li>
         <li><a href="/area_summary">Area Summary</a></li>
-        <li><a href="/region_data">Area and Yield by Region</a></li>
-        <li><a href="/analysis">Analysis Options</a></li>
+        <li><a href="/yield_summary">Yield Summary</a></li>
+        <li><a href="/crop_search">Crop and District Search</a></li>
+        <li><a href="/best">Best Crop/District Options</a></li>
     </ul>
 </body>
 </html>

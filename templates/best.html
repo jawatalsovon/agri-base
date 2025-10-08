@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Best Crop/District Options</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+    <h1>Find Best Crop or Districts</h1>
+    <form method="post">
+        <div class="form-group">
+            <label>Query Type:</label>
+            <div class="form-check">
+                <input type="radio" name="query_type" value="best_crop" class="form-check-input" checked>
+                <label class="form-check-label">Best Crop for a District</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" name="query_type" value="best_districts" class="form-check-input">
+                <label class="form-check-label">Best Districts for a Crop</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="value">Enter District or Select Crop:</label>
+            <select name="value" id="value" class="form-control">
+                <!-- Dynamically change based on radio, but for simplicity, use select for both -->
+                {% for dist in districts %}
+                    <option value="{{ dist }}">{{ dist }} (District)</option>
+                {% endfor %}
+                {% for crop in crops %}
+                    <option value="{{ crop }}">{{ crop | capitalize }} (Crop)</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Find</button>
+    </form>
+
+    {% if result %}
+        <h2>{{ result }}</h2>
+        {{ table | safe }}
+    {% endif %}
+
+    <a href="/" class="btn btn-primary mt-3">Back to Home</a>
+</body>
+</html>
