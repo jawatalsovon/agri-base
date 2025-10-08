@@ -40,11 +40,14 @@ def crop_search():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
     # Aggregate unique districts from all relevant tables
-    tables_with_districts = [
-        'aman_total_by_district', 'aus_total_by_district', 'boro_total_by_district',
-        'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
-        'wheat_area'
+    district_files = [
+        'aman_broadcast_by_district',
+        'aman_local_trans_by_district',
+        'aman_hyv_by_district',
+        'aman_hybrid_by_district',
+        'aman_total_by_district'
     ]
+
     all_districts = set()
     for table in district_files:
         df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
