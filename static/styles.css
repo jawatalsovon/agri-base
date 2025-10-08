@@ -1,43 +1,62 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
 }
-h1, h2 {
+
+h1 {
+    text-align: center;
     color: #333;
 }
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-th {
-    background-color: #f2f2f2;
-}
-form {
-    margin-bottom: 20px;
-}
+
 label {
+    font-weight: bold;
     margin-right: 10px;
 }
-input, select {
-    padding: 5px;
+
+#districtSelect {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
-button {
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 200px;
+    border: 1px solid #ddd;
+    z-index: 1;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-content div {
+    padding: 10px;
     cursor: pointer;
 }
-button:hover {
-    background-color: #45a049;
+
+.dropdown-content div:hover {
+    background-color: #f1f1f1;
 }
-a {
-    display: block;
+
+.data-section {
     margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: none;
 }
