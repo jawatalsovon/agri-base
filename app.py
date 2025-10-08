@@ -40,16 +40,16 @@ def crop_search():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
     # Aggregate unique districts from all relevant tables
-    district_tables = [
-        'aman_broadcast_by_district', 'aman_local_trans_by_district', 'aman_hyv_by_district',
-        'aman_hybrid_by_district', 'aman_total_by_district',
-        'aus_hybrid_by_district', 'aus_hyv_by_district', 'aus_local_by_district',
-        'aus_total_by_district', 'boro_hybrid_by_district', 'boro_hyv_by_district',
-        'boro_local_by_district', 'boro_total_by_district',
-        'wheat_estimates_district'
+     district_files = [
+        'aman_broadcast_by_district',
+        'aman_local_trans_by_district',
+        'aman_hyv_by_district',
+        'aman_hybrid_by_district',
+        'aman_total_by_district'
     ]
+
     all_districts = set()
-    for table in district_tables:
+    for table in district_files:
         df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
         all_districts.update(df['District_Division'].dropna().unique())
     districts = sorted(list(all_districts))
@@ -71,29 +71,27 @@ def crop_search():
 
         for table in tables:
             try:
-                query = f"SELECT * FROM {table} WHERE District_Division = ?"
+                query = f"SELECT * FROM {table} WHERE District = ?"
                 df = pd.read_sql_query(query, conn, params=(district,))
                 results[table] = df.to_html(classes='table table-striped', index=False) if not df.empty else "<p>No data found for this table.</p>"
             except Exception as e:
                 results[table] = f"<p>Error fetching data: {str(e)}</p>"
         conn.close()
-        return render_template('crop_search.html', crops=crops, districts=districts, results=results)
+        return render_template('crop_search.html', crops=crops, districts=districts, results=results, selected_crop=crop, selected_district=district)
 
     return render_template('crop_search.html', crops=crops, districts=districts)
-
 @app.route('/search_districts', methods=['GET'])
 def search_districts():
     conn = get_db_connection()
-    district_tables = [
-        'aman_broadcast_by_district', 'aman_local_trans_by_district', 'aman_hyv_by_district',
-        'aman_hybrid_by_district', 'aman_total_by_district',
-        'aus_hybrid_by_district', 'aus_hyv_by_district', 'aus_local_by_district',
-        'aus_total_by_district', 'boro_hybrid_by_district', 'boro_hyv_by_district',
-        'boro_local_by_district', 'boro_total_by_district',
-        'wheat_estimates_district'
+    district_files = [
+        'aman_broadcast_by_district',
+        'aman_local_trans_by_district',
+        'aman_hyv_by_district',
+        'aman_hybrid_by_district',
+        'aman_total_by_district'
     ]
     all_districts = set()
-    for table in district_tables:
+    for table in district_files:
         df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
         all_districts.update(df['District_Division'].dropna().unique())
     districts = sorted(list(all_districts))
@@ -105,6 +103,9 @@ def search_districts():
     else:
         filtered_districts = districts
     return jsonify(filtered_districts[:10])  # Limit to top 10 suggestions
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route('/best', methods=['GET', 'POST'])
 def best():
@@ -119,8 +120,8 @@ def best():
     districts = set()
     for table in tables_with_districts:
         try:
-            df = pd.read_sql_query(f"SELECT DISTINCT District_Division FROM {table}", conn)
-            districts.update(df['District_Division'].tolist())
+            df = pd.read_sql_query(f"SELECT DISTINCT District FROM {table}", conn)
+            districts.update(df['District'].tolist())
         except:
             continue
     districts = sorted(list(districts))
@@ -140,7 +141,7 @@ def best():
             }
             for crop, (table, col) in crop_tables.items():
                 try:
-                    query = f"SELECT {col} FROM {table} WHERE District_Division = ?"
+                    query = f"SELECT {col} FROM {table} WHERE District = ?"
                     df = pd.read_sql_query(query, conn, params=(value,))
                     if not df.empty:
                         total = df[col].iloc[0]
@@ -177,7 +178,7 @@ def best():
 
             if table:
                 try:
-                    query = f"SELECT District_Division, {col} FROM {table} ORDER BY {col} DESC LIMIT 5"
+                    query = f"SELECT District, {col} FROM {table} ORDER BY {col} DESC LIMIT 5"
                     df = pd.read_sql_query(query, conn)
                     table_html = df.to_html(classes='table table-striped', index=False) if not df.empty else "<p>No data found.</p>"
                     result = f"Top districts for {crop}"
