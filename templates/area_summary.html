@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Area Summary</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Area Summary</h1>
@@ -24,24 +25,31 @@
         <a href="{{ url_for('crop_search') }}">Crop Search</a> |
         <a href="{{ url_for('best') }}">Best Analysis</a>
     </div>
-    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
-        var ctx = document.getElementById('areaChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ chart_data.labels | tojson }},
-                datasets: [{
-                    label: 'Area',
-                    data: {{ chart_data.values | tojson }},
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: { y: { beginAtZero: true } }
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('areaChart').getContext('2d');
+            var labels = {{ chart_data.labels | tojson | safe }};
+            var values = {{ chart_data.values | tojson | safe }};
+            if (labels && values && labels.length === values.length) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Area',
+                            data: values,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            } else {
+                console.error('Invalid chart data:', { labels, values });
             }
         });
     </script>
