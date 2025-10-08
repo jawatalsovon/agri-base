@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AgriBase</title>
+</head>
+<body>
+  <h1>🌾 AgriBase: Crop Info & Yield Assistant</h1>
+  <form method="get" action="/">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search crops...">
+    <button type="submit">Search</button>
+  </form>
+
+  <ul>
+    {% for c in crops %}
+      <li><a href="{{ url_for('crop_detail', crop_id=c.id) }}">{{ c.name }}</a></li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ crop.name }}</title></head>
+<body>
+  <h2>{{ crop.name }}</h2>
+  <p><b>Season:</b> {{ crop.season }}</p>
+  <p><b>Soil:</b> {{ crop.soil }}</p>
+  <p><b>pH Range:</b> {{ crop.ph_min }}–{{ crop.ph_max }}</p>
+  <p><b>Avg Yield:</b> {{ crop.avg_yield }} tonnes/ha</p>
+
+  <form method="post" action="{{ url_for('estimate') }}">
+    <input type="hidden" name="crop_id" value="{{ crop.id }}">
+    <input type="number" step="0.1" name="area" placeholder="Enter area (hectares)" required>
+    <button type="submit">Estimate Yield</button>
+  </form>
+</body>
+</html>
