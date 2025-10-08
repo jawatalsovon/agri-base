@@ -27,7 +27,7 @@ def area_summary():
 @app.route('/yield_summary')
 def yield_summary():
     conn = get_db_connection()
-    df = pd.read_sql_query("SELECT * FROM yield_summery", conn)  # Matches your file name
+    df = pd.read_sql_query("SELECT * FROM yield_summery", conn)
     conn.close()
     labels = df['Crop'].tolist() if 'Crop' in df.columns else df.columns.tolist()
     values = df['Yield'].tolist() if 'Yield' in df.columns else df.iloc[0].tolist()
@@ -39,9 +39,20 @@ def yield_summary():
 def crop_search():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
-    # Use a table with district data; adjust if needed
-    df_districts = pd.read_sql_query("SELECT DISTINCT District FROM aman_total_by_district", conn)
-    districts = df_districts['District'].tolist() if 'District' in df_districts else []
+    # Aggregate unique districts from all relevant tables
+    tables_with_districts = [
+        'aman_total_by_district', 'aus_total_by_district', 'boro_total_by_district',
+        'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
+        'wheat_area'
+    ]
+    districts = set()
+    for table in tables_with_districts:
+        try:
+            df = pd.read_sql_query(f"SELECT DISTINCT District_Division FROM aman_total_by_district", conn)
+            districts.update(df['District'].tolist())
+        except:
+            continue
+    districts = sorted(list(districts))  # Sort for consistent display
     conn.close()
 
     if request.method == 'POST':
@@ -49,7 +60,7 @@ def crop_search():
         district = request.form['district']
         conn = get_db_connection()
         results = {}
-        # Map crops to their relevant by_district tables
+        # Map crops to their relevant tables
         crop_tables = {
             'aman': ['aman_broadcast_by_district', 'aman_hybrid_by_district', 'aman_hyv_by_district', 'aman_total_by_district'],
             'aus': ['aus_hybrid_by_district', 'aus_hyv_by_district', 'aus_local_by_district', 'aus_total_by_district'],
@@ -74,9 +85,20 @@ def crop_search():
 def best():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
-    # Fetch districts from a known table; adjust if needed
-    df_districts = pd.read_sql_query("SELECT DISTINCT District FROM aman_total_by_district", conn)
-    districts = df_districts['District'].tolist() if 'District' in df_districts else []
+    # Aggregate unique districts from all relevant tables
+    tables_with_districts = [
+        'aman_total_by_district', 'aus_total_by_district', 'boro_total_by_district',
+        'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
+        'wheat_area'
+    ]
+    districts = set()
+    for table in tables_with_districts:
+        try:
+            df = pd.read_sql_query(f"SELECT DISTINCT District FROM {table}", conn)
+            districts.update(df['District'].tolist())
+        except:
+            continue
+    districts = sorted(list(districts))
     conn.close()
 
     if request.method == 'POST':
