@@ -18,7 +18,6 @@ def area_summary():
     conn = get_db_connection()
     df = pd.read_sql_query("SELECT * FROM area_summary", conn)
     conn.close()
-    # Assume df has columns like 'Crop', 'Area' for pie chart
     labels = df['Crop'].tolist() if 'Crop' in df.columns else df.columns.tolist()
     values = df['Area'].tolist() if 'Area' in df.columns else df.iloc[0].tolist()
     chart_data = {'labels': labels, 'values': values}
@@ -28,9 +27,8 @@ def area_summary():
 @app.route('/yield_summary')
 def yield_summary():
     conn = get_db_connection()
-    df = pd.read_sql_query("SELECT * FROM yield_summery", conn)  # Note spelling from your file
+    df = pd.read_sql_query("SELECT * FROM yield_summery", conn)  # Matches your file name
     conn.close()
-    # Assume df has columns like 'Crop', 'Yield' for pie chart
     labels = df['Crop'].tolist() if 'Crop' in df.columns else df.columns.tolist()
     values = df['Yield'].tolist() if 'Yield' in df.columns else df.iloc[0].tolist()
     chart_data = {'labels': labels, 'values': values}
@@ -41,8 +39,9 @@ def yield_summary():
 def crop_search():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
+    # Use a table with district data; adjust if needed
     df_districts = pd.read_sql_query("SELECT DISTINCT District FROM aman_total_by_district", conn)
-    districts = df_districts['District'].tolist()
+    districts = df_districts['District'].tolist() if 'District' in df_districts else []
     conn.close()
 
     if request.method == 'POST':
@@ -50,25 +49,22 @@ def crop_search():
         district = request.form['district']
         conn = get_db_connection()
         results = {}
-        # Fetch from all relevant by_district tables for the crop
-        if crop == 'aman':
-            tables = ['aman_broadcast_by_district', 'aman_hybrid_by_district', 'aman_hyv_by_district', 'aman_total_by_district']
-        elif crop == 'aus':
-            tables = ['aus_hybrid_by_district', 'aus_hyv_by_district', 'aus_local_by_district', 'aus_total_by_district']
-        elif crop == 'boro':
-            tables = ['boro_hybrid_by_district', 'boro_hyv_by_district', 'boro_local_by_district', 'boro_total_by_district']
-        elif crop == 'wheat':
-            tables = ['wheat_area', 'wheat_estimates_district', 'wheat_production', 'wheat_yield']
-        else:
-            tables = []
+        # Map crops to their relevant by_district tables
+        crop_tables = {
+            'aman': ['aman_broadcast_by_district', 'aman_hybrid_by_district', 'aman_hyv_by_district', 'aman_total_by_district'],
+            'aus': ['aus_hybrid_by_district', 'aus_hyv_by_district', 'aus_local_by_district', 'aus_total_by_district'],
+            'boro': ['boro_hybrid_by_district', 'boro_hyv_by_district', 'boro_local_by_district', 'boro_total_by_district'],
+            'wheat': ['wheat_area', 'wheat_estimates_district', 'wheat_production', 'wheat_yield']
+        }
+        tables = crop_tables.get(crop, [])
 
         for table in tables:
             try:
                 query = f"SELECT * FROM {table} WHERE District = ?"
                 df = pd.read_sql_query(query, conn, params=(district,))
-                results[table] = df.to_html(classes='table table-striped', index=False)
-            except:
-                results[table] = "<p>No data found for this table.</p>"
+                results[table] = df.to_html(classes='table table-striped', index=False) if not df.empty else "<p>No data found for this table.</p>"
+            except Exception as e:
+                results[table] = f"<p>Error fetching data: {str(e)}</p>"
         conn.close()
         return render_template('crop_search.html', crops=crops, districts=districts, results=results, selected_crop=crop, selected_district=district)
 
@@ -78,8 +74,9 @@ def crop_search():
 def best():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
+    # Fetch districts from a known table; adjust if needed
     df_districts = pd.read_sql_query("SELECT DISTINCT District FROM aman_total_by_district", conn)
-    districts = df_districts['District'].tolist()
+    districts = df_districts['District'].tolist() if 'District' in df_districts else []
     conn.close()
 
     if request.method == 'POST':
@@ -87,7 +84,6 @@ def best():
         value = request.form['value']
         conn = get_db_connection()
         if query_type == 'best_crop':
-            # Find best crop for district based on highest total area
             data = []
             crop_tables = {
                 'aman': ('aman_total_by_district', 'Total_Area'),
@@ -98,21 +94,24 @@ def best():
             for crop, (table, col) in crop_tables.items():
                 try:
                     query = f"SELECT {col} FROM {table} WHERE District = ?"
-                    total = pd.read_sql_query(query, conn, params=(value,))[col].iloc[0]
-                    data.append({'crop': crop, 'total': total})
-                except:
-                    pass
+                    df = pd.read_sql_query(query, conn, params=(value,))
+                    if not df.empty:
+                        total = df[col].iloc[0]
+                        data.append({'crop': crop, 'total': total})
+                except Exception as e:
+                    continue
             if data:
                 df = pd.DataFrame(data)
                 df = df.sort_values('total', ascending=False)
                 table_html = df.to_html(classes='table table-striped', index=False)
+                result = f"Best crop in {value}: {df.iloc[0]['crop']} (Total: {df.iloc[0]['total']})"
             else:
                 table_html = "<p>No data found.</p>"
-            result = f"Best crop in {value}: {df.iloc[0]['crop']} (Total: {df.iloc[0]['total']})"
+                result = "No data available to determine best crop."
+            conn.close()
             return render_template('best.html', crops=crops, districts=districts, result=result, table=table_html)
 
         elif query_type == 'best_districts':
-            # Find best districts for crop based on highest total area (top 5)
             crop = value
             if crop == 'aman':
                 table = 'aman_total_by_district'
@@ -130,13 +129,18 @@ def best():
                 table = None
 
             if table:
-                query = f"SELECT District, {col} FROM {table} ORDER BY {col} DESC LIMIT 5"
-                df = pd.read_sql_query(query, conn)
-                table_html = df.to_html(classes='table table-striped', index=False)
-                result = f"Top districts for {crop}"
+                try:
+                    query = f"SELECT District, {col} FROM {table} ORDER BY {col} DESC LIMIT 5"
+                    df = pd.read_sql_query(query, conn)
+                    table_html = df.to_html(classes='table table-striped', index=False) if not df.empty else "<p>No data found.</p>"
+                    result = f"Top districts for {crop}"
+                except Exception as e:
+                    table_html = f"<p>Error: {str(e)}</p>"
+                    result = ""
             else:
                 table_html = "<p>No data found.</p>"
                 result = ""
+            conn.close()
             return render_template('best.html', crops=crops, districts=districts, result=result, table=table_html)
 
     return render_template('best.html', crops=crops, districts=districts)
