@@ -75,21 +75,11 @@ def crop_search():
 def best():
     crops = ['aman', 'aus', 'boro', 'wheat']
     conn = get_db_connection()
-    # Aggregate unique districts from all relevant tables
-    tables_with_districts = [
-        'aman_total_by_district', 'aus_total_by_district', 'boro_total_by_district',
-        'aman_broadcast_by_district', 'aus_hybrid_by_district', 'boro_hybrid_by_district',
-        'wheat_area'
-    ]
-    districts = set()
-    for table in tables_with_districts:
-        try:
-            df = pd.read_sql_query(f"SELECT DISTINCT District FROM {table}", conn)
-            districts.update(df['District'].tolist())
-        except:
-            continue
-    districts = sorted(list(districts))
+
+    all_districts = pd.read_sql_query(f"SELECT District_Division FROM aman_total_by_district", conn)
+    districts = sorted(list(all_districts))
     conn.close()
+
 
     if request.method == 'POST':
         query_type = request.form['query_type']
