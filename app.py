@@ -69,32 +69,7 @@ def crop_search():
         return render_template('crop_search.html', crops=crops, districts=districts, results=results, selected_crop=crop, selected_district=district)
 
     return render_template('crop_search.html', crops=crops, districts=districts)
-@app.route('/search_districts', methods=['GET'])
-def search_districts():
-    conn = get_db_connection()
-    district_files = [
-        'aman_broadcast_by_district',
-        'aman_local_trans_by_district',
-        'aman_hyv_by_district',
-        'aman_hybrid_by_district',
-        'aman_total_by_district'
-    ]
-    all_districts = set()
-    for table in district_files:
-        df = pd.read_sql_query(f"SELECT District_Division FROM {table}", conn)
-        all_districts.update(df['District_Division'].dropna().unique())
-    districts = sorted(list(all_districts))
-    conn.close()
 
-    query = request.args.get('q', '').lower()
-    if query:
-        filtered_districts = [d for d in districts if query in d.lower()]
-    else:
-        filtered_districts = districts
-    return jsonify(filtered_districts[:10])  # Limit to top 10 suggestions
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 @app.route('/best', methods=['GET', 'POST'])
 def best():
