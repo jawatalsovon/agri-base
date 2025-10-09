@@ -7,10 +7,17 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+    <h1>Welcome to Agricultural Data Dashboard</h1>
+    <div class="container">
+        <p>Select a district to explore data:</p>
+        <label for="districtSelect">District:</label>
+        <input type="text" id="districtSelect" placeholder="Type to search district..." onkeyup="filterDistricts()">
+        <div id="districtDropdown" class="dropdown-content"></div>
+        <div id="districtData" class="data-section"></div>
+    </div>
     <div class="navigation">
-        <a href="area_summary.html">Area Summary</a> |
-        <a href="pie_summary.html">Pie Summary</a> |
-        <a href="yield_summary.html">Yield Summary</a> |
+        <a href="templates/area_summary.html">Area Summary</a> |
+        <a href="templates/yield_summary.html">Yield Summary</a> |
         <a href="crop_search.html">Crop Search</a> |
         <a href="best.html">Best Analysis</a>
     </div>
