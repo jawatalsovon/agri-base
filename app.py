@@ -41,9 +41,7 @@ def crop_search():
     conn = get_db_connection()
     # Aggregate unique districts from all relevant tables
 
-    all_districts = set()
-    for table in district_files:
-    df = pd.read_sql_query(f"SELECT District_Division FROM aman_total_by_district", conn)
+    all_districts = pd.read_sql_query(f"SELECT District_Division FROM aman_total_by_district", conn)
     districts = sorted(list(all_districts))
     conn.close()
 
