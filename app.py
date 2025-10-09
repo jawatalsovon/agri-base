@@ -95,7 +95,7 @@ def best():
             }
             for crop, (table, col) in crop_tables.items():
                 try:
-                    query = f"SELECT {col} FROM {table} WHERE District = ?"
+                    query = f"SELECT {col} FROM {table} WHERE District FROM districts"
                     df = pd.read_sql_query(query, conn, params=(value,))
                     if not df.empty:
                         total = df[col].iloc[0]
