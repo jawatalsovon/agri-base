@@ -1,6 +1,6 @@
-Crop,2021-22_Area_000_Acres,2021-22_Per_Acre_Yield_Kg,2021-22_Production_000_MT,2022-23_Area_000_Acres,2022-23_Per_Acre_Yield_Kg,2022-23_Production_000_MT,2023-24_Area_000_Acres,2023-24_Per_Acre_Yield_Kg,2023-24_Production_000_MT
-MAJOR CEREALS,,,,,,,,
-Rice,,,,,,,,
+Crop,2021-22_Area,2021-22_Per_Acre_Yield_Kg,2021-22_Production_MT,2022-23_Area,2022-23_Per_Acre_Yield_Kg,2022-23_Production_MT,2023-24_Area,2023-24_Per_Acre_Yield_Kg,2023-24_Production_MT
+MAJOR CEREALS,,,,,,,,,
+Rice,,,,,,,,,
 Aus Local,249,528,131,210,582,122,168,612,103
 Aus HYV,2615,1096,2869,2412,1151,2779,2258,1183,2673
 Aus Hybrid,0,0,0,0,0,0,130,1511,197
