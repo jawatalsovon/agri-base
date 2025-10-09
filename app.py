@@ -61,7 +61,7 @@ def crop_search():
 
         for table in tables:
             try:
-                query = f"SELECT * FROM {table} WHERE District = ?"
+                query = f"SELECT * FROM {table} WHERE District from "
                 df = pd.read_sql_query(query, conn, params=(district,))
                 results[table] = df.to_html(classes='table table-striped', index=False) if not df.empty else "<p>No data found for this table.</p>"
             except Exception as e:
