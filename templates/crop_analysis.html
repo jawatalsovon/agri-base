@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Crop Analysis{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Analyze Crop Data by District</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="crop" class="form-label">Select Crop</label>
+                    <select class="form-select" id="crop" name="crop" required>
+                        <option selected disabled value="">Choose a crop...</option>
+                        {% for category, crops in crop_hierarchy.items() %}
+                            <optgroup label="{{ category }}">
+                                {% for crop_name in crops %}
+                                    <option value="{{ crop_name }}">{{ crop_name }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="district" class="form-label">Select District</label>
+                    <select class="form-select" id="district" name="district" required>
+                         <option selected disabled value="">Choose a district...</option>
+                        {% for district in districts %}
+                            <option value="{{ district }}">{{ district }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if results is not none %}
+<div class="card">
+    <div class="card-header">
+        <h4>Analysis Results</h4>
+    </div>
+    <div class="card-body">
+        {% if results %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            {% for header in table_headers %}
+                                <th>{{ header.replace('_', ' ') }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">No data found for the selected criteria.</div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

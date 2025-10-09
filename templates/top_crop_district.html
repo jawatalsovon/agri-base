@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Top Producers Analysis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Find Top Districts for a Crop</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="crop" class="form-label">Select Crop</label>
+                        <select name="crop" class="form-select" required>
+                             <option selected disabled value="">Choose a crop...</option>
+                            {% for crop in available_crops %}
+                            <option value="{{ crop }}">{{ crop }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="variety" class="form-label">Select Variety</label>
+                        <select name="variety" class="form-select" required>
+                            <option value="total">Total</option>
+                            <option value="hyv">HYV</option>
+                            <option value="hybrid">Hybrid</option>
+                            <option value="local">Local</option>
+                        </select>
+                    </div>
+                    <button type="submit" name="submit_top_districts" class="btn btn-primary">Find Top 10 Districts</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Find Top Crops in a District</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                     <div class="mb-3">
+                        <label for="district" class="form-label">Select District</label>
+                        <select name="district" class="form-select" required>
+                            <option selected disabled value="">Choose a district...</option>
+                            {% for district in districts %}
+                            <option value="{{ district }}">{{ district }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" name="submit_top_crops" class="btn btn-primary">Find Top Crops</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if results %}
+<div class="card">
+    <div class="card-header">
+        <h4>Results</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    {% if result_type == 'top_districts' %}
+                    <tr><th>Rank</th><th>District/Division</th><th>2023-24 Production (MT)</th></tr>
+                    {% elif result_type == 'top_crops' %}
+                    <tr><th>Rank</th><th>Crop</th><th>2023-24 Production (MT)</th></tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ "%.2f"|format(row[1]|float) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

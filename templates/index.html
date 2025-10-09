@@ -1,115 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriBase - Agricultural Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .hero-section {
-            padding: 100px 0;
-            color: white;
-            text-align: center;
-        }
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .hero-section p {
-            font-size: 1.3rem;
-            margin-bottom: 40px;
-        }
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 50px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .nav-card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        .nav-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            text-decoration: none;
-        }
-        .nav-card .icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-        .nav-card h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        .nav-card p {
-            color: #666;
-            margin: 0;
-        }
-        .footer {
-            text-align: center;
-            padding: 30px;
-            color: white;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="hero-section">
-        <div class="container">
-            <h1>🌾 AgriBase Dashboard</h1>
-            <p>Comprehensive Agricultural Data Analysis Platform for Bangladesh</p>
+{% extends 'base.html' %}
+
+{% block title %} AgriBase {% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Welcome to AgriBase 🌱</h1>
+        <p class="col-md-8 fs-4">Here, you can find all the Agricultural statistics data of **Bangladesh**</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Area Reports</h5>
+                    <p class="card-text">Area and Production of crops</p>
+                    <a href="{{ url_for('area_summary') }}" class="btn btn-primary">View Area Summary</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Yield Reports</h5>
+                    <p class="card-text">Crop yield over years.</p>
+                    <a href="{{ url_for('yield_summary') }}" class="btn btn-primary">View Yield Summary</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Pie chart Visuals</h5>
+                    <p class="card-text">Visuals of crop production percentage by area</p>
+                    <a href="{{ url_for('pie_charts') }}" class="btn btn-primary">View Pie Charts</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Top Producers</h5>
+                    <p class="card-text">Learn which crops are best produced in your area. You can also find which areas special for producing any particuar crop</p>
+                    <a href="{{ url_for('top_producers') }}" class="btn btn-primary">View Top Producers</a>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="card-container">
-        <a href="{{ url_for('area_summary') }}" class="nav-card">
-            <div class="icon">📊</div>
-            <h3>Area Summary</h3>
-            <p>View crop cultivation area statistics and trends</p>
-        </a>
-
-        <a href="{{ url_for('yield_summary') }}" class="nav-card">
-            <div class="icon">🌾</div>
-            <h3>Yield Summary</h3>
-            <p>Analyze crop yield and production data</p>
-        </a>
-
-        <a href="{{ url_for('crop_search') }}" class="nav-card">
-            <div class="icon">🔍</div>
-            <h3>Crop Search</h3>
-            <p>Search crops by district and variety</p>
-        </a>
-
-        <a href="{{ url_for('best') }}" class="nav-card">
-            <div class="icon">🏆</div>
-            <h3>Best Analysis</h3>
-            <p>Find top performing crops and districts</p>
-        </a>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Crop Analysis</h5>
+                    <p class="card-text">Search for specific crop information by area</p>
+                    <a href="{{ url_for('crop_analysis') }}" class="btn btn-primary">Analyze Crops</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="footer">
-        <p>&copy; 2024 AgriBase | Agricultural Data Management System</p>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
