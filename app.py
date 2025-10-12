@@ -92,6 +92,8 @@ def index():
 def area_summary():
     """Interactive Area Summary Report."""
     summary_data = query_db("SELECT * FROM area_summary")
+    # ✅ Apply cleaning here
+    summary_data = clean_results(summary_data) 
 
     # Data for Chart.js
     labels = [row['Crop'] for row in summary_data]
@@ -110,6 +112,8 @@ def area_summary():
 def yield_summary():
     """Interactive Yield Summary Report."""
     summary_data = query_db("SELECT * FROM yield_summery")
+    # ✅ Apply cleaning here
+    summary_data = clean_results(summary_data) 
 
     labels = [row['Crop'] for row in summary_data]
 
@@ -151,6 +155,8 @@ def crop_analysis():
         results = query_db(query, [selected_district])
 
         if results:
+            # ✅ Apply cleaning here
+            results = clean_results(results)
             table_headers = results[0].keys()
 
     return render_template('crop_analysis.html',
@@ -190,6 +196,8 @@ def top_producers():
                 LIMIT 10
             """
             results = query_db(query)
+            results = clean_results(results) 
+
 
         elif 'submit_top_crops' in request.form:
             result_type = 'top_crops'
@@ -234,6 +242,7 @@ def top_producers():
             ORDER BY Production DESC
             """
             results = query_db(query, {'district': district})
+            results = clean_results(results)
 
     return render_template('top_crop_district.html',
                            available_crops=AVAILABLE_MAJOR_CROPS,
@@ -249,6 +258,7 @@ def pie_charts():
 
     for table in pie_tables:
         data = query_db(f"SELECT Category, Percentage FROM {table}")
+        data = clean_results(data)
         if data:
             chart_title = table.replace('pie_', '').replace('_', ' ').title() + ' Distribution'
             labels = [row['Category'] for row in data]
