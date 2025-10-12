@@ -51,36 +51,7 @@ def get_pie_chart_tables():
     return [table['name'] for table in tables]
 
 def clean_results(results):
-    """
-    Replaces None or purely empty string values in a list of sqlite3.Row or dicts 
-    with an empty string ('') for non-numerical columns, 
-    or a zero ('0') for columns expected to hold numerical data that might be charted.
-    
-    Given your setup, we'll conservatively use '' for display purposes, 
-    but we'll adjust the downstream routes to handle numerical conversion safely.
-    """
-    cleaned = []
-    if not results:
-        return cleaned
-
-    for row in results:
-        # Convert the Row object to a standard dictionary to easily modify it
-        new_row = dict(row)
-        for key, value in new_row.items():
-            
-            # Use 'is None' for a strict check against the database return value
-            is_none = value is None
-            
-            # Check for strings that are empty or contain only whitespace
-            is_empty_string = isinstance(value, str) and value.strip() == ''
-            
-            # If the value is None or an empty/whitespace string, replace it
-            if is_none or is_empty_string:
-                # We replace with '' to show a blank space in the HTML table
-                new_row[key] = ''
-                
-        cleaned.append(new_row)
-        
+   cleaned = results
     return cleaned
     
 # --- CROP LISTS ---
