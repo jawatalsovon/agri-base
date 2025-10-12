@@ -92,7 +92,7 @@ def area_summary():
 @app.route('/yield_summary')
 def yield_summary():
     """Interactive Yield Summary Report."""
-    summary_data = query_db("SELECT * FROM yield_summery")
+    summary_data = query_db("SELECT * FROM yield_summery ASC")
 
     labels = [row['Crop'] for row in summary_data]
 
