@@ -16,12 +16,7 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
 
-        cursor = db.cursor()
         
-        cursor.execute("UPDATE area_summary SET * = COALESCE(*, ' ') WHERE * IS NULL;")
-        conn.commit()
-        
-        cursor.close()
 
         # FIX 2: Handle text encoding errors like in 'Cox's Bazar'.
         # This tells sqlite3 to use the 'latin-1' encoding, which prevents decoding crashes.
