@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, g, flash
 
 
 app = Flask(__name__)
-app.secret_key = 'ee01b05594e9ea2b8a9d2448fef1222951abbd044751bea9'  # Needed for flash messages
+app.secret_key = 'ee01b05594e9ea2b8a9d2448fef1222951abbd044751bea9'  # Needed for flash message
 DATABASE = 'agri-base.db'
 
 # --- DATABASE HELPER FUNCTIONS ---
