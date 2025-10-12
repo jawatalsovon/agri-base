@@ -16,6 +16,13 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
 
+        cursor = db.cursor()
+        
+        cursor.execute("UPDATE your_table SET your_column = COALESCE(your_column, ' ') WHERE your_column IS NULL;")
+        conn.commit()
+        
+        cursor.close()
+
         # FIX 2: Handle text encoding errors like in 'Cox's Bazar'.
         # This tells sqlite3 to use the 'latin-1' encoding, which prevents decoding crashes.
         db.text_factory = lambda b: b.decode('latin-1')
@@ -233,7 +240,7 @@ def pie_charts():
     for table in pie_tables:
         data = query_db(f"SELECT Category, Percentage FROM {table}")
         if data:
-            chart_title = table.replace('pie_', '').replace('_', ' ').title() + ' Area Distribution'
+            chart_title = table.replace('pie_', '').replace('_', ' ').title() + ' Distribution'
             labels = [row['Category'] for row in data]
             percentages = [float(row['Percentage'] or 0) for row in data]
             all_chart_data.append({
