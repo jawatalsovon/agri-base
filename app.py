@@ -18,7 +18,7 @@ def get_db():
 
         cursor = db.cursor()
         
-        cursor.execute("UPDATE your_table SET your_column = COALESCE(your_column, ' ') WHERE your_column IS NULL;")
+        cursor.execute("UPDATE area_summary SET * = COALESCE(*, ' ') WHERE * IS NULL;")
         conn.commit()
         
         cursor.close()
