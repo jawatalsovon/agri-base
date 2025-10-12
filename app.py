@@ -51,7 +51,7 @@ def get_pie_chart_tables():
     return [table['name'] for table in tables]
 
 def clean_results(results):
-   cleaned = results
+    cleaned = results
     return cleaned
     
 # --- CROP LISTS ---
