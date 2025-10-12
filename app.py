@@ -50,6 +50,21 @@ def get_pie_chart_tables():
     tables = query_db("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'pie_%'")
     return [table['name'] for table in tables]
 
+def clean_results(results):
+    """Replaces None values in a list of sqlite3.Row or dicts with an empty string."""
+    cleaned = []
+    if results is None:
+        return cleaned
+
+    for row in results:
+        # Convert the Row object to a standard dictionary to easily modify it
+        new_row = dict(row)
+        for key, value in new_row.items():
+            if value is None:
+                new_row[key] = ''
+        cleaned.append(new_row)
+    return cleaned
+
 # --- CROP LISTS ---
 # Full list of crops for the dropdowns, based on your screenshots
 CROP_HIERARCHY = {
