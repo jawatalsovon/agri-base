@@ -191,7 +191,7 @@ def crop_analysis():
 
         table_name = "wheat_estimates_district" if table_prefix == "wheat" else f"{table_prefix}_total_by_district"
 
-         query = f"SELECT * FROM {table_name} WHERE District_Division = ?"
+        query = f"SELECT * FROM {table_name} WHERE District_Division = ?"
         results = query_db(query, [selected_district])
 
         if results:
