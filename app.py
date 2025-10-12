@@ -51,20 +51,38 @@ def get_pie_chart_tables():
     return [table['name'] for table in tables]
 
 def clean_results(results):
-    """Replaces None values in a list of sqlite3.Row or dicts with an empty string."""
+    """
+    Replaces None or purely empty string values in a list of sqlite3.Row or dicts 
+    with an empty string ('') for non-numerical columns, 
+    or a zero ('0') for columns expected to hold numerical data that might be charted.
+    
+    Given your setup, we'll conservatively use '' for display purposes, 
+    but we'll adjust the downstream routes to handle numerical conversion safely.
+    """
     cleaned = []
-    if results is None:
+    if not results:
         return cleaned
 
     for row in results:
         # Convert the Row object to a standard dictionary to easily modify it
         new_row = dict(row)
         for key, value in new_row.items():
-            if value is None:
+            
+            # Use 'is None' for a strict check against the database return value
+            is_none = value is None
+            
+            # Check for strings that are empty or contain only whitespace
+            is_empty_string = isinstance(value, str) and value.strip() == ''
+            
+            # If the value is None or an empty/whitespace string, replace it
+            if is_none or is_empty_string:
+                # We replace with '' to show a blank space in the HTML table
                 new_row[key] = ''
+                
         cleaned.append(new_row)
+        
     return cleaned
-
+    
 # --- CROP LISTS ---
 # Full list of crops for the dropdowns, based on your screenshots
 CROP_HIERARCHY = {
@@ -88,23 +106,29 @@ def index():
     """Home page."""
     return render_template('index.html')
 
+# A common pattern for both routes
 @app.route('/area_summary')
 def area_summary():
     """Interactive Area Summary Report."""
     summary_data = query_db("SELECT * FROM area_summary")
-    # ✅ Apply cleaning here
-    summary_data = clean_results(summary_data) 
-
-    # Data for Chart.js
-    labels = [row['Crop'] for row in summary_data]
-
-    # FIX 1: Handle potential None/empty values in the production data.
-    # The 'or 0' ensures that if the value is empty, it's treated as 0.
-    chart_data = [float(row['Production_2023-24'] or 0) for row in summary_data]
+    summary_data = clean_results(summary_data)
+    
+    # Initialize headers to an empty list
+    table_headers = [] 
+    
+    # ONLY get headers and chart data if there's actual data
+    if summary_data:
+        table_headers = summary_data[0].keys()
+        labels = [row['Crop'] for row in summary_data]
+        chart_data = [float(row['Production_2023-24'] or 0) for row in summary_data]
+    else:
+        # If no data, ensure these are empty too, to prevent errors in the template
+        labels = []
+        chart_data = []
 
     return render_template('area_summary.html',
                            summary_data=summary_data,
-                           table_headers=summary_data[0].keys(),
+                           table_headers=table_headers, # Pass the (possibly empty) headers
                            labels=labels,
                            chart_data=chart_data)
 
@@ -112,17 +136,33 @@ def area_summary():
 def yield_summary():
     """Interactive Yield Summary Report."""
     summary_data = query_db("SELECT * FROM yield_summery")
-    # ✅ Apply cleaning here
-    summary_data = clean_results(summary_data) 
+    
+    # ✅ Apply cleaning
+    summary_data = clean_results(summary_data)
+    
+    # Initialize headers, labels, and chart data to empty lists
+    table_headers = [] 
+    labels = []
+    chart_data = []
 
-    labels = [row['Crop'] for row in summary_data]
+    # ✅ Apply safe logic: ONLY process data if results exist
+    if summary_data:
+        # 1. Get headers safely
+        table_headers = summary_data[0].keys()
+        
+        # 2. Extract labels
+        labels = [row['Crop'] for row in summary_data]
 
-    # Using the same safe conversion method here for consistency
-    chart_data = [float((row['2023-24_Production_000_MT'] or '0').replace(',', '')) for row in summary_data]
+        # 3. Extract and safely convert chart data
+        # Using the same safe conversion method here for consistency
+        chart_data = [
+            float((row['2023-24_Production_000_MT'] or '0').replace(',', '')) 
+            for row in summary_data
+        ]
 
     return render_template('yield_summary.html',
                            summary_data=summary_data,
-                           table_headers=summary_data[0].keys(),
+                           table_headers=table_headers,
                            labels=labels,
                            chart_data=chart_data)
 
@@ -151,13 +191,16 @@ def crop_analysis():
 
         table_name = "wheat_estimates_district" if table_prefix == "wheat" else f"{table_prefix}_total_by_district"
 
-        query = f"SELECT * FROM {table_name} WHERE District_Division = ?"
+         query = f"SELECT * FROM {table_name} WHERE District_Division = ?"
         results = query_db(query, [selected_district])
 
         if results:
-            # ✅ Apply cleaning here
             results = clean_results(results)
+            # Only set headers if results exist
             table_headers = results[0].keys()
+        else:
+            # If no results, explicitly ensure headers are an empty list
+            table_headers = []
 
     return render_template('crop_analysis.html',
                            crop_hierarchy=CROP_HIERARCHY,
