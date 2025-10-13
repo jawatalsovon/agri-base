@@ -33,19 +33,12 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-# ...existing code...
 def query_db(query, args=(), one=False):
-    """Execute a query and return the results, replacing 'none' with ''."""
+    """Execute a query and return the results."""
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
     cur.close()
-    # Replace 'none' string values with empty string in all rows
-    def clean_row(row):
-        return {k: ('' if str(v).lower() == 'none' else v) for k, v in dict(row).items()}
-    if one:
-        return clean_row(rv[0]) if rv else None
-    return [clean_row(row) for row in rv]
-# ...existing code...
+    return (rv[0] if rv else None) if one else rv
 
 def get_district_names():
     """Fetches a sorted list of unique district names from the database."""
