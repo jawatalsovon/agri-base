@@ -16,7 +16,7 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
 
-        
+
 
         # FIX 2: Handle text encoding errors like in 'Cox's Bazar'.
         # This tells sqlite3 to use the 'latin-1' encoding, which prevents decoding crashes.
@@ -33,12 +33,19 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+# ...existing code...
 def query_db(query, args=(), one=False):
-    """Execute a query and return the results."""
+    """Execute a query and return the results, replacing 'none' with ''."""
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
     cur.close()
-    return (rv[0] if rv else None) if one else rv
+    # Replace 'none' string values with empty string in all rows
+    def clean_row(row):
+        return {k: ('' if str(v).lower() == 'none' else v) for k, v in dict(row).items()}
+    if one:
+        return clean_row(rv[0]) if rv else None
+    return [clean_row(row) for row in rv]
+# ...existing code...
 
 def get_district_names():
     """Fetches a sorted list of unique district names from the database."""
@@ -53,7 +60,7 @@ def get_pie_chart_tables():
 def clean_results(results):
     cleaned = results
     return cleaned
-    
+
 # --- CROP LISTS ---
 # Full list of crops for the dropdowns, based on your screenshots
 CROP_HIERARCHY = {
@@ -83,10 +90,10 @@ def area_summary():
     """Interactive Area Summary Report."""
     summary_data = query_db("SELECT * FROM area_summary")
     summary_data = clean_results(summary_data)
-    
+
     # Initialize headers to an empty list
-    table_headers = [] 
-    
+    table_headers = []
+
     # ONLY get headers and chart data if there's actual data
     if summary_data:
         table_headers = summary_data[0].keys()
@@ -107,12 +114,12 @@ def area_summary():
 def yield_summary():
     """Interactive Yield Summary Report."""
     summary_data = query_db("SELECT * FROM yield_summery")
-    
+
     # ✅ Apply cleaning
     summary_data = clean_results(summary_data)
-    
+
     # Initialize headers, labels, and chart data to empty lists
-    table_headers = [] 
+    table_headers = []
     labels = []
     chart_data = []
 
@@ -120,14 +127,14 @@ def yield_summary():
     if summary_data:
         # 1. Get headers safely
         table_headers = summary_data[0].keys()
-        
+
         # 2. Extract labels
         labels = [row['Crop'] for row in summary_data]
 
         # 3. Extract and safely convert chart data
         # Using the same safe conversion method here for consistency
         chart_data = [
-            float((row['2023-24_Production_000_MT'] or '0').replace(',', '')) 
+            float((row['2023-24_Production_000_MT'] or '0').replace(',', ''))
             for row in summary_data
         ]
 
@@ -210,7 +217,7 @@ def top_producers():
                 LIMIT 10
             """
             results = query_db(query)
-            results = clean_results(results) 
+            results = clean_results(results)
 
 
         elif 'submit_top_crops' in request.form:
