@@ -1,9 +1,14 @@
 # ...existing code...
 """
-Robust PDF table extractor with fixes for duplicate column labels when merging multi-page tables.
+Memory-safe PDF table extractor (page-by-page streaming):
+- Avoids building large combined DataFrames in memory.
+- Writes first page of a table with header; appends subsequent pages directly to the CSV.
+- Keeps only small per-page DataFrames in memory; handles duplicate column names safely.
+- Emits progress prints and flushes to help identify where a termination occurs.
 """
 import re
 import sys
+import gc
 from pathlib import Path
 from typing import List, Optional
 
@@ -41,7 +46,7 @@ def row_to_list(row) -> List[str]:
     return out
 
 
-def title_from_words_above(table_bbox, words, max_above_px=160) -> Optional[str]:
+def title_from_words_above(table_bbox, words, max_above_px=200) -> Optional[str]:
     if not table_bbox:
         return None
     x0, top, x1, bottom = table_bbox
@@ -91,7 +96,6 @@ def safe_table_extract(table) -> List[List]:
 
 
 def make_unique(cols: List[str]) -> List[str]:
-    """Return a list of unique column names by appending suffixes to duplicates."""
     counts = {}
     out = []
     for c in cols:
@@ -109,16 +113,22 @@ def extract(pdf_path: str, out_dir: str):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    last_table = None  # dict: {name, header, df, last_page, csv_path}
+    last_table = None  # {name, header, last_page, csv_path}
     saved_files = set()
+    page_counter = 0
 
     with pdfplumber.open(pdf_path) as pdf:
         for pnum, page in enumerate(pdf.pages, start=1):
+            page_counter += 1
+            print(f"[page {pnum}] processing...", flush=True)
             try:
                 tables = page.find_tables()
-            except Exception:
+            except Exception as e:
+                print(f"[page {pnum}] find_tables failed: {e}", flush=True)
                 tables = []
             if not tables:
+                # reset last_table if many empty pages to avoid accidental merges
+                # (but we keep last_table so contiguous detection still works)
                 continue
 
             try:
@@ -144,44 +154,51 @@ def extract(pdf_path: str, out_dir: str):
                     df.columns = header
 
                 bbox = getattr(table, "bbox", None)
+                title = None
                 try:
-                    title = title_from_words_above(bbox, words, max_above_px=160)
+                    title = title_from_words_above(bbox, words, max_above_px=200)
                 except Exception:
                     title = None
 
-                # detect continuation of previous table
                 is_continuation = False
                 if title is None and last_table:
                     if pnum == last_table["last_page"] + 1:
-                        if overlap_ratio(header, last_table["header"]) >= 0.55:
+                        if overlap_ratio(header, last_table["header"]) >= 0.5:
                             is_continuation = True
 
                 if is_continuation:
-                    combine_df = df.copy()
-                    # Ensure last_table df columns are unique
-                    last_cols = list(last_table["df"].columns)
-                    if len(set(last_cols)) != len(last_cols):
-                        new_last_cols = make_unique(last_cols)
-                        last_table["df"].columns = new_last_cols
-                        last_table["header"] = new_last_cols
-                        last_cols = new_last_cols
-
-                    # Align combine_df columns to last_table columns (case-insensitive match)
-                    if list(combine_df.columns) != last_cols:
-                        mapped_cols = []
-                        for c in combine_df.columns:
-                            matches = [lc for lc in last_cols if lc.lower() == c.lower()]
-                            mapped_cols.append(matches[0] if matches else c)
-                        combine_df.columns = mapped_cols
-                        # Reindex to last_cols safely (last_cols are unique now)
-                        combine_df = combine_df.reindex(columns=last_cols, fill_value='')
-
-                    last_table["df"] = pd.concat([last_table["df"], combine_df], ignore_index=True)
-                    last_table["last_page"] = pnum
+                    # align and append to existing CSV (streaming append)
+                    last_cols = last_table["header"]
+                    # ensure last_cols unique
+                    last_cols = make_unique(last_cols)
                     try:
-                        last_table["df"].to_csv(last_table["csv_path"], index=False)
-                    except Exception:
-                        last_table["df"].to_csv(last_table["csv_path"], index=False, encoding="utf-8-sig")
+                        mapped = []
+                        for c in df.columns:
+                            matches = [lc for lc in last_cols if lc.lower() == c.lower()]
+                            mapped.append(matches[0] if matches else c)
+                        df.columns = mapped
+                        # reindex safely to target unique columns
+                        df = df.reindex(columns=last_cols, fill_value='')
+                    except Exception as e:
+                        # fallback: make df columns unique and align by position
+                        print(f"[page {pnum}] append-align failed ({e}), aligning by position", flush=True)
+                        new_cols = make_unique(list(df.columns))
+                        df.columns = new_cols
+                        # reindex by position: extend/trim to match last_cols length
+                        if df.shape[1] < len(last_cols):
+                            # add missing columns
+                            for i in range(len(last_cols) - df.shape[1]):
+                                df[f"_extra_{i}"] = ''
+                        df = df.iloc[:, :len(last_cols)]
+                        df.columns = last_cols
+
+                    # append rows without header
+                    try:
+                        df.to_csv(last_table["csv_path"], mode='a', header=False, index=False)
+                        last_table["last_page"] = pnum
+                        print(f"[page {pnum}] appended to {last_table['csv_path'].name}", flush=True)
+                    except Exception as e:
+                        print(f"[page {pnum}] append write failed: {e}", flush=True)
                 else:
                     name = sanitize_filename(title) if title else f"page{pnum:03d}_table{tidx:02d}"
                     csv_path = out_dir / f"{name}.csv"
@@ -192,25 +209,28 @@ def extract(pdf_path: str, out_dir: str):
                         k += 1
                     try:
                         df.to_csv(csv_path, index=False)
-                    except Exception:
+                        print(f"[page {pnum}] saved new table {csv_path.name}", flush=True)
+                    except Exception as e:
+                        print(f"[page {pnum}] write failed ({e}), retrying with utf-8-sig", flush=True)
                         df.to_csv(csv_path, index=False, encoding="utf-8-sig")
                     saved_files.add(str(csv_path))
                     last_table = {
                         "name": name,
                         "header": list(df.columns),
-                        "df": df,
                         "last_page": pnum,
                         "csv_path": csv_path
                     }
 
-    print(f"Done. Saved/updated {len(saved_files)} CSV files to {out_dir}")
-    # ...existing code...
+                # free memory of per-page df
+                del df
+                gc.collect()
+
+    print(f"Done. {len(saved_files)} tables saved to {out_dir}", flush=True)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python3 extract_tables.py /path/to/Adri_data_2024.pdf /path/to/out_dir")
         sys.exit(1)
-    pdf_path = sys.argv[1]
-    out_dir = sys.argv[2]
-    extract(pdf_path, out_dir)
-# ...existing code.
+    extract(sys.argv[1], sys.argv[2])
+# ...existing code...
