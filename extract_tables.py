@@ -87,4 +87,4 @@ if __name__ == '__main__':
         print("Usage: python3 extract_tables.py /path/to/Adri_data_2024.pdf /path/to/out_dir")
         sys.exit(1)
     extract(sys.argv[1], sys.argv[2])
-```
+
