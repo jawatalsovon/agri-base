@@ -205,3 +205,12 @@ def extract(pdf_path: str, out_dir: str):
 
     print(f"Done. Saved/updated {len(saved_files)} CSV files to {out_dir}")
     # ...existing code...
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: python3 extract_tables.py /path/to/Adri_data_2024.pdf /path/to/out_dir")
+        sys.exit(1)
+    pdf_path = sys.argv[1]
+    out_dir = sys.argv[2]
+    extract(pdf_path, out_dir)
+# ...existing code.
