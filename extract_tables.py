@@ -1,4 +1,4 @@
-```python
+
 # filepath: /home/ubuntu/project/extract_tables.py
 # Quick script: pdf -> separate CSVs named from nearby titles (uses pdfplumber + pandas)
 import sys, os, re
