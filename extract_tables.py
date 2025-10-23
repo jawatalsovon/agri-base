@@ -1,16 +1,14 @@
-# ...existing code...
-"""
-Memory-safe PDF table extractor (page-by-page streaming):
-- Avoids building large combined DataFrames in memory.
-- Writes first page of a table with header; appends subsequent pages directly to the CSV.
-- Keeps only small per-page DataFrames in memory; handles duplicate column names safely.
-- Emits progress prints and flushes to help identify where a termination occurs.
-"""
-import re
-import sys
+# PDF table extractor with resume support (--start / --end).
+# - Uses pdfplumber
+# - Appends to existing CSVs in out_dir when header overlap suggests continuation
+# - Processes only pages in [start, end] if provided
+import argparse
+import csv
 import gc
+import os
+import re
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pdfplumber
 import pandas as pd
@@ -109,26 +107,82 @@ def make_unique(cols: List[str]) -> List[str]:
     return out
 
 
-def extract(pdf_path: str, out_dir: str):
+def read_csv_header(path: Path) -> List[str]:
+    # read header using csv module (fast, low mem)
+    try:
+        with path.open('r', encoding='utf-8', errors='replace') as f:
+            reader = csv.reader(f)
+            header = next(reader, [])
+            return [h.strip() for h in header]
+    except Exception:
+        return []
+
+
+def load_existing_csv_index(out_dir: Path):
+    index = []
+    for p in sorted(out_dir.glob("*.csv")):
+        hdr = read_csv_header(p)
+        if hdr:
+            index.append({
+                "path": p,
+                "header": make_unique(normalize_header(hdr)),
+                "mtime": p.stat().st_mtime
+            })
+    return index
+
+
+def find_best_existing_csv(header: List[str], index, min_overlap=0.5) -> Optional[Path]:
+    best = None
+    best_score = 0.0
+    for item in index:
+        score = overlap_ratio([c.lower() for c in header], [c.lower() for c in item["header"]])
+        if score >= min_overlap and score > best_score:
+            best_score = score
+            best = item
+        elif score == best_score and item["mtime"] > (best["mtime"] if best else 0):
+            best = item
+    return best["path"] if best else None
+
+
+def safe_to_csv_append(df: pd.DataFrame, path: Path, target_header: List[str]):
+    # align df to target_header (case-insensitive match), then append without header
+    mapped = []
+    for c in df.columns:
+        matches = [tc for tc in target_header if tc.lower() == c.lower()]
+        mapped.append(matches[0] if matches else c)
+    df.columns = mapped
+    df = df.reindex(columns=target_header, fill_value='')
+    df.to_csv(path, mode='a', header=False, index=False)
+
+
+def extract(pdf_path: str, out_dir: str, start_page: Optional[int], end_page: Optional[int]):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    existing_index = load_existing_csv_index(out_dir)
+    print(f"Found {len(existing_index)} existing CSVs in {out_dir}", flush=True)
+
     last_table = None  # {name, header, last_page, csv_path}
     saved_files = set()
-    page_counter = 0
 
     with pdfplumber.open(pdf_path) as pdf:
-        for pnum, page in enumerate(pdf.pages, start=1):
-            page_counter += 1
-            print(f"[page {pnum}] processing...", flush=True)
+        total = len(pdf.pages)
+        s = start_page if start_page and start_page > 0 else 1
+        e = end_page if end_page and end_page > 0 else total
+        s = max(1, s)
+        e = min(total, e)
+        print(f"Processing pages {s}..{e} (total pages in file: {total})", flush=True)
+
+        for pnum in range(s, e + 1):
+            page = pdf.pages[pnum - 1]
+            print(f"[page {pnum}]", flush=True)
             try:
                 tables = page.find_tables()
-            except Exception as e:
-                print(f"[page {pnum}] find_tables failed: {e}", flush=True)
+            except Exception as exc:
+                print(f"[page {pnum}] find_tables error: {exc}", flush=True)
                 tables = []
             if not tables:
-                # reset last_table if many empty pages to avoid accidental merges
-                # (but we keep last_table so contiguous detection still works)
+                # keep last_table to allow contiguous continuation across empty pages if needed
                 continue
 
             try:
@@ -140,7 +194,6 @@ def extract(pdf_path: str, out_dir: str):
                 rows = safe_table_extract(table)
                 if not rows:
                     continue
-
                 norm_rows = [row_to_list(r) for r in rows]
                 df = pd.DataFrame(norm_rows)
 
@@ -160,77 +213,71 @@ def extract(pdf_path: str, out_dir: str):
                 except Exception:
                     title = None
 
-                is_continuation = False
-                if title is None and last_table:
-                    if pnum == last_table["last_page"] + 1:
-                        if overlap_ratio(header, last_table["header"]) >= 0.5:
-                            is_continuation = True
-
-                if is_continuation:
-                    # align and append to existing CSV (streaming append)
-                    last_cols = last_table["header"]
-                    # ensure last_cols unique
-                    last_cols = make_unique(last_cols)
+                # Determine continuation logic:
+                appended = False
+                # 1) If title missing and last_table in this run is contiguous and header matches -> append
+                if title is None and last_table and pnum == last_table["last_page"] + 1 and overlap_ratio(header, last_table["header"]) >= 0.5:
                     try:
-                        mapped = []
-                        for c in df.columns:
-                            matches = [lc for lc in last_cols if lc.lower() == c.lower()]
-                            mapped.append(matches[0] if matches else c)
-                        df.columns = mapped
-                        # reindex safely to target unique columns
-                        df = df.reindex(columns=last_cols, fill_value='')
-                    except Exception as e:
-                        # fallback: make df columns unique and align by position
-                        print(f"[page {pnum}] append-align failed ({e}), aligning by position", flush=True)
-                        new_cols = make_unique(list(df.columns))
-                        df.columns = new_cols
-                        # reindex by position: extend/trim to match last_cols length
-                        if df.shape[1] < len(last_cols):
-                            # add missing columns
-                            for i in range(len(last_cols) - df.shape[1]):
-                                df[f"_extra_{i}"] = ''
-                        df = df.iloc[:, :len(last_cols)]
-                        df.columns = last_cols
-
-                    # append rows without header
-                    try:
-                        df.to_csv(last_table["csv_path"], mode='a', header=False, index=False)
+                        safe_to_csv_append(df, last_table["csv_path"], last_table["header"])
                         last_table["last_page"] = pnum
-                        print(f"[page {pnum}] appended to {last_table['csv_path'].name}", flush=True)
-                    except Exception as e:
-                        print(f"[page {pnum}] append write failed: {e}", flush=True)
-                else:
-                    name = sanitize_filename(title) if title else f"page{pnum:03d}_table{tidx:02d}"
-                    csv_path = out_dir / f"{name}.csv"
-                    base = csv_path.stem
-                    k = 1
-                    while csv_path.exists():
-                        csv_path = out_dir / f"{base}_{k}.csv"
-                        k += 1
-                    try:
-                        df.to_csv(csv_path, index=False)
-                        print(f"[page {pnum}] saved new table {csv_path.name}", flush=True)
-                    except Exception as e:
-                        print(f"[page {pnum}] write failed ({e}), retrying with utf-8-sig", flush=True)
-                        df.to_csv(csv_path, index=False, encoding="utf-8-sig")
-                    saved_files.add(str(csv_path))
-                    last_table = {
-                        "name": name,
-                        "header": list(df.columns),
-                        "last_page": pnum,
-                        "csv_path": csv_path
-                    }
+                        appended = True
+                        print(f"[page {pnum}] appended to last run table {last_table['csv_path'].name}", flush=True)
+                    except Exception as exc:
+                        print(f"[page {pnum}] append to last_table failed: {exc}", flush=True)
 
-                # free memory of per-page df
+                # 2) If not appended, try matching against existing CSVs from previous run
+                if not appended and title is None and existing_index:
+                    candidate = find_best_existing_csv(header, existing_index, min_overlap=0.5)
+                    if candidate:
+                        target_hdr = [c for c in read_csv_header(candidate)]
+                        target_hdr = make_unique(normalize_header(target_hdr))
+                        try:
+                            safe_to_csv_append(df, candidate, target_hdr)
+                            # update index entry mtime
+                            for it in existing_index:
+                                if it["path"] == candidate:
+                                    it["mtime"] = candidate.stat().st_mtime
+                            last_table = {"name": candidate.stem, "header": target_hdr, "last_page": pnum, "csv_path": candidate}
+                            appended = True
+                            print(f"[page {pnum}] appended to existing CSV {candidate.name}", flush=True)
+                        except Exception as exc:
+                            print(f"[page {pnum}] append to existing CSV failed: {exc}", flush=True)
+
+                if appended:
+                    del df
+                    gc.collect()
+                    continue
+
+                # New table: create file (use title if present)
+                name = sanitize_filename(title) if title else f"page{pnum:03d}_table{tidx:02d}"
+                csv_path = out_dir / f"{name}.csv"
+                base = csv_path.stem
+                k = 1
+                while csv_path.exists():
+                    csv_path = out_dir / f"{base}_{k}.csv"
+                    k += 1
+                try:
+                    df.to_csv(csv_path, index=False)
+                    print(f"[page {pnum}] saved new table {csv_path.name}", flush=True)
+                except Exception as exc:
+                    print(f"[page {pnum}] write failed ({exc}), retrying with utf-8-sig", flush=True)
+                    df.to_csv(csv_path, index=False, encoding="utf-8-sig")
+                saved_files.add(str(csv_path))
+                # update index for resume ability
+                existing_index.append({"path": csv_path, "header": list(df.columns), "mtime": csv_path.stat().st_mtime})
+                last_table = {"name": name, "header": list(df.columns), "last_page": pnum, "csv_path": csv_path}
+
                 del df
                 gc.collect()
 
-    print(f"Done. {len(saved_files)} tables saved to {out_dir}", flush=True)
+    print(f"Done. {len(saved_files)} new tables saved/updated in {out_dir}", flush=True)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python3 extract_tables.py /path/to/Adri_data_2024.pdf /path/to/out_dir")
-        sys.exit(1)
-    extract(sys.argv[1], sys.argv[2])
-# ...existing code...
+    parser = argparse.ArgumentParser(description="Extract tables from PDF to CSV with resume support")
+    parser.add_argument("pdf", help="PDF file path")
+    parser.add_argument("out", help="Output directory for CSVs")
+    parser.add_argument("--start", type=int, default=None, help="Start page (1-based)")
+    parser.add_argument("--end", type=int, default=None, help="End page (inclusive)")
+    args = parser.parse_args()
+    extract(args.pdf, args.out, args.start, args.end)
