@@ -1,10 +1,6 @@
 # ...existing code...
 """
-Robust PDF table extractor:
-- Uses pdfplumber to find tables and extract them to CSV.
-- Detects table titles from text immediately above the table.
-- Detects and merges multi-page tables by header similarity + contiguous pages.
-- Defensive checks to avoid AttributeError / missing bbox / extraction failures.
+Robust PDF table extractor with fixes for duplicate column labels when merging multi-page tables.
 """
 import re
 import sys
@@ -29,7 +25,6 @@ def is_mostly_text(row: List[str]) -> bool:
     text_like = 0
     for c in non_empty:
         s = str(c).strip()
-        # numeric pattern allowing commas and decimals
         if re.fullmatch(r'[-+]?\d{1,3}(?:[,]\d{3})*(?:\.\d+)?|[-+]?\d+(\.\d+)?', s):
             continue
         text_like += 1
@@ -38,7 +33,6 @@ def is_mostly_text(row: List[str]) -> bool:
 
 def row_to_list(row) -> List[str]:
     out = []
-    # rows might be lists of strings or lists of dicts with 'text'
     for cell in row:
         if isinstance(cell, dict):
             out.append(cell.get("text", "").strip())
@@ -85,7 +79,6 @@ def overlap_ratio(h1: List[str], h2: List[str]) -> float:
 
 
 def safe_table_extract(table) -> List[List]:
-    # try table.extract(), fallback to table.extract_table() or []
     try:
         rows = table.extract()
         return rows or []
@@ -97,13 +90,27 @@ def safe_table_extract(table) -> List[List]:
             return []
 
 
+def make_unique(cols: List[str]) -> List[str]:
+    """Return a list of unique column names by appending suffixes to duplicates."""
+    counts = {}
+    out = []
+    for c in cols:
+        key = c if c is not None else ""
+        if key in counts:
+            counts[key] += 1
+            out.append(f"{key}_{counts[key]}")
+        else:
+            counts[key] = 0
+            out.append(key)
+    return out
+
+
 def extract(pdf_path: str, out_dir: str):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     last_table = None  # dict: {name, header, df, last_page, csv_path}
     saved_files = set()
-    saved_count = 0
 
     with pdfplumber.open(pdf_path) as pdf:
         for pnum, page in enumerate(pdf.pages, start=1):
@@ -112,10 +119,8 @@ def extract(pdf_path: str, out_dir: str):
             except Exception:
                 tables = []
             if not tables:
-                # no tables on this page
                 continue
 
-            words = []
             try:
                 words = page.extract_words()
             except Exception:
@@ -129,24 +134,22 @@ def extract(pdf_path: str, out_dir: str):
                 norm_rows = [row_to_list(r) for r in rows]
                 df = pd.DataFrame(norm_rows)
 
-                header = None
                 if len(df) >= 2 and is_mostly_text(df.iloc[0].tolist()):
                     header = normalize_header(df.iloc[0].tolist())
+                    header = make_unique(header)
                     df = df[1:].reset_index(drop=True)
                     df.columns = header
                 else:
-                    header = normalize_header([f"col_{i}" for i in range(len(df.columns))])
+                    header = make_unique(normalize_header([f"col_{i}" for i in range(len(df.columns))]))
                     df.columns = header
 
-                # try to get bbox safely
                 bbox = getattr(table, "bbox", None)
-                title = None
                 try:
                     title = title_from_words_above(bbox, words, max_above_px=160)
                 except Exception:
                     title = None
 
-                # Determine continuation: title missing and last_table exists and contiguous page
+                # detect continuation of previous table
                 is_continuation = False
                 if title is None and last_table:
                     if pnum == last_table["last_page"] + 1:
@@ -155,22 +158,29 @@ def extract(pdf_path: str, out_dir: str):
 
                 if is_continuation:
                     combine_df = df.copy()
-                    # align columns to last_table
-                    if list(combine_df.columns) != list(last_table["df"].columns):
-                        new_cols = []
+                    # Ensure last_table df columns are unique
+                    last_cols = list(last_table["df"].columns)
+                    if len(set(last_cols)) != len(last_cols):
+                        new_last_cols = make_unique(last_cols)
+                        last_table["df"].columns = new_last_cols
+                        last_table["header"] = new_last_cols
+                        last_cols = new_last_cols
+
+                    # Align combine_df columns to last_table columns (case-insensitive match)
+                    if list(combine_df.columns) != last_cols:
+                        mapped_cols = []
                         for c in combine_df.columns:
-                            matches = [lc for lc in last_table["df"].columns if lc.lower() == c.lower()]
-                            new_cols.append(matches[0] if matches else c)
-                        combine_df.columns = new_cols
-                        combine_df = combine_df.reindex(columns=last_table["df"].columns, fill_value='')
+                            matches = [lc for lc in last_cols if lc.lower() == c.lower()]
+                            mapped_cols.append(matches[0] if matches else c)
+                        combine_df.columns = mapped_cols
+                        # Reindex to last_cols safely (last_cols are unique now)
+                        combine_df = combine_df.reindex(columns=last_cols, fill_value='')
 
                     last_table["df"] = pd.concat([last_table["df"], combine_df], ignore_index=True)
                     last_table["last_page"] = pnum
-                    # overwrite existing CSV
                     try:
                         last_table["df"].to_csv(last_table["csv_path"], index=False)
                     except Exception:
-                        # try saving with utf-8-sig
                         last_table["df"].to_csv(last_table["csv_path"], index=False, encoding="utf-8-sig")
                 else:
                     name = sanitize_filename(title) if title else f"page{pnum:03d}_table{tidx:02d}"
@@ -184,24 +194,14 @@ def extract(pdf_path: str, out_dir: str):
                         df.to_csv(csv_path, index=False)
                     except Exception:
                         df.to_csv(csv_path, index=False, encoding="utf-8-sig")
-                    saved_count += 1
                     saved_files.add(str(csv_path))
                     last_table = {
                         "name": name,
-                        "header": header,
+                        "header": list(df.columns),
                         "df": df,
                         "last_page": pnum,
                         "csv_path": csv_path
                     }
 
     print(f"Done. Saved/updated {len(saved_files)} CSV files to {out_dir}")
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python3 extract_tables.py /path/to/Adri_data_2024.pdf /path/to/out_dir")
-        sys.exit(1)
-    pdf_path = sys.argv[1]
-    out_dir = sys.argv[2]
-    extract(pdf_path, out_dir)
-# ...existing code...
+    # ...existing code...
