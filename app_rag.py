@@ -1,10 +1,13 @@
 # agribase/app.py
 
+# ...existing code...
 import sqlite3
 import os
 import re
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, g, flash, jsonify
+import difflib
+import math
 # Note: You must install the google-genai library: pip install google-genai pandas
 
 # --- CONFIGURATION ---
@@ -14,17 +17,16 @@ app.secret_key = 'ee01b05594e9ea2b8a9d2448fef1222951abbd044751bea9'
 # Database paths
 HISTORICAL_DB = 'agri-base.db'
 PREDICTIONS_DB = 'predictions.db'
+ATTEMPT_DB = 'attempt.db'                   # <-- new DB the user requested
 
 # Use environment variable for API Key (Best Practice)
-# FALLBACK: Use your hardcoded key from the original file if no environment variable is set
-API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDYEx1xSi9QwRPIGL-qbAdtklFmMjj3JvQ")
+API_KEY = os.environ.get("GEMINI_API_KEY", None)
 
 # Initialize AI components globally (cached)
 qa_chain = None
 DB_SCHEMA_CACHE = None
-
-
-# --- DATABASE HELPER FUNCTIONS (FOR FLASK VIEWS) ---
+RAG_DOCS_CACHE = None    # list of dicts: {'id','db','table','schema','sample_text','text'}
+# ...existing code...
 
 def get_db():
     """Get a database connection for the main HISTORICAL_DB from the application context."""
@@ -32,10 +34,10 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(HISTORICAL_DB)
         db.text_factory = lambda b: b.decode('latin-1')
-        # sqlite3.Row makes rows accessible like dictionaries (e.g., row['Column'])
         db.row_factory = sqlite3.Row
     return db
 
+# ...existing code...
 @app.teardown_appcontext
 def close_connection(exception):
     """Close the database connection at the end of the request."""
