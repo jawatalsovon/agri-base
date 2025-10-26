@@ -509,7 +509,7 @@ def ai_chatbot():
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
-    """API endpoint implementing the two-step RAG logic."""
+    """API endpoint implementing an improved RAG logic using schema + sampled table data."""
     global qa_chain
     user_message = request.json.get('message', '').strip()
 
@@ -518,60 +518,79 @@ def api_chat():
     if not user_message:
         return jsonify({"error": "Empty message"}), 400
 
+    # Ensure schema/docs are loaded
     db_schema = get_db_schema()
 
-    # --- Step 1: AI generates SQL Query ---
+    # Retrieve best-matching table docs to provide targeted context
+    relevant_docs = retrieve_relevant_docs(user_message, top_k=3)
+    context_snippets = "\n\n".join(f"{d['table']} ({d['db']}): {d['sample_text'] or d['schema']}" for d in relevant_docs)
+
+    # --- Step 1: AI generates a safe SQL Query (SELECT only) ---
     sql_prompt = f"""
-    You are an expert SQL analyst for an agricultural database. Your goal is to write a single, optimized SQLite SQL query based on the user's question.
+You are an expert SQL analyst for an agricultural SQLite database. Based on the user's question and the provided database context, produce a single, runnable SELECT-only SQLite query (no explanations). Keep results concise (LIMIT 20). If multiple tables are relevant, prefer queries that use the most appropriate table(s) listed.
 
-    DATABASE SCHEMAS:
-    {db_schema}
+DATABASE SCHEMAS (short):
+{db_schema}
 
-    RULES:
-    1. Only output the raw, runnable SQL query. DO NOT include any explanations, markdown (```), or comments.
-    2. Use double quotes for column and table names if they contain spaces or special characters (e.g., "District_Division").
-    3. If the user asks for **predictions** or **forecasts**, prioritize tables from the PREDICTION_DATA schema.
-    4. Limit the result set to 20 rows using `LIMIT 20` to prevent excessive data loading.
-    5. Order results by the most recent production or prediction year in descending order if applicable.
+RELEVANT TABLE EXTRACTS:
+{context_snippets}
 
-    User question: {user_message}
+IMPORTANT RULES:
+- OUTPUT ONLY the single, runnable SQL SELECT query and nothing else.
+- Do NOT include any commentary, backticks, or markup.
+- Enforce LIMIT 20.
+- Use double quotes for identifiers that contain special characters or spaces.
+- Do not run any data modification commands (INSERT/UPDATE/DELETE/PRAGMA/etc).
 
-    SQL Query:
-    """
+User question: {user_message}
 
+SQL Query:
+"""
     try:
-        # Generate the SQL query
         sql_response = qa_chain.generate_content(sql_prompt)
-        sql_query = sql_response.text.strip().replace('```sql', '').replace('```', '').split(';')[0].strip()
+        sql_query = sql_response.text.strip()
+        # strip any trailing semicolons and extra text; keep only first SELECT statement
+        sql_query = re.split(r';|\n\n', sql_query)[0].strip()
+        # ensure it's a SELECT
+        if not re.match(r'^\s*SELECT\b', sql_query, re.IGNORECASE):
+            return jsonify({"success": False, "message": "The model did not return a safe SELECT query. Please rephrase."}), 400
+
+        # ensure LIMIT exists; if not, append LIMIT 20
+        if not re.search(r'\bLIMIT\b', sql_query, re.IGNORECASE):
+            sql_query = sql_query.rstrip(';') + " LIMIT 20"
 
         # --- Step 2: Execute SQL Query and Retrieve Data Context ---
-        data_context = get_data_for_rag(sql_query)
+        # prefer database inferred from top relevant doc if any
+        prefer_db_path = None
+        if relevant_docs:
+            prefer_db_path = relevant_docs[0].get('path')
 
-        # --- Step 3: AI generates Final Answer ---
+        data_context = get_data_for_rag(sql_query, prefer_db=prefer_db_path)
+
+        # --- Step 3: AI generates Final Answer based on retrieved data ---
         final_answer_prompt = f"""
-        You are an expert agricultural consultant for AgriBase, an app dedicated to helping farmers in Bangladesh.
+You are an expert agricultural consultant for AgriBase. Use the RETRIEVED DATA below to answer the user's question succinctly and helpfully. Use precise figures where possible and be explicit if numbers are forecasts/predictions. Mention data quality briefly when data looks noisy or is sampled from PDF extractions.
 
-        Original User Question: {user_message}
+User question: {user_message}
 
-        SQL Query Used to Retrieve Data: {sql_query}
+SQL used: {sql_query}
 
-        RETRIEVED DATA CONTEXT (Use this data for your answer):
-        {data_context}
+RETRIEVED DATA (use this as factual basis; if it's an error or empty, say so):
+{data_context}
 
-        INSTRUCTIONS FOR FINAL ANSWER:
-        1. **Be Succinct and Highly Informative.** Directly answer the user's question.
-        2. **Cite Specific Numbers and Trends.** Use exact figures from the RETRIEVED DATA CONTEXT.
-        3. **Acknowledge Data Quality.** Since the data is noted as 'noisy' or from PDF extraction, use cautious language like "According to the latest data..."
-        4. **Prediction/Historical Distinction.** If the data is from a prediction table, explicitly state that the figure is a **forecast** or **prediction** for the next year. If the data is historical, cite the specific year(s).
-        5. **If the context is empty or contains an error, apologize and explain.**
+INSTRUCTIONS:
+- Provide a short, actionable answer (3-6 sentences).
+- Cite specific numbers or trends that come from the RETRIEVED DATA.
+- If data is from a predictions/forecast table, clearly label it a forecast.
+- If data is noisy or ambiguous, mention uncertainty and recommend "verify with raw data or re-run query".
+- Offer one practical suggestion or next step for the user.
 
-        Final Answer:
-        """
-
+Answer:
+"""
         final_response = qa_chain.generate_content(final_answer_prompt)
-        answer = final_response.text
+        answer = final_response.text.strip()
 
-        return jsonify({"success": True, "message": answer})
+        return jsonify({"success": True, "message": answer, "sql_used": sql_query, "context_snippets": context_snippets})
 
     except Exception as e:
         print(f"[ERROR] Chatbot processing failed: {str(e)}")
@@ -580,7 +599,7 @@ def api_chat():
             "message": "I apologize, an internal processing error occurred. This might be due to an un-runnable SQL query or API issue. Please try rephrasing your question."
         }), 500
 
-
+# ...existing code (other routes) ...
 if __name__ == '__main__':
     initialize_qa_chain()
     app.run(debug=True)
