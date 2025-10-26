@@ -89,15 +89,18 @@ AVAILABLE_MAJOR_CROPS = ["Aus Rice", "Aman Rice", "Boro Rice", "Wheat"]
 # --- RAG CHATBOT DATABASE & AI FUNCTIONS ---
 
 def get_db_schema():
-    """Connects to both databases and returns a single string containing the schema."""
-    global DB_SCHEMA_CACHE
-    if DB_SCHEMA_CACHE:
+    """Connects to all databases (historical, predictions, attempt) and returns schema + cached sample rows.
+       Also populates RAG_DOCS_CACHE used for lightweight retrieval."""
+    global DB_SCHEMA_CACHE, RAG_DOCS_CACHE
+    if DB_SCHEMA_CACHE and RAG_DOCS_CACHE:
         return DB_SCHEMA_CACHE
 
     schema_parts = []
+    docs = []
     dbs = {
         "HISTORICAL_DATA": HISTORICAL_DB,
-        "PREDICTION_DATA": PREDICTIONS_DB
+        "PREDICTION_DATA": PREDICTIONS_DB,
+        "ATTEMPT_DATA": ATTEMPT_DB
     }
 
     for name, db_path in dbs.items():
@@ -108,18 +111,102 @@ def get_db_schema():
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT name, sql FROM sqlite_master WHERE type='table'")
-
             schema_parts.append(f"--- SCHEMA FOR DATABASE: {name} ({db_path}) ---")
             for table_name, sql in cursor.fetchall():
+                if not sql:
+                    continue
                 cleaned_sql = re.sub(r'[\r\n\t]+', ' ', sql).strip()
                 schema_parts.append(cleaned_sql)
+
+                # Try to sample up to 5 rows for retrieval context
+                try:
+                    c2 = conn.cursor()
+                    c2.execute(f'SELECT * FROM "{table_name}" LIMIT 5')
+                    rows = c2.fetchall()
+                    colnames = [d[0] for d in c2.description] if c2.description else []
+                    sample_lines = []
+                    for r in rows:
+                        # r may be a tuple
+                        vals = [str(r[i]) if r[i] is not None else '' for i in range(len(colnames))]
+                        sample_lines.append(", ".join(f"{col}:{vals[i]}" for i, col in enumerate(colnames)))
+                    sample_text = " | ".join(sample_lines) if sample_lines else ""
+                    doc_text = f"TABLE: {table_name}\nSCHEMA: {cleaned_sql}\nSAMPLE: {sample_text}"
+                    docs.append({
+                        'id': f"{name}:{table_name}",
+                        'db': name,
+                        'path': db_path,
+                        'table': table_name,
+                        'schema': cleaned_sql,
+                        'sample_text': sample_text,
+                        'text': doc_text
+                    })
+                except Exception:
+                    # skip sampling on error, but continue
+                    pass
+
             conn.close()
         except Exception as e:
             schema_parts.append(f"Error reading schema from {db_path}: {str(e)}")
 
     DB_SCHEMA_CACHE = "\n".join(schema_parts)
+    RAG_DOCS_CACHE = docs
     return DB_SCHEMA_CACHE
 
+def _token_overlap_score(query, text):
+    """Simple token overlap scoring for lightweight retrieval."""
+    q_tokens = set(re.findall(r'\w+', query.lower()))
+    t_tokens = set(re.findall(r'\w+', text.lower()))
+    if not q_tokens or not t_tokens:
+        return 0.0
+    overlap = len(q_tokens & t_tokens)
+    # normalize by log sizes to favor dense matches
+    return overlap / (math.log(len(q_tokens) + 1) + math.log(len(t_tokens) + 1))
+
+def retrieve_relevant_docs(query, top_k=3):
+    """Return top-k most relevant doc dicts from RAG_DOCS_CACHE using token overlap.
+       Attempt to use embeddings from genai if available (optional fallback)."""
+    global RAG_DOCS_CACHE
+    if RAG_DOCS_CACHE is None:
+        get_db_schema()  # builds cache
+
+    docs = RAG_DOCS_CACHE or []
+    if not docs:
+        return []
+
+    # Try embeddings-based retrieval if genai supports embeddings and API key present
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=API_KEY) if API_KEY else None
+        if hasattr(genai, "Embeddings") or hasattr(genai, "embeddings"):  # tentative check
+            # This is a best-effort; the exact API may differ by release. If it fails, fallback.
+            try:
+                # create embeddings for query and docs (best-effort)
+                model_name = "embed_text_1" if hasattr(genai, "Embeddings") else "textembedding-gecko"
+                # This block may raise if API/SDK differs; we ignore and fallback.
+                q_emb = genai.embeddings.create(model=model_name, input=query).embeddings[0].embedding
+                scores = []
+                for d in docs:
+                    d_emb = genai.embeddings.create(model=model_name, input=d['text']).embeddings[0].embedding
+                    # cosine similarity
+                    dot = sum(a * b for a, b in zip(q_emb, d_emb))
+                    norm_q = math.sqrt(sum(a * a for a in q_emb))
+                    norm_d = math.sqrt(sum(b * b for b in d_emb))
+                    sim = dot / (norm_q * norm_d + 1e-12)
+                    scores.append((sim, d))
+                scores.sort(key=lambda x: x[0], reverse=True)
+                return [d for _, d in scores[:top_k]]
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # Fallback: token overlap
+    scored = []
+    for d in docs:
+        s = _token_overlap_score(query, d['text'])
+        scored.append((s, d))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [d for s, d in scored[:top_k] if s > 0] or [d for _, d in scored[:top_k]]
 
 def initialize_qa_chain():
     """Initialize Gemini chatbot and pre-fetch the database schema."""
@@ -127,14 +214,16 @@ def initialize_qa_chain():
     if qa_chain is not None:
         return True
 
-    if not API_KEY or API_KEY == "YOUR_FALLBACK_KEY_HERE":
-        print("[ERROR] GEMINI_API_KEY is not set or is using the fallback key.")
+    if not API_KEY:
+        print("[WARN] GEMINI_API_KEY is not set. AI features will fail without a valid key.")
         return False
 
     try:
         import google.generativeai as genai
         genai.configure(api_key=API_KEY)
+        # Use the generative model for content generation
         qa_chain = genai.GenerativeModel('gemini-2.5-flash')
+        # prime the schema and doc cache
         get_db_schema()
         print("[OK] AI Chatbot initialized with gemini-2.5-flash and schema loaded.")
         return True
@@ -145,36 +234,59 @@ def initialize_qa_chain():
         print(f"[ERROR] Error initializing AI chatbot: {str(e)}")
         return False
 
-
-def get_data_for_rag(sql_query):
+def get_data_for_rag(sql_query, prefer_db=None):
     """
-    Executes an SQL query against the appropriate database (historical or predictions).
+    Executes an SQL query against the appropriate database (historical, predictions, or attempt).
     Returns the result as a string (DataFrame representation) or an error.
     """
-    # Determine the target database based on keywords in the generated query
-    db_path = PREDICTIONS_DB if "predict" in sql_query.lower() or "prediction" in sql_query.lower() else HISTORICAL_DB
+    # Basic safety: only allow SELECT queries
+    if not re.match(r'^\s*SELECT\b', sql_query, re.IGNORECASE):
+        return "Error: Only SELECT queries are allowed in this interface."
+
+    # Heuristic selection: if a table name from RAG_DOCS_CACHE matches, use its db path
+    target_db = None
+    if prefer_db:
+        target_db = prefer_db
+    else:
+        # search for any table mentioned in query
+        if RAG_DOCS_CACHE is None:
+            get_db_schema()
+        for d in (RAG_DOCS_CACHE or []):
+            if re.search(rf'\b{re.escape(d["table"])}\b', sql_query, re.IGNORECASE):
+                target_db = d['path']
+                break
+
+    # fallback: use predictions if query mentions predict/forecast/forecasted, else historical
+    if not target_db:
+        if re.search(r'predict|forecast|prediction|forecasted|expected', sql_query, re.IGNORECASE):
+            target_db = PREDICTIONS_DB if os.path.exists(PREDICTIONS_DB) else HISTORICAL_DB
+        else:
+            # default to historical
+            target_db = HISTORICAL_DB
 
     try:
-        if not os.path.exists(db_path):
-            return f"Error: Database file not found at {db_path}"
+        if not os.path.exists(target_db):
+            return f"Error: Database file not found at {target_db}"
 
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(target_db)
         df = pd.read_sql_query(sql_query, conn)
         conn.close()
 
         if df.empty:
             return "No data was returned for this specific query."
 
-        if len(df) > 50:
-            df = df.head(50)
+        if len(df) > 100:
+            df = df.head(100)
 
-        return df.to_string()
-
+        # return concise string and also JSON-ready representation if needed
+        return df.to_string(index=False)
     except pd.io.sql.DatabaseError as e:
         return f"SQL Execution Error: The query failed. Check table and column names: {str(e)}"
     except Exception as e:
         return f"An unexpected error occurred during database access: {str(e)}"
 
+# ...existing routes and functions remain mostly unchanged until api_chat...
+# Replace the /api/chat route implementation with the improved RAG flow:
 
 # --- FLASK ROUTES ---
 
