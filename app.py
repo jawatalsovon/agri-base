@@ -221,7 +221,6 @@ def initialize_qa_chain():
     try:
         import google.generativeai as genai
         genai.configure(api_key=API_KEY)
-        # Use the generative model for content generation
         qa_chain = genai.GenerativeModel('gemini-2.5-flash')
         # prime the schema and doc cache
         get_db_schema()
@@ -234,6 +233,53 @@ def initialize_qa_chain():
         print(f"[ERROR] Error initializing AI chatbot: {str(e)}")
         return False
 
+def is_casual_conversation(text):
+    """Detect if the input is casual conversation vs. a data query."""
+    casual_patterns = [
+        r'\b(hi|hello|hey|hola|greetings|bye|goodbye|thanks|thank you)\b',
+        r'\b(how are you|nice to meet|good morning|good evening|good night)\b',
+        r'\b(what\'s up|sup|yo|amigo|friend)\b'
+    ]
+    text = text.lower()
+    return any(re.search(pattern, text) for pattern in casual_patterns)
+
+def analyze_and_index_databases():
+    """Create indices on commonly queried columns in all databases."""
+    dbs = [HISTORICAL_DB, PREDICTIONS_DB, ATTEMPT_DB]
+    for db_path in dbs:
+        if not os.path.exists(db_path):
+            continue
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Get all tables
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = cursor.fetchall()
+
+            for (table_name,) in tables:
+                # Get columns for each table
+                cursor.execute(f'PRAGMA table_info("{table_name}")')
+                columns = cursor.fetchall()
+
+                # Create indices on likely query columns
+                for col in columns:
+                    col_name = col[1]
+                    if any(key in col_name.lower() for key in [
+                        'district', 'division', 'crop', 'year', 'production',
+                        'area', 'yield', 'season', 'variety'
+                    ]):
+                        index_name = f"idx_{table_name}_{col_name}".replace(' ', '_')
+                        try:
+                            cursor.execute(f'CREATE INDEX IF NOT EXISTS "{index_name}" ON "{table_name}"("{col_name}")')
+                        except sqlite3.OperationalError:
+                            continue  # Skip if column can't be indexed
+
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Error indexing {db_path}: {str(e)}")
+            
 def get_data_for_rag(sql_query, prefer_db=None):
     """
     Executes an SQL query against the appropriate database (historical, predictions, or attempt).
