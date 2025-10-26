@@ -279,7 +279,7 @@ def analyze_and_index_databases():
             conn.close()
         except Exception as e:
             print(f"Error indexing {db_path}: {str(e)}")
-            
+
 def get_data_for_rag(sql_query, prefer_db=None):
     """
     Executes an SQL query against the appropriate database (historical, predictions, or attempt).
@@ -555,7 +555,7 @@ def ai_chatbot():
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
-    """API endpoint implementing an improved RAG logic using schema + sampled table data."""
+    """API endpoint implementing an improved RAG logic with casual conversation support."""
     global qa_chain
     user_message = request.json.get('message', '').strip()
 
@@ -564,88 +564,119 @@ def api_chat():
     if not user_message:
         return jsonify({"error": "Empty message"}), 400
 
-    # Ensure schema/docs are loaded
-    db_schema = get_db_schema()
+    # Handle casual conversation
+    if is_casual_conversation(user_message):
+        casual_prompt = f"""
+        You are a friendly agricultural data assistant. Respond naturally to this casual message:
+        User: {user_message}
 
-    # Retrieve best-matching table docs to provide targeted context
-    relevant_docs = retrieve_relevant_docs(user_message, top_k=3)
-    context_snippets = "\n\n".join(f"{d['table']} ({d['db']}): {d['sample_text'] or d['schema']}" for d in relevant_docs)
+        Keep it brief and friendly, but mention that you're here to help with agricultural data queries if needed.
+        """
+        try:
+            response = qa_chain.generate_content(casual_prompt)
+            return jsonify({
+                "success": True,
+                "message": response.text.strip(),
+                "is_casual": True
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": "I apologize, I'm having trouble responding right now. Please try again."
+            }), 500
 
-    # --- Step 1: AI generates a safe SQL Query (SELECT only) ---
-    sql_prompt = f"""
-You are an expert SQL analyst for an agricultural SQLite database. Based on the user's question and the provided database context, produce a single, runnable SELECT-only SQLite query (no explanations). Keep results concise (LIMIT 20). If multiple tables are relevant, prefer queries that use the most appropriate table(s) listed.
-
-DATABASE SCHEMAS (short):
-{db_schema}
-
-RELEVANT TABLE EXTRACTS:
-{context_snippets}
-
-IMPORTANT RULES:
-- OUTPUT ONLY the single, runnable SQL SELECT query and nothing else.
-- Do NOT include any commentary, backticks, or markup.
-- Enforce LIMIT 20.
-- Use double quotes for identifiers that contain special characters or spaces.
-- Do not run any data modification commands (INSERT/UPDATE/DELETE/PRAGMA/etc).
-
-User question: {user_message}
-
-SQL Query:
-"""
+    # Data query processing
     try:
+        # Extract crop names from query if present
+        crop_pattern = r'\b(rice|wheat|maize|jute|potato|aus|aman|boro)\b'
+        crops_mentioned = re.findall(crop_pattern, user_message.lower())
+
+        # Retrieve relevant docs with priority to mentioned crops
+        relevant_docs = retrieve_relevant_docs(user_message, top_k=3)
+        if crops_mentioned:
+            crop_docs = [d for d in relevant_docs if
+                        any(crop in d['table'].lower() for crop in crops_mentioned)]
+            if crop_docs:
+                relevant_docs = crop_docs
+
+        context_snippets = "\n\n".join(
+            f"{d['table']} ({d['db']}): {d['sample_text'] or d['schema']}"
+            for d in relevant_docs
+        )
+
+        sql_prompt = f"""
+        You are an expert SQL analyst for agricultural databases. Generate a SELECT query based on:
+
+        Question: {user_message}
+
+        Available Contexts:
+        {context_snippets}
+
+        Rules:
+        1. Use only SELECT statements
+        2. Include LIMIT 20
+        3. If searching for crops, use LIKE '%crop_name%' for flexible matching
+        4. Use double quotes for identifiers
+        5. Join relevant tables if needed
+        6. Focus on most recent years (2023-24) when available
+        7. Optimize query performance (use indexed columns where possible)
+
+        Return only the SQL query, no explanations.
+        """
+
         sql_response = qa_chain.generate_content(sql_prompt)
         sql_query = sql_response.text.strip()
-        # strip any trailing semicolons and extra text; keep only first SELECT statement
         sql_query = re.split(r';|\n\n', sql_query)[0].strip()
-        # ensure it's a SELECT
-        if not re.match(r'^\s*SELECT\b', sql_query, re.IGNORECASE):
-            return jsonify({"success": False, "message": "The model did not return a safe SELECT query. Please rephrase."}), 400
 
-        # ensure LIMIT exists; if not, append LIMIT 20
+        # Ensure it's a SELECT query
+        if not re.match(r'^\s*SELECT\b', sql_query, re.IGNORECASE):
+            return jsonify({
+                "success": False,
+                "message": "I cannot process that type of query. Please ask about specific agricultural data."
+            }), 400
+
+        # Add LIMIT if missing
         if not re.search(r'\bLIMIT\b', sql_query, re.IGNORECASE):
             sql_query = sql_query.rstrip(';') + " LIMIT 20"
 
-        # --- Step 2: Execute SQL Query and Retrieve Data Context ---
-        # prefer database inferred from top relevant doc if any
-        prefer_db_path = None
-        if relevant_docs:
-            prefer_db_path = relevant_docs[0].get('path')
+        # Execute query against appropriate database(s)
+        prefer_db = relevant_docs[0]['path'] if relevant_docs else None
+        data_context = get_data_for_rag(sql_query, prefer_db=prefer_db)
 
-        data_context = get_data_for_rag(sql_query, prefer_db=prefer_db_path)
+        # Generate final response
+        final_prompt = f"""
+        You are an agricultural expert. Answer based on:
 
-        # --- Step 3: AI generates Final Answer based on retrieved data ---
-        final_answer_prompt = f"""
-You are an expert agricultural consultant for AgriBase. Use the RETRIEVED DATA below to answer the user's question succinctly and helpfully. Use precise figures where possible and be explicit if numbers are forecasts/predictions. Mention data quality briefly when data looks noisy or is sampled from PDF extractions.
+        Question: {user_message}
+        Data: {data_context}
 
-User question: {user_message}
+        Rules:
+        1. Be concise (2-4 sentences)
+        2. Cite specific numbers
+        3. Mention if data is forecasted
+        4. Note any data quality issues
+        5. Suggest one relevant follow-up query
 
-SQL used: {sql_query}
+        If data is empty/error, suggest how to rephrase the question.
+        """
 
-RETRIEVED DATA (use this as factual basis; if it's an error or empty, say so):
-{data_context}
-
-INSTRUCTIONS:
-- Provide a short, actionable answer (3-6 sentences).
-- Cite specific numbers or trends that come from the RETRIEVED DATA.
-- If data is from a predictions/forecast table, clearly label it a forecast.
-- If data is noisy or ambiguous, mention uncertainty and recommend "verify with raw data or re-run query".
-- Offer one practical suggestion or next step for the user.
-
-Answer:
-"""
-        final_response = qa_chain.generate_content(final_answer_prompt)
-        answer = final_response.text.strip()
-
-        return jsonify({"success": True, "message": answer, "sql_used": sql_query, "context_snippets": context_snippets})
+        final_response = qa_chain.generate_content(final_prompt)
+        return jsonify({
+            "success": True,
+            "message": final_response.text.strip(),
+            "sql_used": sql_query,
+            "context": context_snippets
+        })
 
     except Exception as e:
         print(f"[ERROR] Chatbot processing failed: {str(e)}")
         return jsonify({
             "success": False,
-            "message": "I apologize, an internal processing error occurred. This might be due to an un-runnable SQL query or API issue. Please try rephrasing your question."
+            "message": "I apologize, I had trouble processing that. Please try rephrasing your question about specific agricultural data."
         }), 500
 
-# ...existing code (other routes) ...
+
 if __name__ == '__main__':
+    analyze_and_index_databases()  # Create indices for faster queries
     initialize_qa_chain()
     app.run(debug=True)
