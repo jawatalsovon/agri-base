@@ -20,7 +20,7 @@ PREDICTIONS_DB = 'predictions.db'
 ATTEMPT_DB = 'attempt.db'                   # <-- new DB the user requested
 
 # Use environment variable for API Key (Best Practice)
-API_KEY = os.environ.get("GEMINI_API_KEY", None)
+API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDYEx1xSi9QwRPIGL-qbAdtklFmMjj3JvQ")
 
 # Initialize AI components globally (cached)
 qa_chain = None
