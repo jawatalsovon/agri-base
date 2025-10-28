@@ -545,7 +545,7 @@ IMPORTANT RULES:
 - For some tables in ATTEMPT_DB database, the header row got split in two rows. So if you find and cell named like "Unnamed: 1", you should consider lloking for the 2nd row for the column header cell
 - Use double quotes for identifiers that contain special characters or spaces.
 - Do not run any data modification commands (INSERT/UPDATE/DELETE/PRAGMA/etc).
-- Do not run many queries 
+- Do not run too many queries, optimize for faster response
 
 User question: {user_message}
 
