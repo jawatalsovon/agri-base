@@ -260,6 +260,8 @@ def get_data_for_rag(sql_query, prefer_db=None):
     if not target_db:
         if re.search(r'predict|forecast|prediction|forecasted|expected', sql_query, re.IGNORECASE):
             target_db = PREDICTIONS_DB if os.path.exists(PREDICTIONS_DB) else HISTORICAL_DB
+        elif re.search(r'show|data|was|total|2024|2022|2018|2019|2020|2021|2023', sql_query, re.IGNORECASE):
+            target_db = ATTEMPT_DB if os.path.exists(ATTEMPT_DB) else PREDICTIONS_DB
         else:
             # default to historical
             target_db = HISTORICAL_DB
@@ -527,7 +529,7 @@ def api_chat():
 
     # --- Step 1: AI generates a safe SQL Query (SELECT only) ---
     sql_prompt = f"""
-You are an expert SQL analyst for an agricultural SQLite database. Based on the user's question and the provided database context, produce a single, runnable SELECT-only SQLite query (no explanations). Keep results concise (LIMIT 20). If multiple tables are relevant, prefer queries that use the most appropriate table(s) listed.
+You are an expert SQL analyst for an agricultural SQLite database. Based on the user's question and the provided database context, produce runnable SELECT-only SQLite query (no explanations). Keep results concise. If multiple tables are relevant, prefer queries that use the most appropriate table(s) listed.
 
 DATABASE SCHEMAS (short):
 {db_schema}
@@ -538,9 +540,12 @@ RELEVANT TABLE EXTRACTS:
 IMPORTANT RULES:
 - OUTPUT ONLY the single, runnable SQL SELECT query and nothing else.
 - Do NOT include any commentary, backticks, or markup.
-- Enforce LIMIT 20.
+- If user asks about forecast or predictions, use the PREDICTIONS_DB database schema and tables to find answers first, the predictions used here are for 2025
+- If the user asks to show any previous data about crop from 2017-2024, use the ATTEMPT_DB database schema mostly
+- For some tables in ATTEMPT_DB database, the header row got split in two rows. So if you find and cell named like "Unnamed: 1", you should consider lloking for the 2nd row for the column header cell
 - Use double quotes for identifiers that contain special characters or spaces.
 - Do not run any data modification commands (INSERT/UPDATE/DELETE/PRAGMA/etc).
+- Do not run many queries 
 
 User question: {user_message}
 
@@ -557,7 +562,7 @@ SQL Query:
 
         # ensure LIMIT exists; if not, append LIMIT 20
         if not re.search(r'\bLIMIT\b', sql_query, re.IGNORECASE):
-            sql_query = sql_query.rstrip(';') + " LIMIT 20"
+            sql_query = sql_query.rstrip(';')  # + " LIMIT 20"
 
         # --- Step 2: Execute SQL Query and Retrieve Data Context ---
         # prefer database inferred from top relevant doc if any
