@@ -51,4 +51,18 @@
    It was a great experience with a project. I will complete the full project as soon as I manage time.
 
 
+   New feature: AI chatbot
+
+   Features to work on:
+   1. Android UI
+   2. Bilingal Support (bangla and english)
+   3. Input all crop data first. 
+1. Data of  all possible high yielding and hybrid varieties of different geographic locations of our country, pros and cons of each variety to help people make calculated decisions about growing crops. 
+2. Yield prediction based on satellite imagery from google earth engine. 
+3. Pest Detection and Disease identification through farmer clicked images
+4. New scopes section, where people can learn about possible opportunities, which would also include interviews from people who stood out. E.g., snail shell or fish scale farming. 
+5. AI guided tutoring system for methods like Aquaponics, Hydroponics, Aeroponics, or Rooftop gardening. 
+6. Separate Guidance for Subsistence, semi commercial, and industrial agriculture.
+
+
 
