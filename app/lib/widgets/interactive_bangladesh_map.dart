@@ -22,8 +22,8 @@ class InteractiveBangladeshMap extends StatefulWidget {
 }
 
 class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
-  late List<DistrictData> _dataList;
-  late MapShapeSource _shapeSource;
+  List<DistrictData> _dataList = [];
+  MapShapeSource? _shapeSource;
   late MapZoomPanBehavior _zoomPanBehavior;
   
   // Track the currently selected district index
@@ -46,7 +46,8 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   @override
   void didUpdateWidget(covariant InteractiveBangladeshMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedCrop != widget.selectedCrop) {
+    if (oldWidget.selectedCrop != widget.selectedCrop || 
+        oldWidget.districtDataMap != widget.districtDataMap) {
       _updateMapSource();
     }
   }
@@ -61,6 +62,11 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   }
 
   void _rebuildShapeSource() {
+    // Only create shape source if we have data
+    if (_dataList.isEmpty) {
+      return;
+    }
+
     _shapeSource = MapShapeSource.asset(
       'assets/json/bd.geojson',
       
@@ -89,6 +95,35 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading/empty state if no data
+    if (_dataList.isEmpty) {
+      return Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          height: 400,
+          color: Colors.blue[50],
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text(
+                  'Loading district data...',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -98,10 +133,12 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
           Container(
             height: 400,
             color: Colors.blue[50],
-            child: SfMaps(
-              layers: [
-                MapShapeLayer(
-                  source: _shapeSource,
+            child: _shapeSource == null
+                ? const Center(child: CircularProgressIndicator())
+                : SfMaps(
+                    layers: [
+                      MapShapeLayer(
+                        source: _shapeSource!,
                   zoomPanBehavior: _zoomPanBehavior,
                   
                   strokeColor: Colors.white,
@@ -139,8 +176,13 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                         children: [
                           Text(data.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           const Divider(color: Colors.white24, height: 12),
-                          Text('Prod: ${(data.production / 1000).toStringAsFixed(0)}k MT', style: const TextStyle(color: Colors.white70)),
-                          Text('Yield: ${data.yield} T/Ha', style: const TextStyle(color: Colors.white70)),
+                          Text('Production: ${(data.production / 1000).toStringAsFixed(0)}k MT', style: const TextStyle(color: Colors.white70)),
+                          const SizedBox(height: 4),
+                          Text('Yield: ${data.yieldValue.toStringAsFixed(2)} MT/Ha', style: const TextStyle(color: Colors.white70)),
+                          if (data.percentage != null) ...[
+                            const SizedBox(height: 4),
+                            Text('Contribution: ${data.percentage!.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white70)),
+                          ],
                         ],
                       ),
                     );
@@ -168,7 +210,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildInfoItem("Production", "${(_dataList[_selectedIndex].production / 1000).toStringAsFixed(1)}k MT"),
-                      _buildInfoItem("Yield", "${_dataList[_selectedIndex].yield} T/Ha"),
+                      _buildInfoItem("Yield", "${_dataList[_selectedIndex].yieldValue} T/Ha"),
                       _buildInfoItem("Coordinates", "${_dataList[_selectedIndex].lat.toStringAsFixed(2)}, ${_dataList[_selectedIndex].long.toStringAsFixed(2)}"),
                     ],
                   )

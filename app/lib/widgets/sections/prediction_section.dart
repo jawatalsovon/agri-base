@@ -1,49 +1,74 @@
 import 'package:flutter/material.dart';
+import '../../services/crops_database_service.dart';
 
 class PredictionSection extends StatefulWidget {
-  final String selectedCrop;
-  final List<String> crops;
-  final String selectedDataset;
-  final List<String> datasets;
-  final Function(String) onCropChanged;
-  final Function(String) onDatasetChanged;
-
-  const PredictionSection({
-    super.key,
-    required this.selectedCrop,
-    required this.crops,
-    required this.selectedDataset,
-    required this.datasets,
-    required this.onCropChanged,
-    required this.onDatasetChanged,
-  });
+  const PredictionSection({super.key});
 
   @override
   State<PredictionSection> createState() => _PredictionSectionState();
 }
 
 class _PredictionSectionState extends State<PredictionSection> {
-  bool _isPredicting = false;
-  bool _showResults = false;
-  double _predictedYield = 0;
-  String _productionTrend = '';
+  final CropsDatabaseService _cropsService = CropsDatabaseService();
+  
+  List<String> _crops = [];
+  String? _selectedCrop;
+  
+  List<Map<String, dynamic>> _topDistricts = [];
+  Map<String, dynamic> _totalYield = {};
+  bool _isLoading = false;
 
-  void _handlePredict() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
     setState(() {
-      _isPredicting = true;
+      _isLoading = true;
     });
 
-    // Simulate ML prediction delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final crops = await _cropsService.getAllCrops();
+      if (crops.isNotEmpty) {
+        setState(() {
+          _crops = crops;
+          _selectedCrop = crops.first;
+        });
+        await _loadData();
+      }
+    } catch (e) {
+      print('Error loading crops: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
-    // Mock prediction results
-    final random = (widget.selectedCrop.hashCode % 100) / 100;
+  Future<void> _loadData() async {
+    if (_selectedCrop == null) return;
+
     setState(() {
-      _predictedYield = 3.8 + random;
-      _productionTrend = random > 0.5 ? 'Upward' : 'Stable';
-      _isPredicting = false;
-      _showResults = true;
+      _isLoading = true;
     });
+
+    try {
+      final topDistricts = await _cropsService.getTopYieldDistrictsFromPredictions(_selectedCrop!);
+      final totalYield = await _cropsService.getTotalYieldFromPredictions(_selectedCrop!);
+
+      setState(() {
+        _topDistricts = topDistricts;
+        _totalYield = totalYield;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading prediction data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -62,85 +87,38 @@ class _PredictionSectionState extends State<PredictionSection> {
         ),
         const SizedBox(height: 8),
         DropdownButton<String>(
-          value: widget.selectedCrop,
+          value: _selectedCrop,
           isExpanded: true,
           underline: Container(
             height: 2,
             color: const Color.fromARGB(255, 0, 77, 64),
           ),
-          items: widget.crops.map((crop) {
+          items: _crops.map((crop) {
             return DropdownMenuItem(
               value: crop,
               child: Text(crop),
             );
           }).toList(),
           onChanged: (crop) {
-            if (crop != null) widget.onCropChanged(crop);
+            if (crop != null) {
+              setState(() {
+                _selectedCrop = crop;
+              });
+              _loadData();
+            }
           },
         ),
         const SizedBox(height: 20),
-        // Dataset Selector
-        const Text(
-          'Select Dataset Source',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButton<String>(
-          value: widget.selectedDataset,
-          isExpanded: true,
-          underline: Container(
-            height: 2,
-            color: const Color.fromARGB(255, 0, 77, 64),
-          ),
-          items: widget.datasets.map((dataset) {
-            return DropdownMenuItem(
-              value: dataset,
-              child: Text(dataset),
-            );
-          }).toList(),
-          onChanged: (dataset) {
-            if (dataset != null) widget.onDatasetChanged(dataset);
-          },
-        ),
-        const SizedBox(height: 24),
-        // Predict Button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 0, 77, 64),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+        
+        if (_isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: CircularProgressIndicator(),
             ),
-            onPressed: _isPredicting ? null : _handlePredict,
-            child: _isPredicting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Text(
-                    'Predict Yield',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        // Results Container
-        if (_showResults)
+          )
+        else if (_selectedCrop != null) ...[
+          // Total Yield Card
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -151,69 +129,33 @@ class _PredictionSectionState extends State<PredictionSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Prediction Results',
+                    'Predicted Total Production (2025)',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      fontSize: 14,
+                      color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${(_totalYield['total_production'] as num? ?? 0).toStringAsFixed(2)} MT',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 0, 77, 64),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Predicted Yield',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_predictedYield.toStringAsFixed(2)} MT/Ha',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 0, 77, 64),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Production Trend',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _productionTrend == 'Upward'
-                                  ? Colors.green[100]
-                                  : Colors.blue[100],
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              _productionTrend,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: _productionTrend == 'Upward'
-                                    ? Colors.green[700]
-                                    : Colors.blue[700],
-                              ),
-                            ),
-                          ),
-                        ],
+                      Icon(Icons.trending_up, color: Colors.green[600], size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Predicted Avg Yield: ${(_totalYield['average_yield'] as num? ?? 0).toStringAsFixed(2)} MT/Ha',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green[600],
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -221,6 +163,82 @@ class _PredictionSectionState extends State<PredictionSection> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          // Top Yield Districts
+          const Text(
+            'Top Predicted Yield Districts',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 0, 77, 64).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      children: [
+                        Expanded(child: Text('District', style: TextStyle(fontWeight: FontWeight.bold))),
+                        Expanded(child: Text('Predicted Yield (MT/Ha)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+                        Expanded(child: Text('Predicted Production (MT)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Table Rows
+                  if (_topDistricts.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('No prediction data available'),
+                    )
+                  else
+                    ..._topDistricts.map((district) {
+                      final yieldValue = (district['yield_per_hectare'] as num? ?? 0).toDouble();
+                      final production = (district['production_mt_pred'] as num? ?? 0).toDouble();
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                district['district'] as String? ?? '',
+                                style: const TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                yieldValue.toStringAsFixed(2),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                production.toStringAsFixed(2),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

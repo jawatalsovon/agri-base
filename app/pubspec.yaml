@@ -34,8 +34,13 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  syncfusion_flutter_maps: ^24.1.41 # or latest
-  syncfusion_flutter_core: ^24.1.41 # or latest
+  syncfusion_flutter_maps: ^32.1.20 # or latest
+  syncfusion_flutter_core: ^32.1.20 # or latest
+  syncfusion_flutter_charts: ^32.1.20
+  sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.0
+  path_provider: ^2.1.1
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +71,9 @@ flutter:
   assets:
     - assets/json/bd-districts.json
     - assets/json/bd.geojson
+    - assets/databases/attempt.db
+    - assets/databases/predictions.db
+    - assets/databases/crops.db
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
