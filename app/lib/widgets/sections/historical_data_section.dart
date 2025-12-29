@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/crops_database_service.dart';
+import '../../utils/data_utils.dart';
 
 class HistoricalDataSection extends StatefulWidget {
   const HistoricalDataSection({super.key});
@@ -10,12 +11,12 @@ class HistoricalDataSection extends StatefulWidget {
 
 class _HistoricalDataSectionState extends State<HistoricalDataSection> {
   final CropsDatabaseService _cropsService = CropsDatabaseService();
-  
+
   List<String> _crops = [];
   List<String> _years = [];
   String? _selectedCrop;
   String? _selectedYear;
-  
+
   List<Map<String, dynamic>> _topDistricts = [];
   Map<String, dynamic> _totalYield = {};
   bool _isLoading = false;
@@ -82,8 +83,14 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
     });
 
     try {
-      final topDistricts = await _cropsService.getTopYieldDistricts(_selectedCrop!, _selectedYear!);
-      final totalYield = await _cropsService.getTotalYield(_selectedCrop!, _selectedYear!);
+      final topDistricts = await _cropsService.getTopYieldDistricts(
+        _selectedCrop!,
+        _selectedYear!,
+      );
+      final totalYield = await _cropsService.getTotalYield(
+        _selectedCrop!,
+        _selectedYear!,
+      );
 
       setState(() {
         _topDistricts = topDistricts;
@@ -123,7 +130,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
           items: _crops.map((crop) {
             return DropdownMenuItem(
               value: crop,
-              child: Text(crop),
+              child: Text(crop.toTitleCase()),
             );
           }).toList(),
           onChanged: (crop) {
@@ -156,10 +163,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
             color: const Color.fromARGB(255, 0, 77, 64),
           ),
           items: _years.map((year) {
-            return DropdownMenuItem(
-              value: year,
-              child: Text(year),
-            );
+            return DropdownMenuItem(value: year, child: Text(year));
           }).toList(),
           onChanged: (year) {
             if (year != null) {
@@ -171,7 +175,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
           },
         ),
         const SizedBox(height: 20),
-        
+
         if (_isLoading)
           const Center(
             child: Padding(
@@ -181,47 +185,69 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
           )
         else if (_selectedCrop != null && _selectedYear != null) ...[
           // Total Yield Card
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Total Production ($_selectedYear)',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${(_totalYield['total_production'] as num? ?? 0).toStringAsFixed(2)} MT',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.agriculture, color: Colors.green[600], size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Average Yield: ${(_totalYield['average_yield'] as num? ?? 0).toStringAsFixed(2)} MT/Ha',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.green[600],
-                          fontWeight: FontWeight.w600,
+          InkWell(
+            onTap: () {},
+            highlightColor: Colors.white.withOpacity(0.1),
+            splashColor: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Tooltip(
+                      message:
+                          'Total production for the selected crop and year',
+                      child: Text(
+                        'Total Production ($_selectedYear)',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 8),
+                    Tooltip(
+                      message: 'Total production in metric tons',
+                      child: Text(
+                        '${(_totalYield['total_production'] as num? ?? 0).toStringAsFixed(2)} MT',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.agriculture,
+                          color: Colors.green[600],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: 'Average yield per hectare',
+                          child: Text(
+                            'Average Yield: ${(_totalYield['average_yield'] as num? ?? 0).toStringAsFixed(2)} MT/Ha',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.green[600],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -236,67 +262,111 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
             ),
           ),
           const SizedBox(height: 12),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 0, 77, 64).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+          InkWell(
+            onTap: () {},
+            highlightColor: Colors.white.withOpacity(0.1),
+            splashColor: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    // Table Header
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(
+                          255,
+                          0,
+                          77,
+                          64,
+                        ).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'District',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Yield (MT/Ha)',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Production (MT)',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: const Row(
-                      children: [
-                        Expanded(child: Text('District', style: TextStyle(fontWeight: FontWeight.bold))),
-                        Expanded(child: Text('Yield (MT/Ha)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
-                        Expanded(child: Text('Production (MT)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Table Rows
-                  if (_topDistricts.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text('No data available'),
-                    )
-                  else
-                    ..._topDistricts.map((district) {
-                      final yieldValue = (district['yield_per_hectare'] as num? ?? 0).toDouble();
-                      final production = (district['production_mt'] as num? ?? 0).toDouble();
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                district['district'] as String? ?? '',
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                    const SizedBox(height: 8),
+                    // Table Rows
+                    if (_topDistricts.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('No data available'),
+                      )
+                    else
+                      ..._topDistricts.map((district) {
+                        final yieldValue =
+                            (district['yield_per_hectare'] as num? ?? 0)
+                                .toDouble();
+                        final production =
+                            (district['production_mt'] as num? ?? 0).toDouble();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Tooltip(
+                                  message: 'District name',
+                                  child: Text(
+                                    district['district'] as String? ?? '',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                yieldValue.toStringAsFixed(2),
-                                textAlign: TextAlign.right,
+                              Expanded(
+                                child: Tooltip(
+                                  message: 'Yield per hectare',
+                                  child: Text(
+                                    yieldValue.toStringAsFixed(2),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                production.toStringAsFixed(2),
-                                textAlign: TextAlign.right,
+                              Expanded(
+                                child: Tooltip(
+                                  message: 'Total production',
+                                  child: Text(
+                                    production.toStringAsFixed(2),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                ],
+                            ],
+                          ),
+                        );
+                      }),
+                  ],
+                ),
               ),
             ),
           ),

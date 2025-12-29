@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/crops_database_service.dart';
 import '../services/database_service.dart';
+import '../utils/data_utils.dart';
 
 class MyRegionScreen extends StatefulWidget {
   const MyRegionScreen({super.key});
@@ -11,12 +12,14 @@ class MyRegionScreen extends StatefulWidget {
 
 class _MyRegionScreenState extends State<MyRegionScreen> {
   final CropsDatabaseService _cropsService = CropsDatabaseService();
-  
+
   List<String> _districts = [];
+  List<String> _displayDistricts = [];
   List<String> _years = [];
   String? _selectedDistrict;
+  String? _selectedDisplayDistrict;
   String? _selectedYear;
-  
+
   List<Map<String, dynamic>> _topCrops = [];
   bool _isLoading = false;
 
@@ -33,12 +36,18 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
 
     try {
       final districts = await _cropsService.getAllDistricts();
+      final displayDistricts = districts.map(cleanDistrict).toSet().toList()
+        ..sort();
       if (districts.isNotEmpty) {
         setState(() {
           _districts = districts;
-          _selectedDistrict = districts.first;
+          _displayDistricts = displayDistricts;
+          _selectedDistrict = districts.firstWhere(
+            (d) => cleanDistrict(d) == displayDistricts.first,
+          );
+          _selectedDisplayDistrict = displayDistricts.first;
         });
-        await _loadYearsForDistrict(districts.first);
+        await _loadYearsForDistrict(_selectedDistrict!);
       }
     } catch (e) {
       print('Error loading districts: $e');
@@ -64,9 +73,11 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
         WHERE district = ? 
         ORDER BY year DESC
       ''';
-      final results = await DatabaseService.instance.queryCrops(query, [district]);
+      final results = await DatabaseService.instance.queryCrops(query, [
+        district,
+      ]);
       final years = results.map((row) => row['year'] as String).toList();
-      
+
       if (years.isNotEmpty) {
         setState(() {
           _years = years;
@@ -91,7 +102,10 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
     });
 
     try {
-      final topCrops = await _cropsService.getTopCropsForDistrict(_selectedDistrict!, _selectedYear!);
+      final topCrops = await _cropsService.getTopCropsForDistrict(
+        _selectedDistrict!,
+        _selectedYear!,
+      );
       setState(() {
         _topCrops = topCrops;
         _isLoading = false;
@@ -131,26 +145,26 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
             ),
             const SizedBox(height: 8),
             DropdownButton<String>(
-              value: _selectedDistrict,
+              value: _selectedDisplayDistrict,
               isExpanded: true,
               underline: Container(
                 height: 2,
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
-              items: _districts.map((district) {
-                return DropdownMenuItem(
-                  value: district,
-                  child: Text(district),
-                );
+              items: _displayDistricts.map((district) {
+                return DropdownMenuItem(value: district, child: Text(district));
               }).toList(),
               onChanged: (district) {
                 if (district != null) {
                   setState(() {
-                    _selectedDistrict = district;
+                    _selectedDisplayDistrict = district;
+                    _selectedDistrict = _districts.firstWhere(
+                      (d) => cleanDistrict(d) == district,
+                    );
                     _selectedYear = null;
                     _years = [];
                   });
-                  _loadYearsForDistrict(district);
+                  _loadYearsForDistrict(_selectedDistrict!);
                 }
               },
             ),
@@ -173,10 +187,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
               items: _years.map((year) {
-                return DropdownMenuItem(
-                  value: year,
-                  child: Text(year),
-                );
+                return DropdownMenuItem(value: year, child: Text(year));
               }).toList(),
               onChanged: (year) {
                 if (year != null) {
@@ -188,7 +199,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               },
             ),
             const SizedBox(height: 24),
-            
+
             if (_isLoading)
               const Center(
                 child: Padding(
@@ -215,7 +226,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               const SizedBox(height: 12),
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
@@ -224,15 +237,46 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 0, 77, 64).withOpacity(0.1),
+                          color: const Color.fromARGB(
+                            255,
+                            0,
+                            77,
+                            64,
+                          ).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(
                           children: [
-                            Expanded(flex: 1, child: Text('Rank', style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 3, child: Text('Crop', style: TextStyle(fontWeight: FontWeight.bold))),
-                            Expanded(flex: 2, child: Text('Production (MT)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
-                            Expanded(flex: 2, child: Text('Yield (MT/Ha)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                'Rank',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                'Crop',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Production (MT)',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Yield (MT/Ha)',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -241,8 +285,10 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                       ..._topCrops.asMap().entries.map((entry) {
                         final index = entry.key;
                         final crop = entry.value;
-                        final production = (crop['production_mt'] as num? ?? 0).toDouble();
-                        final yieldValue = (crop['yield_per_hectare'] as num? ?? 0).toDouble();
+                        final production = (crop['production_mt'] as num? ?? 0)
+                            .toDouble();
+                        final yieldValue =
+                            (crop['yield_per_hectare'] as num? ?? 0).toDouble();
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(
@@ -252,7 +298,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: index < 3 
+                                    color: index < 3
                                         ? Colors.amber.withOpacity(0.2)
                                         : Colors.grey.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
@@ -262,7 +308,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: index < 3 ? Colors.amber[900] : Colors.grey[700],
+                                      color: index < 3
+                                          ? Colors.amber[900]
+                                          : Colors.grey[700],
                                     ),
                                   ),
                                 ),
@@ -271,7 +319,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                                 flex: 3,
                                 child: Text(
                                   crop['crop_name'] as String? ?? '',
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                               Expanded(
@@ -303,4 +353,3 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
     );
   }
 }
-

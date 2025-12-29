@@ -1,4 +1,5 @@
 import 'database_service.dart';
+import '../utils/data_utils.dart';
 
 /// Service for querying the crops.db database (created from CSV files)
 class CropsDatabaseService {
@@ -7,7 +8,8 @@ class CropsDatabaseService {
   /// Get all available crops
   Future<List<String>> getAllCrops() async {
     try {
-      final query = 'SELECT DISTINCT crop_name FROM crop_data ORDER BY crop_name';
+      final query =
+          'SELECT DISTINCT crop_name FROM crop_data ORDER BY crop_name';
       final results = await _dbService.queryCrops(query);
       return results.map((row) => row['crop_name'] as String).toList();
     } catch (e) {
@@ -36,9 +38,13 @@ class CropsDatabaseService {
   /// Get all districts
   Future<List<String>> getAllDistricts() async {
     try {
-      final query = 'SELECT DISTINCT district FROM crop_data WHERE district IS NOT NULL ORDER BY district';
+      final query =
+          'SELECT DISTINCT district FROM crop_data WHERE district IS NOT NULL ORDER BY district';
       final results = await _dbService.queryCrops(query);
-      return results.map((row) => row['district'] as String).toList();
+      final districts = results
+          .map((row) => row['district'] as String)
+          .toList();
+      return districts;
     } catch (e) {
       print('Error getting districts: $e');
       return [];
@@ -46,7 +52,11 @@ class CropsDatabaseService {
   }
 
   /// Get top yield districts for a crop and year
-  Future<List<Map<String, dynamic>>> getTopYieldDistricts(String cropName, String year, {int limit = 10}) async {
+  Future<List<Map<String, dynamic>>> getTopYieldDistricts(
+    String cropName,
+    String year, {
+    int limit = 10,
+  }) async {
     try {
       final query = '''
         SELECT 
@@ -62,7 +72,11 @@ class CropsDatabaseService {
         ORDER BY yield_per_hectare DESC
         LIMIT ?
       ''';
-      final results = await _dbService.queryCrops(query, [cropName, year, limit]);
+      final results = await _dbService.queryCrops(query, [
+        cropName,
+        year,
+        limit,
+      ]);
       return results;
     } catch (e) {
       print('Error getting top yield districts: $e');
@@ -71,7 +85,10 @@ class CropsDatabaseService {
   }
 
   /// Get total yield for a crop and year
-  Future<Map<String, dynamic>> getTotalYield(String cropName, String year) async {
+  Future<Map<String, dynamic>> getTotalYield(
+    String cropName,
+    String year,
+  ) async {
     try {
       final query = '''
         SELECT 
@@ -96,7 +113,10 @@ class CropsDatabaseService {
   }
 
   /// Get yield by years for a crop and district (for analytics)
-  Future<List<Map<String, dynamic>>> getYieldByYears(String cropName, String district) async {
+  Future<List<Map<String, dynamic>>> getYieldByYears(
+    String cropName,
+    String district,
+  ) async {
     try {
       final query = '''
         SELECT 
@@ -121,7 +141,10 @@ class CropsDatabaseService {
 
   /// Get district data for map visualization (for a specific crop and year)
   /// Returns a map with district name as key and data including percentage
-  Future<Map<String, Map<String, dynamic>>> getDistrictDataForMap(String cropName, String year) async {
+  Future<Map<String, Map<String, dynamic>>> getDistrictDataForMap(
+    String cropName,
+    String year,
+  ) async {
     try {
       final query = '''
         SELECT 
@@ -136,21 +159,23 @@ class CropsDatabaseService {
         WHERE crop_name = ? AND year = ? AND district IS NOT NULL
       ''';
       final results = await _dbService.queryCrops(query, [cropName, year]);
-      
+
       // Calculate total production for percentage calculation
       double totalProduction = 0;
       for (final row in results) {
         totalProduction += (row['production_mt'] as num? ?? 0).toDouble();
       }
-      
+
       final districtMap = <String, Map<String, dynamic>>{};
       for (final row in results) {
         final district = row['district'] as String?;
         if (district == null) continue;
-        
+
         final production = (row['production_mt'] as num? ?? 0).toDouble();
-        final percentage = totalProduction > 0 ? (production / totalProduction * 100) : 0;
-        
+        final percentage = totalProduction > 0
+            ? (production / totalProduction * 100)
+            : 0;
+
         districtMap[district] = {
           'production': production,
           'hectares': row['hectares'],
@@ -158,7 +183,7 @@ class CropsDatabaseService {
           'percentage': percentage,
         };
       }
-      
+
       return districtMap;
     } catch (e) {
       print('Error getting district data for map: $e');
@@ -167,7 +192,11 @@ class CropsDatabaseService {
   }
 
   /// Get top crops for a district and year (for My Region)
-  Future<List<Map<String, dynamic>>> getTopCropsForDistrict(String district, String year, {int limit = 10}) async {
+  Future<List<Map<String, dynamic>>> getTopCropsForDistrict(
+    String district,
+    String year, {
+    int limit = 10,
+  }) async {
     try {
       final query = '''
         SELECT 
@@ -183,7 +212,11 @@ class CropsDatabaseService {
         ORDER BY production_mt DESC
         LIMIT ?
       ''';
-      final results = await _dbService.queryCrops(query, [district, year, limit]);
+      final results = await _dbService.queryCrops(query, [
+        district,
+        year,
+        limit,
+      ]);
       return results;
     } catch (e) {
       print('Error getting top crops for district: $e');
@@ -212,7 +245,10 @@ class CropsDatabaseService {
   }
 
   /// Get top yield districts from predictions
-  Future<List<Map<String, dynamic>>> getTopYieldDistrictsFromPredictions(String cropName, {int limit = 10}) async {
+  Future<List<Map<String, dynamic>>> getTopYieldDistrictsFromPredictions(
+    String cropName, {
+    int limit = 10,
+  }) async {
     try {
       final query = '''
         SELECT 
@@ -237,7 +273,9 @@ class CropsDatabaseService {
   }
 
   /// Get total yield from predictions
-  Future<Map<String, dynamic>> getTotalYieldFromPredictions(String cropName) async {
+  Future<Map<String, dynamic>> getTotalYieldFromPredictions(
+    String cropName,
+  ) async {
     try {
       final query = '''
         SELECT 
@@ -260,5 +298,100 @@ class CropsDatabaseService {
       return {};
     }
   }
-}
 
+  /// Get pie chart data for crop area
+  Future<List<Map<String, dynamic>>> getPieCropArea() async {
+    try {
+      final query = 'SELECT * FROM pie_crop_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie crop area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for fibre area
+  Future<List<Map<String, dynamic>>> getPieFibreArea() async {
+    try {
+      final query = 'SELECT * FROM pie_fibre_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie fibre area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for narcos area
+  Future<List<Map<String, dynamic>>> getPieNarcosArea() async {
+    try {
+      final query = 'SELECT * FROM pie_narcos_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie narcos area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for oilseed area
+  Future<List<Map<String, dynamic>>> getPieOilseedArea() async {
+    try {
+      final query = 'SELECT * FROM pie_oilseed_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie oilseed area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for pulse area
+  Future<List<Map<String, dynamic>>> getPiePulseArea() async {
+    try {
+      final query = 'SELECT * FROM pie_pulse_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie pulse area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for rice area
+  Future<List<Map<String, dynamic>>> getPieRiceArea() async {
+    try {
+      final query = 'SELECT * FROM pie_rice_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie rice area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for spices area
+  Future<List<Map<String, dynamic>>> getPieSpicesArea() async {
+    try {
+      final query = 'SELECT * FROM pie_spices_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie spices area: $e');
+      return [];
+    }
+  }
+
+  /// Get pie chart data for suger area
+  Future<List<Map<String, dynamic>>> getPieSugerArea() async {
+    try {
+      final query = 'SELECT * FROM pie_sugar_area';
+      final results = await _dbService.queryAttempt(query);
+      return results;
+    } catch (e) {
+      print('Error getting pie suger area: $e');
+      return [];
+    }
+  }
+}
