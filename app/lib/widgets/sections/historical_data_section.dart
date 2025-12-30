@@ -42,7 +42,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
         await _loadYearsForCrop(crops.first);
       }
     } catch (e) {
-      print('Error loading crops: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -67,7 +67,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
         await _loadData();
       }
     } catch (e) {
-      print('Error loading years: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -98,7 +98,6 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -187,8 +186,8 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
           // Total Yield Card
           InkWell(
             onTap: () {},
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            splashColor: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
             child: Card(
               elevation: 2,
@@ -264,8 +263,8 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
           const SizedBox(height: 12),
           InkWell(
             onTap: () {},
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            splashColor: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
             child: Card(
               elevation: 2,
@@ -286,7 +285,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                           0,
                           77,
                           64,
-                        ).withOpacity(0.1),
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(

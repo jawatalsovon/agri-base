@@ -1,5 +1,4 @@
 import 'database_service.dart';
-import '../utils/data_utils.dart';
 
 /// Service for querying the crops.db database (created from CSV files)
 class CropsDatabaseService {
@@ -13,7 +12,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query);
       return results.map((row) => row['crop_name'] as String).toList();
     } catch (e) {
-      print('Error getting crops: $e');
+
       return [];
     }
   }
@@ -30,7 +29,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName]);
       return results.map((row) => row['year'] as String).toList();
     } catch (e) {
-      print('Error getting years for $cropName: $e');
+
       return [];
     }
   }
@@ -46,7 +45,7 @@ class CropsDatabaseService {
           .toList();
       return districts;
     } catch (e) {
-      print('Error getting districts: $e');
+
       return [];
     }
   }
@@ -79,7 +78,7 @@ class CropsDatabaseService {
       ]);
       return results;
     } catch (e) {
-      print('Error getting top yield districts: $e');
+
       return [];
     }
   }
@@ -107,7 +106,7 @@ class CropsDatabaseService {
       }
       return {};
     } catch (e) {
-      print('Error getting total yield: $e');
+
       return {};
     }
   }
@@ -134,7 +133,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName, district]);
       return results;
     } catch (e) {
-      print('Error getting yield by years: $e');
+
       return [];
     }
   }
@@ -186,7 +185,7 @@ class CropsDatabaseService {
 
       return districtMap;
     } catch (e) {
-      print('Error getting district data for map: $e');
+
       return {};
     }
   }
@@ -219,7 +218,7 @@ class CropsDatabaseService {
       ]);
       return results;
     } catch (e) {
-      print('Error getting top crops for district: $e');
+
       return [];
     }
   }
@@ -239,7 +238,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName]);
       return results;
     } catch (e) {
-      print('Error getting prediction data: $e');
+
       return [];
     }
   }
@@ -267,7 +266,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName, limit]);
       return results;
     } catch (e) {
-      print('Error getting top yield districts from predictions: $e');
+
       return [];
     }
   }
@@ -294,7 +293,7 @@ class CropsDatabaseService {
       }
       return {};
     } catch (e) {
-      print('Error getting total yield from predictions: $e');
+
       return {};
     }
   }
@@ -306,7 +305,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie crop area: $e');
+
       return [];
     }
   }
@@ -318,7 +317,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie fibre area: $e');
+
       return [];
     }
   }
@@ -330,7 +329,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie narcos area: $e');
+
       return [];
     }
   }
@@ -342,7 +341,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie oilseed area: $e');
+
       return [];
     }
   }
@@ -354,7 +353,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie pulse area: $e');
+
       return [];
     }
   }
@@ -366,7 +365,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie rice area: $e');
+
       return [];
     }
   }
@@ -378,7 +377,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie spices area: $e');
+
       return [];
     }
   }
@@ -390,7 +389,7 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-      print('Error getting pie suger area: $e');
+
       return [];
     }
   }

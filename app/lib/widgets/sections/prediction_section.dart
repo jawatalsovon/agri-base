@@ -40,7 +40,7 @@ class _PredictionSectionState extends State<PredictionSection> {
         await _loadData();
       }
     } catch (e) {
-      print('Error loading crops: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -68,7 +68,6 @@ class _PredictionSectionState extends State<PredictionSection> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading prediction data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -125,15 +124,20 @@ class _PredictionSectionState extends State<PredictionSection> {
           // Total Yield Card
           InkWell(
             onTap: () {},
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            splashColor: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
             child: Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              color: const Color.fromARGB(255, 0, 77, 64).withOpacity(0.05),
+              color: const Color.fromARGB(
+                255,
+                0,
+                77,
+                64,
+              ).withValues(alpha: 0.05),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -198,8 +202,8 @@ class _PredictionSectionState extends State<PredictionSection> {
           const SizedBox(height: 12),
           InkWell(
             onTap: () {},
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            splashColor: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
             child: Card(
               elevation: 2,
@@ -220,7 +224,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                           0,
                           77,
                           64,
-                        ).withOpacity(0.1),
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(

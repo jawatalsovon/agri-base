@@ -18,14 +18,15 @@ class InteractiveBangladeshMap extends StatefulWidget {
   });
 
   @override
-  State<InteractiveBangladeshMap> createState() => _InteractiveBangladeshMapState();
+  State<InteractiveBangladeshMap> createState() =>
+      _InteractiveBangladeshMapState();
 }
 
 class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   List<DistrictData> _dataList = [];
   MapShapeSource? _shapeSource;
   late MapZoomPanBehavior _zoomPanBehavior;
-  
+
   // Track the currently selected district index
   int _selectedIndex = -1;
 
@@ -46,7 +47,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   @override
   void didUpdateWidget(covariant InteractiveBangladeshMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedCrop != widget.selectedCrop || 
+    if (oldWidget.selectedCrop != widget.selectedCrop ||
         oldWidget.districtDataMap != widget.districtDataMap) {
       _updateMapSource();
     }
@@ -55,9 +56,9 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   void _updateMapSource() {
     final cropData = widget.districtDataMap[widget.selectedCrop] ?? {};
     _dataList = cropData.values.toList();
-    
+
     // Reset selection when crop changes
-    _selectedIndex = -1; 
+    _selectedIndex = -1;
     _rebuildShapeSource();
   }
 
@@ -69,21 +70,21 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
 
     _shapeSource = MapShapeSource.asset(
       'assets/json/bd.geojson',
-      
+
       // --- FIX IS HERE ---
       // Your JSON uses "adm2_name" for the district name (e.g. "Barguna")
-      shapeDataField: 'adm2_name', 
-      // -------------------
+      shapeDataField: 'adm2_name',
 
+      // -------------------
       dataCount: _dataList.length,
       primaryValueMapper: (index) => _dataList[index].name,
-      
+
       // Color Logic
       shapeColorValueMapper: (index) {
         if (index == _selectedIndex) {
-           return const Color(0xFFFFD600); // Yellow when selected
+          return const Color(0xFFFFD600); // Yellow when selected
         }
-        
+
         final production = _dataList[index].production;
         if (production > 800000) return const Color(0xFF1B5E20);
         if (production > 500000) return const Color(0xFF2E7D32);
@@ -112,10 +113,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                 SizedBox(height: 16),
                 Text(
                   'Loading district data...',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),
@@ -139,59 +137,79 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                     layers: [
                       MapShapeLayer(
                         source: _shapeSource!,
-                  zoomPanBehavior: _zoomPanBehavior,
-                  
-                  strokeColor: Colors.white,
-                  strokeWidth: 0.6,
-                  color: Colors.grey[300], // Fallback color for unmatched districts
+                        zoomPanBehavior: _zoomPanBehavior,
 
-                  // --- SELECTION HANDLING ---
-                  selectedIndex: _selectedIndex,
-                  onSelectionChanged: (int index) {
-                    setState(() {
-                      // Toggle selection
-                      if (_selectedIndex == index) {
-                        _selectedIndex = -1; // Deselect if tapped again
-                      } else {
-                        _selectedIndex = index;
-                      }
-                      // Rebuild the source to apply the new "Yellow" color
-                      _rebuildShapeSource();
-                    });
-                  },
+                        strokeColor: Colors.white,
+                        strokeWidth: 0.6,
+                        color: Colors
+                            .grey[300], // Fallback color for unmatched districts
+                        // --- SELECTION HANDLING ---
+                        selectedIndex: _selectedIndex,
+                        onSelectionChanged: (int index) {
+                          setState(() {
+                            // Toggle selection
+                            if (_selectedIndex == index) {
+                              _selectedIndex = -1; // Deselect if tapped again
+                            } else {
+                              _selectedIndex = index;
+                            }
+                            // Rebuild the source to apply the new "Yellow" color
+                            _rebuildShapeSource();
+                          });
+                        },
 
-                  // --- TOOLTIP ---
-                  showDataLabels: false,
-                  shapeTooltipBuilder: (BuildContext context, int index) {
-                    final data = _dataList[index];
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(8),
+                        // --- TOOLTIP ---
+                        showDataLabels: false,
+                        shapeTooltipBuilder: (BuildContext context, int index) {
+                          final data = _dataList[index];
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data.name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Divider(
+                                  color: Colors.white24,
+                                  height: 12,
+                                ),
+                                Text(
+                                  'Production: ${(data.production / 1000).toStringAsFixed(0)}k MT',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Yield: ${data.yieldValue.toStringAsFixed(2)} MT/Ha',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                if (data.percentage != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Contribution: ${data.percentage!.toStringAsFixed(2)}%',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(data.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          const Divider(color: Colors.white24, height: 12),
-                          Text('Production: ${(data.production / 1000).toStringAsFixed(0)}k MT', style: const TextStyle(color: Colors.white70)),
-                          const SizedBox(height: 4),
-                          Text('Yield: ${data.yieldValue.toStringAsFixed(2)} MT/Ha', style: const TextStyle(color: Colors.white70)),
-                          if (data.percentage != null) ...[
-                            const SizedBox(height: 4),
-                            Text('Contribution: ${data.percentage!.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white70)),
-                          ],
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                    ],
+                  ),
           ),
-          
+
           // --- SELECTED DISTRICT INFO PANEL (Appears below map when selected) ---
           if (_selectedIndex != -1)
             Container(
@@ -203,17 +221,30 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                 children: [
                   Text(
                     _dataList[_selectedIndex].name,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildInfoItem("Production", "${(_dataList[_selectedIndex].production / 1000).toStringAsFixed(1)}k MT"),
-                      _buildInfoItem("Yield", "${_dataList[_selectedIndex].yieldValue} T/Ha"),
-                      _buildInfoItem("Coordinates", "${_dataList[_selectedIndex].lat.toStringAsFixed(2)}, ${_dataList[_selectedIndex].long.toStringAsFixed(2)}"),
+                      _buildInfoItem(
+                        "Production",
+                        "${(_dataList[_selectedIndex].production / 1000).toStringAsFixed(1)}k MT",
+                      ),
+                      _buildInfoItem(
+                        "Yield",
+                        "${_dataList[_selectedIndex].yieldValue} T/Ha",
+                      ),
+                      _buildInfoItem(
+                        "Coordinates",
+                        "${_dataList[_selectedIndex].lat.toStringAsFixed(2)}, ${_dataList[_selectedIndex].long.toStringAsFixed(2)}",
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -227,7 +258,10 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }

@@ -50,7 +50,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
         await _loadYearsForDistrict(_selectedDistrict!);
       }
     } catch (e) {
-      print('Error loading districts: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -86,7 +86,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
         await _loadData();
       }
     } catch (e) {
-      print('Error loading years: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -111,7 +111,6 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading top crops: $e');
       setState(() {
         _isLoading = false;
       });
@@ -242,7 +241,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                             0,
                             77,
                             64,
-                          ).withOpacity(0.1),
+                          ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(
@@ -299,8 +298,8 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: index < 3
-                                        ? Colors.amber.withOpacity(0.2)
-                                        : Colors.grey.withOpacity(0.1),
+                                        ? Colors.amber.withValues(alpha: 0.2)
+                                        : Colors.grey.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(

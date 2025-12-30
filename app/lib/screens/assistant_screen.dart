@@ -35,11 +35,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
       final res = await router.handleUserMessage(text);
       setState(() {
         _messages.add(
-          _ChatMessage(
-            text: res.answer,
-            isUser: false,
-            sqlUsed: res.sqlUsed,
-          ),
+          _ChatMessage(text: res.answer, isUser: false, sqlUsed: res.sqlUsed),
         );
       });
     } catch (e) {
@@ -89,12 +85,15 @@ class _AssistantScreenState extends State<AssistantScreen> {
               itemBuilder: (context, index) {
                 final msg = _messages[index];
                 final isUser = msg.isUser;
-                final alignment =
-                    isUser ? Alignment.centerRight : Alignment.centerLeft;
+                final alignment = isUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft;
                 final bubbleColor = isUser
                     ? const Color.fromARGB(255, 0, 77, 64)
                     : theme.cardColor;
-                final textColor = isUser ? Colors.white : theme.textTheme.bodyMedium?.color;
+                final textColor = isUser
+                    ? Colors.white
+                    : theme.textTheme.bodyMedium?.color;
 
                 return Align(
                   alignment: alignment,
@@ -110,17 +109,14 @@ class _AssistantScreenState extends State<AssistantScreen> {
                           ? CrossAxisAlignment.end
                           : CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          msg.text,
-                          style: TextStyle(color: textColor),
-                        ),
+                        Text(msg.text, style: TextStyle(color: textColor)),
                         if (msg.sqlUsed != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
                               'SQL used:\n${msg.sqlUsed}',
                               style: TextStyle(
-                                color: textColor?.withOpacity(0.7),
+                                color: textColor?.withValues(alpha: 0.7),
                                 fontSize: 11,
                               ),
                             ),
@@ -171,15 +167,9 @@ class _AssistantScreenState extends State<AssistantScreen> {
 }
 
 class _ChatMessage {
-  _ChatMessage({
-    required this.text,
-    required this.isUser,
-    this.sqlUsed,
-  });
+  _ChatMessage({required this.text, required this.isUser, this.sqlUsed});
 
   final String text;
   final bool isUser;
   final String? sqlUsed;
 }
-
-
