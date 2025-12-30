@@ -4,6 +4,7 @@ import 'analytics_screen.dart';
 import 'home_content_screen.dart';
 import 'discover_screen.dart';
 import 'my_region_screen.dart';
+import 'assistant_screen.dart';
 
 class AgriBaseHomeScreen extends StatefulWidget {
   const AgriBaseHomeScreen({super.key});
@@ -29,7 +30,13 @@ class _AgriBaseHomeScreenState extends State<AgriBaseHomeScreen> {
       body: IndexedStack(index: _selectedNavIndex, children: _screens),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color.fromARGB(255, 0, 77, 64),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AssistantScreen(),
+            ),
+          );
+        },
         icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
         label: const Text(
           'Ask AI',
