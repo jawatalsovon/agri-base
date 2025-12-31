@@ -125,10 +125,11 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
   Widget build(BuildContext context) {
     final localizationProvider = Provider.of<LocalizationProvider>(context);
     final locale = localizationProvider.locale;
+    final theme = Theme.of(context);
     
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 0, 77, 64),
+        backgroundColor: theme.colorScheme.primary,
         elevation: 0,
         title: Text(
           Translations.translate(locale, 'myRegion'),
@@ -155,7 +156,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               isExpanded: true,
               underline: Container(
                 height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
+                color: theme.colorScheme.primary,
               ),
               items: _displayDistricts.map((district) {
                 final translatedDistrict = TranslationHelper.formatDistrictName(district, locale);
@@ -191,7 +192,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               isExpanded: true,
               underline: Container(
                 height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
+                color: theme.colorScheme.primary,
               ),
               items: _years.map((year) {
                 final displayYear = TranslationHelper.formatNumber(year, useBengaliNumerals: locale.languageCode == 'bn');
@@ -245,12 +246,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(
-                            255,
-                            0,
-                            77,
-                            64,
-                          ).withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(

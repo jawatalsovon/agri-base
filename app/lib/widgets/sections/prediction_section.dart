@@ -82,6 +82,7 @@ class _PredictionSectionState extends State<PredictionSection> {
     return Consumer<LocalizationProvider>(
       builder: (context, localizationProvider, child) {
         final locale = localizationProvider.locale;
+        final theme = Theme.of(context);
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +102,7 @@ class _PredictionSectionState extends State<PredictionSection> {
               isExpanded: true,
               underline: Container(
                 height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
+                color: theme.colorScheme.primary,
               ),
               items: _crops.map((crop) {
                 final translatedCrop = TranslationHelper.formatCropName(crop, locale);
@@ -132,20 +133,15 @@ class _PredictionSectionState extends State<PredictionSection> {
               // Total Yield Card
               InkWell(
                 onTap: () {},
-                highlightColor: Colors.white.withValues(alpha: 0.1),
-                splashColor: Colors.white.withValues(alpha: 0.2),
+                highlightColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                splashColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 child: Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: const Color.fromARGB(
-                    255,
-                    0,
-                    77,
-                    64,
-                  ).withValues(alpha: 0.05),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.05),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -157,7 +153,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                             locale.languageCode == 'bn' 
                               ? 'পূর্বাভাসিত মোট উৎপাদন (2025)'
                               : 'Predicted Total Production (2025)',
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurfaceVariant),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -165,10 +161,10 @@ class _PredictionSectionState extends State<PredictionSection> {
                           message: 'Predicted total production in metric tons',
                           child: Text(
                             '${TranslationHelper.formatNumberWithCommas((_totalYield['total_production'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mt')}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 0, 77, 64),
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                         ),
@@ -177,7 +173,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                           children: [
                             Icon(
                               Icons.trending_up,
-                              color: Colors.green[600],
+                              color: theme.colorScheme.secondary,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -187,7 +183,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                                 '${Translations.translate(locale, 'yield')}: ${TranslationHelper.formatNumberWithCommas((_totalYield['average_yield'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mtPerHectare')}',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.green[600],
+                                  color: theme.colorScheme.secondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -203,24 +199,24 @@ class _PredictionSectionState extends State<PredictionSection> {
               // Top Yield Districts
               Text(
                 locale.languageCode == 'bn' ? 'শীর্ষ পূর্বাভাসিত ফলন জেলা' : 'Top Predicted Yield Districts',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
               InkWell(
                 onTap: () {},
-                highlightColor: Colors.white.withValues(alpha: 0.1),
-                splashColor: Colors.white.withValues(alpha: 0.2),
+                highlightColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                splashColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 child: Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: Colors.white,
+                  color: theme.colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -229,12 +225,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(
-                              255,
-                              0,
-                              77,
-                              64,
-                            ).withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -307,7 +298,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                                     child: Tooltip(
                                       message: 'Predicted yield per hectare',
                                       child: Text(
-                                        TranslationHelper.formatNumberWithCommas(yieldValue, locale: locale),
+                                        TranslationHelper.formatNumberWithCommas(yieldValue, decimalPlaces: 3, locale: locale),
                                         textAlign: TextAlign.right,
                                       ),
                                     ),

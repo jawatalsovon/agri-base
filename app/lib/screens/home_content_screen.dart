@@ -416,7 +416,8 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6 - 24,
                     child: _buildContactCard(
                       context: context,
                       locale: locale,
@@ -494,6 +495,8 @@ class HomeScreen extends StatelessWidget {
                       : const Color(0xFF9E9E9E),
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.visible,
               ),
             ),
           ],

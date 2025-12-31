@@ -112,6 +112,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
     return Consumer<LocalizationProvider>(
       builder: (context, localizationProvider, child) {
         final locale = localizationProvider.locale;
+        final theme = Theme.of(context);
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +132,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
               isExpanded: true,
               underline: Container(
                 height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
+                color: theme.colorScheme.primary,
               ),
               items: _crops.map((crop) {
                 final translatedCrop = TranslationHelper.formatCropName(crop, locale);
@@ -167,7 +168,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
               isExpanded: true,
               underline: Container(
                 height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
+                color: theme.colorScheme.primary,
               ),
               items: _years.map((year) {
                 final displayYear = locale.languageCode == 'bn' 
@@ -205,7 +206,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: Colors.white,
+                  color: theme.colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -227,10 +228,10 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                           message: 'Total production in metric tons',
                           child: Text(
                             '${TranslationHelper.formatNumberWithCommas((_totalYield['total_production'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mt')}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -239,7 +240,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                           children: [
                             Icon(
                               Icons.agriculture,
-                              color: Colors.green[600],
+                              color: theme.colorScheme.secondary,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -249,7 +250,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                                 '${Translations.translate(locale, 'yield')}: ${TranslationHelper.formatNumberWithCommas((_totalYield['average_yield'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mtPerHectare')}',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.green[600],
+                                  color: theme.colorScheme.secondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -265,10 +266,10 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
               // Top Yield Districts
               Text(
                 locale.languageCode == 'bn' ? 'শীর্ষ ফলন জেলা' : 'Top Yield Districts',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
@@ -282,7 +283,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: Colors.white,
+                  color: theme.colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -291,12 +292,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(
-                              255,
-                              0,
-                              77,
-                              64,
-                            ).withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(

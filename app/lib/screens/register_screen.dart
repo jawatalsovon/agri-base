@@ -63,6 +63,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final errorColor = Theme.of(context).colorScheme.error;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -73,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo/Title
-                Icon(Icons.eco, size: 80, color: Theme.of(context).primaryColor),
+                Icon(Icons.eco, size: 80, color: primaryColor),
                 const SizedBox(height: 16),
                 Text(
                   'Create Account',
@@ -81,14 +85,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: primaryColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Join AgriBase for smart farming',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: onSurfaceVariant),
                 ),
                 const SizedBox(height: 48),
 
@@ -182,13 +186,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: errorColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
+                      border: Border.all(color: errorColor.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red.shade800),
+                      style: TextStyle(color: errorColor),
                     ),
                   ),
 
@@ -198,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -246,7 +250,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   child: Text(
                     'Already have an account? Sign In',
-                    style: TextStyle(color: Theme.of(context).primaryColor),
+                    style: TextStyle(color: primaryColor),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -258,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     'View as Guest',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Theme.of(context).primaryColor,
+                      color: primaryColor,
                       decoration: TextDecoration.underline,
                     ),
                   ),
