@@ -32,7 +32,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
 
   // Track the currently selected district index
   int _selectedIndex = -1;
-
+  
   // Min and max production values for UV map normalization
   double _minProduction = 0.0;
   double _maxProduction = 0.0;
@@ -64,8 +64,15 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
     final cropData = widget.districtDataMap[widget.selectedCrop] ?? {};
     _dataList = cropData.values.toList();
 
+
     // Calculate min and max production for UV map normalization
     if (_dataList.isNotEmpty) {
+      _minProduction = _dataList
+          .map((d) => d.production)
+          .reduce((a, b) => a < b ? a : b);
+      _maxProduction = _dataList
+          .map((d) => d.production)
+          .reduce((a, b) => a > b ? a : b);
       _minProduction = _dataList
           .map((d) => d.production)
           .reduce((a, b) => a < b ? a : b);
@@ -77,6 +84,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
         _maxProduction = _minProduction + 1.0;
       }
     }
+
 
     // Reset selection when crop changes
     _selectedIndex = -1;
@@ -100,6 +108,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
       dataCount: _dataList.length,
       primaryValueMapper: (index) => _dataList[index].name,
 
+
       // UV Map Color Logic - White to Green gradient based on normalized values
       shapeColorValueMapper: (index) {
         if (index == _selectedIndex) {
@@ -108,15 +117,24 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
 
         final production = _dataList[index].production;
 
+
         // Normalize production value to 0-1 range
+        final normalized =
+            (production - _minProduction) / (_maxProduction - _minProduction);
         final normalized =
             (production - _minProduction) / (_maxProduction - _minProduction);
         // Clamp to ensure it's between 0 and 1
         final clamped = normalized.clamp(0.0, 1.0);
 
+
         // Interpolate from white (0.0) to dark green (1.0)
         // White: Color(0xFFFFFFFF) -> Light Green -> Dark Green: Color(0xFF1B5E20)
         return Color.lerp(
+              Colors.grey[300], // White
+              const Color(0xFF1B5E20), // Dark Green
+              clamped,
+            ) ??
+            const Color(0xFFA5D6A7); // Fallback to light green
               Colors.grey[300], // White
               const Color(0xFF1B5E20), // Dark Green
               clamped,
@@ -257,6 +275,63 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                         ],
                       ),
               ),
+                        // --- TOOLTIP ---
+                        showDataLabels: false,
+                        shapeTooltipBuilder: (BuildContext context, int index) {
+                          final data = _dataList[index];
+                          return IntrinsicWidth(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(0, 0, 0, 0.9),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data.name,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Divider(
+                                    color: Colors.white24,
+                                    height: 12,
+                                  ),
+                                  Text(
+                                    'Production: ${(data.production / 1000).toStringAsFixed(0)}k MT',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Yield: ${data.yieldValue.toStringAsFixed(2)} MT/Ha',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  if (data.percentage != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Contribution: ${data.percentage!.toStringAsFixed(2)}%',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+          ),
 
               // --- SELECTED DISTRICT INFO PANEL (Appears below map when selected) ---
               if (_selectedIndex != -1)

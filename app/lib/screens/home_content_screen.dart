@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
         final isAuthenticated = authProvider.isAuthenticated;
         final locale = localizationProvider.locale;
         final theme = Theme.of(context);
-        
+
         return Scaffold(
           appBar: AppBar(
             backgroundColor: theme.colorScheme.primary,
@@ -77,7 +77,12 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Hero Section
-                _buildHeroSection(context, isAuthenticated, locale, authProvider),
+                _buildHeroSection(
+                  context,
+                  isAuthenticated,
+                  locale,
+                  authProvider,
+                ),
 
                 // Bangladeshi Farming Section
                 _buildBangladeshiFarmingSection(context),
@@ -98,7 +103,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, bool isAuthenticated, Locale locale, AuthProvider authProvider) {
+  Widget _buildHeroSection(
+    BuildContext context,
+    bool isAuthenticated,
+    Locale locale,
+    AuthProvider authProvider,
+  ) {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: const BoxDecoration(
@@ -127,18 +137,16 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             Translations.translate(locale, 'appDescription'),
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.white70,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 18, color: Colors.white70, height: 1.4),
           ),
           const SizedBox(height: 24),
           if (!isAuthenticated)
             ElevatedButton.icon(
               onPressed: () => _showAuthPrompt(context),
               icon: const Icon(Icons.login),
-              label: Text(Translations.translate(locale, 'signInForEnhancedFeatures')),
+              label: Text(
+                Translations.translate(locale, 'signInForEnhancedFeatures'),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Theme.of(context).colorScheme.primary,
@@ -159,7 +167,7 @@ class HomeScreen extends StatelessWidget {
         final locale = localizationProvider.locale;
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
-        
+
         return Container(
           padding: const EdgeInsets.all(24.0),
           color: isDark ? theme.colorScheme.surface : Colors.white,
@@ -202,7 +210,10 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        Translations.translate(locale, 'beautifulBangladeshiFarmland'),
+                        Translations.translate(
+                          locale,
+                          'beautifulBangladeshiFarmland',
+                        ),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -260,7 +271,11 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 Translations.translate(locale, 'missionStatement'),
-                style: const TextStyle(fontSize: 18, color: Colors.white, height: 1.6),
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  height: 1.6,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -276,7 +291,7 @@ class HomeScreen extends StatelessWidget {
         final locale = localizationProvider.locale;
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
-        
+
         return Container(
           padding: const EdgeInsets.all(24.0),
           color: isDark ? theme.colorScheme.surface : Colors.white,
@@ -339,7 +354,7 @@ class HomeScreen extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Card(
       elevation: 3,
       color: isDark ? theme.colorScheme.surfaceContainerHighest : null,
@@ -354,11 +369,7 @@ class HomeScreen extends StatelessWidget {
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: theme.colorScheme.primary,
-              ),
+              child: Icon(icon, size: 32, color: theme.colorScheme.primary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -399,10 +410,14 @@ class HomeScreen extends StatelessWidget {
         final locale = localizationProvider.locale;
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
-        
+
+        // ignore: deprecated_member_use
         return Container(
           padding: const EdgeInsets.all(24.0),
-          color: isDark ? theme.colorScheme.surfaceVariant : const Color(0xFFF5F5F5),
+          color: isDark
+              // ignore: deprecated_member_use
+              ? theme.colorScheme.surfaceContainerHighest
+              : const Color(0xFFF5F5F5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -465,7 +480,7 @@ class HomeScreen extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Card(
       elevation: 2,
       color: isDark ? theme.colorScheme.surface : null,
@@ -516,14 +531,15 @@ class HomeScreen extends StatelessWidget {
   void _showAuthPrompt(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
   void _showSignOutDialog(BuildContext context, AuthProvider authProvider) {
-    final localizationProvider = Provider.of<LocalizationProvider>(context, listen: false);
+    final localizationProvider = Provider.of<LocalizationProvider>(
+      context,
+      listen: false,
+    );
     final locale = localizationProvider.locale;
 
     showDialog(
@@ -540,7 +556,9 @@ class HomeScreen extends StatelessWidget {
             onPressed: () async {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(Translations.translate(locale, 'logOut'))),
+                SnackBar(
+                  content: Text(Translations.translate(locale, 'logOut')),
+                ),
               );
               await authProvider.signOut();
             },

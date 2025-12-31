@@ -52,7 +52,8 @@ class MyApp extends StatelessWidget {
               child,
             ) {
               // Determine font family based on locale
-              final fontFamily = localizationProvider.locale.languageCode == 'bn'
+              final fontFamily =
+                  localizationProvider.locale.languageCode == 'bn'
                   ? 'NotoSansBengali'
                   : null;
 
@@ -60,13 +61,14 @@ class MyApp extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 title: 'AgriBase',
                 theme: ThemeData(
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: const Color.fromARGB(255, 0, 77, 64),
-                    brightness: Brightness.light,
-                  ).copyWith(
-                    primary: const Color.fromARGB(255, 0, 77, 64),
-                    secondary: const Color.fromARGB(255, 76, 175, 80),
-                  ),
+                  colorScheme:
+                      ColorScheme.fromSeed(
+                        seedColor: const Color.fromARGB(255, 0, 77, 64),
+                        brightness: Brightness.light,
+                      ).copyWith(
+                        primary: const Color.fromARGB(255, 0, 77, 64),
+                        secondary: const Color.fromARGB(255, 76, 175, 80),
+                      ),
                   useMaterial3: true,
                   fontFamily: fontFamily,
                   scaffoldBackgroundColor: Colors.white,
@@ -75,10 +77,12 @@ class MyApp extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 0,
                   ),
-                  textTheme: ThemeData.light().textTheme.apply(
+                  textTheme: ThemeData.light().textTheme
+                      .apply(
                         bodyColor: Colors.black87,
                         displayColor: Colors.black87,
-                      ).copyWith(
+                      )
+                      .copyWith(
                         bodyLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
                           fontFamily: fontFamily,
@@ -161,10 +165,12 @@ class MyApp extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 0,
                   ),
-                  textTheme: ThemeData.dark().textTheme.apply(
+                  textTheme: ThemeData.dark().textTheme
+                      .apply(
                         bodyColor: Colors.white,
                         displayColor: Colors.white,
-                      ).copyWith(
+                      )
+                      .copyWith(
                         bodyLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
                           fontFamily: fontFamily,

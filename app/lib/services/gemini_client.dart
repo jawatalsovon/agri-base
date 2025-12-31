@@ -4,17 +4,12 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 /// Centralized Gemini client used by the AI assistant.
 ///
-/// API key is read from a compile‑time environment variable:
-///   --dart-define=GEMINI_API_KEY=your_key_here
-///
-/// For development you can also temporarily hard‑code a key here,
-/// but prefer dart-define for real builds.
 class GeminiClient {
   GeminiClient._()
-    : _apiKey = "AIzaSyA_4h_7zuFAEgI877QYfhFgnDp_rRt41d0",
+    : _apiKey = "AIzaSyANgbRULiznrCqKcKqHLo7pqneL1UujG0k",
       _model = GenerativeModel(
         model: 'gemini-2.5-flash-lite',
-        apiKey: "AIzaSyA_4h_7zuFAEgI877QYfhFgnDp_rRt41d0",
+        apiKey: "AIzaSyANgbRULiznrCqKcKqHLo7pqneL1UujG0k",
       );
 
   static final GeminiClient instance = GeminiClient._();
@@ -27,7 +22,7 @@ class GeminiClient {
   /// Ask a general knowledge / web-style question (no DB context).
   Future<String> askGeneral(String userMessage) async {
     if (!isConfigured) {
-      return 'AI is not configured. Please set GEMINI_API_KEY in your build (dart-define).';
+      return 'AI is not configured.';
     }
 
     try {
@@ -103,7 +98,7 @@ SQL (table name only, no database prefix, single quotes for string values):
     required String dbResultSummary,
   }) async {
     if (!isConfigured) {
-      return 'AI is not configured. Please set GEMINI_API_KEY in your build (dart-define).';
+      return 'AI is not configured.';
     }
 
     final prompt =
