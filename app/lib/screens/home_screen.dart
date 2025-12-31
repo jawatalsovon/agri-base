@@ -26,10 +26,13 @@ class _AgriBaseHomeScreenState extends State<AgriBaseHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
       body: IndexedStack(index: _selectedNavIndex, children: _screens),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color.fromARGB(255, 0, 77, 64),
+        backgroundColor: theme.colorScheme.primary,
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -37,17 +40,20 @@ class _AgriBaseHomeScreenState extends State<AgriBaseHomeScreen> {
             ),
           );
         },
-        icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
-        label: const Text(
+        icon: Icon(Icons.chat_bubble_outline, color: theme.colorScheme.onPrimary),
+        label: Text(
           'Ask AI',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedNavIndex,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color.fromARGB(255, 0, 77, 64),
-        unselectedItemColor: Colors.grey,
+        backgroundColor: isDark ? theme.colorScheme.surface : Colors.white,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: isDark ? Colors.grey[400] : Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
           setState(() {

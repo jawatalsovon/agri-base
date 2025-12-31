@@ -22,5 +22,53 @@
   "password": "Password",
   "@password": {
     "description": "Password field label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode toggle label"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language selection label"
+  },
+  "fontSize": "Font Size",
+  "@fontSize": {
+    "description": "Font size label"
+  },
+  "small": "Small",
+  "@small": {
+    "description": "Small font size button"
+  },
+  "default": "Default",
+  "@default": {
+    "description": "Default font size button"
+  },
+  "large": "Large",
+  "@large": {
+    "description": "Large font size button"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy menu item"
+  },
+  "aboutUs": "About Us",
+  "@aboutUs": {
+    "description": "About us menu item"
+  },
+  "logOut": "Log Out",
+  "@logOut": {
+    "description": "Log out button"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  "bangla": "বাংলা",
+  "@bangla": {
+    "description": "Bangla language option"
   }
 }

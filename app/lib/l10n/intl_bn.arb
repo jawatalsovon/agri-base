@@ -22,5 +22,53 @@
   "password": "পাসওয়ার্ড",
   "@password": {
     "description": "Password field label"
+  },
+  "settings": "সেটিংস",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+  "darkMode": "ডার্ক মোড",
+  "@darkMode": {
+    "description": "Dark mode toggle label"
+  },
+  "language": "ভাষা",
+  "@language": {
+    "description": "Language selection label"
+  },
+  "fontSize": "ফন্ট সাইজ",
+  "@fontSize": {
+    "description": "Font size label"
+  },
+  "small": "ছোট",
+  "@small": {
+    "description": "Small font size button"
+  },
+  "default": "ডিফল্ট",
+  "@default": {
+    "description": "Default font size button"
+  },
+  "large": "বড়",
+  "@large": {
+    "description": "Large font size button"
+  },
+  "privacyPolicy": "গোপনীয়তা নীতি",
+  "@privacyPolicy": {
+    "description": "Privacy policy menu item"
+  },
+  "aboutUs": "আমাদের সম্পর্কে",
+  "@aboutUs": {
+    "description": "About us menu item"
+  },
+  "logOut": "লগ আউট",
+  "@logOut": {
+    "description": "Log out button"
+  },
+  "english": "ইংরেজি",
+  "@english": {
+    "description": "English language option"
+  },
+  "bangla": "বাংলা",
+  "@bangla": {
+    "description": "Bangla language option"
   }
 }

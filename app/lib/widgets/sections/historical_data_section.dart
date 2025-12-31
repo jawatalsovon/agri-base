@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../services/crops_database_service.dart';
-import '../../utils/data_utils.dart';
+import '../../providers/localization_provider.dart';
+import '../../utils/translations.dart';
+import '../../utils/translation_helper.dart';
 
 class HistoricalDataSection extends StatefulWidget {
   const HistoricalDataSection({super.key});
@@ -106,271 +109,284 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Crop Selector
-        const Text(
-          'Select Crop',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButton<String>(
-          value: _selectedCrop,
-          isExpanded: true,
-          underline: Container(
-            height: 2,
-            color: const Color.fromARGB(255, 0, 77, 64),
-          ),
-          items: _crops.map((crop) {
-            return DropdownMenuItem(
-              value: crop,
-              child: Text(crop.toTitleCase()),
-            );
-          }).toList(),
-          onChanged: (crop) {
-            if (crop != null) {
-              setState(() {
-                _selectedCrop = crop;
-                _selectedYear = null;
-                _years = [];
-              });
-              _loadYearsForCrop(crop);
-            }
-          },
-        ),
-        const SizedBox(height: 20),
-        // Year Selector
-        const Text(
-          'Select Year',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButton<String>(
-          value: _selectedYear,
-          isExpanded: true,
-          underline: Container(
-            height: 2,
-            color: const Color.fromARGB(255, 0, 77, 64),
-          ),
-          items: _years.map((year) {
-            return DropdownMenuItem(value: year, child: Text(year));
-          }).toList(),
-          onChanged: (year) {
-            if (year != null) {
-              setState(() {
-                _selectedYear = year;
-              });
-              _loadData();
-            }
-          },
-        ),
-        const SizedBox(height: 20),
-
-        if (_isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.0),
-              child: CircularProgressIndicator(),
-            ),
-          )
-        else if (_selectedCrop != null && _selectedYear != null) ...[
-          // Total Yield Card
-          InkWell(
-            onTap: () {},
-            highlightColor: Colors.white.withValues(alpha: 0.1),
-            splashColor: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Consumer<LocalizationProvider>(
+      builder: (context, localizationProvider, child) {
+        final locale = localizationProvider.locale;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Crop Selector
+            Text(
+              Translations.translate(locale, 'selectCrop'),
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
               ),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Tooltip(
-                      message:
-                          'Total production for the selected crop and year',
-                      child: Text(
-                        'Total Production ($_selectedYear)',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Tooltip(
-                      message: 'Total production in metric tons',
-                      child: Text(
-                        '${(_totalYield['total_production'] as num? ?? 0).toStringAsFixed(2)} MT',
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
+            ),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _selectedCrop,
+              isExpanded: true,
+              underline: Container(
+                height: 2,
+                color: const Color.fromARGB(255, 0, 77, 64),
+              ),
+              items: _crops.map((crop) {
+                final translatedCrop = TranslationHelper.formatCropName(crop, locale);
+                return DropdownMenuItem(
+                  value: crop,
+                  child: Text(translatedCrop),
+                );
+              }).toList(),
+              onChanged: (crop) {
+                if (crop != null) {
+                  setState(() {
+                    _selectedCrop = crop;
+                    _selectedYear = null;
+                    _years = [];
+                  });
+                  _loadYearsForCrop(crop);
+                }
+              },
+            ),
+            const SizedBox(height: 20),
+            // Year Selector
+            Text(
+              Translations.translate(locale, 'selectYear'),
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _selectedYear,
+              isExpanded: true,
+              underline: Container(
+                height: 2,
+                color: const Color.fromARGB(255, 0, 77, 64),
+              ),
+              items: _years.map((year) {
+                final displayYear = locale.languageCode == 'bn' 
+                    ? TranslationHelper.formatNumber(year, useBengaliNumerals: true)
+                    : year;
+                return DropdownMenuItem(value: year, child: Text(displayYear));
+              }).toList(),
+              onChanged: (year) {
+                if (year != null) {
+                  setState(() {
+                    _selectedYear = year;
+                  });
+                  _loadData();
+                }
+              },
+            ),
+            const SizedBox(height: 20),
+
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (_selectedCrop != null && _selectedYear != null) ...[
+              // Total Yield Card
+              InkWell(
+                onTap: () {},
+                highlightColor: Colors.white.withValues(alpha: 0.1),
+                splashColor: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.agriculture,
-                          color: Colors.green[600],
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
                         Tooltip(
-                          message: 'Average yield per hectare',
+                          message:
+                              'Total production for the selected crop and year',
                           child: Text(
-                            'Average Yield: ${(_totalYield['average_yield'] as num? ?? 0).toStringAsFixed(2)} MT/Ha',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.green[600],
-                              fontWeight: FontWeight.w600,
+                            '${Translations.translate(locale, 'production')} ($_selectedYear)',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Tooltip(
+                          message: 'Total production in metric tons',
+                          child: Text(
+                            '${TranslationHelper.formatNumberWithCommas((_totalYield['total_production'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mt')}',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.agriculture,
+                              color: Colors.green[600],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Tooltip(
+                              message: 'Average yield per hectare',
+                              child: Text(
+                                '${Translations.translate(locale, 'yield')}: ${TranslationHelper.formatNumberWithCommas((_totalYield['average_yield'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mtPerHectare')}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.green[600],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Top Yield Districts
-          const Text(
-            'Top Yield Districts',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {},
-            highlightColor: Colors.white.withValues(alpha: 0.1),
-            splashColor: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 20),
+              // Top Yield Districts
+              Text(
+                locale.languageCode == 'bn' ? 'শীর্ষ ফলন জেলা' : 'Top Yield Districts',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    // Table Header
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(
-                          255,
-                          0,
-                          77,
-                          64,
-                        ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'District',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () {},
+                highlightColor: Colors.white.withValues(alpha: 0.1),
+                splashColor: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        // Table Header
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(
+                              255,
+                              0,
+                              77,
+                              64,
+                            ).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Expanded(
-                            child: Text(
-                              'Yield (MT/Ha)',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              'Production (MT)',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Table Rows
-                    if (_topDistricts.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('No data available'),
-                      )
-                    else
-                      ..._topDistricts.map((district) {
-                        final yieldValue =
-                            (district['yield_per_hectare'] as num? ?? 0)
-                                .toDouble();
-                        final production =
-                            (district['production_mt'] as num? ?? 0).toDouble();
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(
                             children: [
                               Expanded(
-                                child: Tooltip(
-                                  message: 'District name',
-                                  child: Text(
-                                    district['district'] as String? ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+                                child: Text(
+                                  Translations.translate(locale, 'district'),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
                               Expanded(
-                                child: Tooltip(
-                                  message: 'Yield per hectare',
-                                  child: Text(
-                                    yieldValue.toStringAsFixed(2),
-                                    textAlign: TextAlign.right,
-                                  ),
+                                child: Text(
+                                  '${Translations.translate(locale, 'yield')} (MT/Ha)',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.right,
                                 ),
                               ),
                               Expanded(
-                                child: Tooltip(
-                                  message: 'Total production',
-                                  child: Text(
-                                    production.toStringAsFixed(2),
-                                    textAlign: TextAlign.right,
-                                  ),
+                                child: Text(
+                                  '${Translations.translate(locale, 'production')} (MT)',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.right,
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      }),
-                  ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Table Rows
+                        if (_topDistricts.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(Translations.translate(locale, 'noData')),
+                          )
+                        else
+                          ..._topDistricts.map((district) {
+                            final yieldValue =
+                                (district['yield_per_hectare'] as num? ?? 0)
+                                    .toDouble();
+                            final production =
+                                (district['production_mt'] as num? ?? 0).toDouble();
+                            final districtName = district['district'] as String? ?? '';
+                            final translatedDistrict = TranslationHelper.formatDistrictName(districtName, locale);
+                            
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Tooltip(
+                                      message: 'District name',
+                                      child: Text(
+                                        translatedDistrict,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Tooltip(
+                                      message: 'Yield per hectare',
+                                      child: Text(
+                                        TranslationHelper.formatNumberWithCommas(yieldValue,  decimalPlaces: 3, locale: locale),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Tooltip(
+                                      message: 'Total production',
+                                      child: Text(
+                                        TranslationHelper.formatNumberWithCommas(production, decimalPlaces: 3, locale: locale),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
-      ],
+            ],
+          ],
+        );
+      },
     );
   }
 }

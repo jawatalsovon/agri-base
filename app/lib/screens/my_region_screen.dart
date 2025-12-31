@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/crops_database_service.dart';
 import '../services/database_service.dart';
 import '../utils/data_utils.dart';
+import '../providers/localization_provider.dart';
+import '../utils/translations.dart';
+import '../utils/translation_helper.dart';
 
 class MyRegionScreen extends StatefulWidget {
   const MyRegionScreen({super.key});
@@ -119,13 +123,16 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final locale = localizationProvider.locale;
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 77, 64),
         elevation: 0,
-        title: const Text(
-          'My Region',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          Translations.translate(locale, 'myRegion'),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -134,9 +141,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // District Selector
-            const Text(
-              'Select Region/District',
-              style: TextStyle(
+            Text(
+              Translations.translate(locale, 'selectDistrict'),
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
                 fontWeight: FontWeight.w600,
@@ -151,7 +158,8 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
               items: _displayDistricts.map((district) {
-                return DropdownMenuItem(value: district, child: Text(district));
+                final translatedDistrict = TranslationHelper.formatDistrictName(district, locale);
+                return DropdownMenuItem(value: district, child: Text(translatedDistrict));
               }).toList(),
               onChanged: (district) {
                 if (district != null) {
@@ -169,9 +177,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
             ),
             const SizedBox(height: 20),
             // Year Selector
-            const Text(
-              'Select Year',
-              style: TextStyle(
+            Text(
+              Translations.translate(locale, 'selectYear'),
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
                 fontWeight: FontWeight.w600,
@@ -186,7 +194,8 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
               items: _years.map((year) {
-                return DropdownMenuItem(value: year, child: Text(year));
+                final displayYear = TranslationHelper.formatNumber(year, useBengaliNumerals: locale.languageCode == 'bn');
+                return DropdownMenuItem(value: year, child: Text(displayYear));
               }).toList(),
               onChanged: (year) {
                 if (year != null) {
@@ -207,10 +216,10 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                 ),
               )
             else if (_topCrops.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Text('No data available for selected region and year'),
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text(Translations.translate(locale, 'noData')),
                 ),
               )
             else ...[
@@ -244,35 +253,35 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                           ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Expanded(
                               flex: 1,
                               child: Text(
                                 'Rank',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                             Expanded(
                               flex: 3,
                               child: Text(
-                                'Crop',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                Translations.translate(locale, 'crop'),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                             Expanded(
                               flex: 2,
                               child: Text(
-                                'Production (MT)',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                '${Translations.translate(locale, 'production')} (MT)',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.right,
                               ),
                             ),
                             Expanded(
                               flex: 2,
                               child: Text(
-                                'Yield (MT/Ha)',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                '${Translations.translate(locale, 'yield')} (MT/Ha)',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -288,6 +297,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                             .toDouble();
                         final yieldValue =
                             (crop['yield_per_hectare'] as num? ?? 0).toDouble();
+                        final cropName = crop['crop_name'] as String? ?? '';
+                        final translatedCrop = TranslationHelper.formatCropName(cropName, locale);
+                        
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(
@@ -295,15 +307,15 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                               Expanded(
                                 flex: 1,
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: index < 3
-                                        ? Colors.amber.withValues(alpha: 0.2)
-                                        : Colors.grey.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                  padding: const EdgeInsets.all(5),
+                                  // decoration: BoxDecoration(
+                                  //   color: index < 3
+                                  //       ? Colors.amber.withValues(alpha: 0.2)
+                                  //       : Colors.grey.withValues(alpha: 0.1),
+                                  //   borderRadius: BorderRadius.circular(8),
+                                  // ),
                                   child: Text(
-                                    '${index + 1}',
+                                    TranslationHelper.formatNumber((index + 1).toString(), useBengaliNumerals: locale.languageCode == 'bn'),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -317,7 +329,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                               Expanded(
                                 flex: 3,
                                 child: Text(
-                                  crop['crop_name'] as String? ?? '',
+                                  translatedCrop,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -326,14 +338,14 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  production.toStringAsFixed(2),
+                                  TranslationHelper.formatNumberWithCommas(production, decimalPlaces: 3, locale: locale),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  yieldValue.toStringAsFixed(2),
+                                  TranslationHelper.formatNumberWithCommas(yieldValue,  decimalPlaces: 3, locale: locale),
                                   textAlign: TextAlign.right,
                                 ),
                               ),

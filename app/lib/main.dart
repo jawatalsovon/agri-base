@@ -51,114 +51,181 @@ class MyApp extends StatelessWidget {
               fontSizeProvider,
               child,
             ) {
+              // Determine font family based on locale
+              final fontFamily = localizationProvider.locale.languageCode == 'bn'
+                  ? 'NotoSansBengali'
+                  : null;
+
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'AgriBase',
                 theme: ThemeData(
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: const Color(0xFF2E7D32),
+                    seedColor: const Color.fromARGB(255, 0, 77, 64),
+                    brightness: Brightness.light,
+                  ).copyWith(
+                    primary: const Color.fromARGB(255, 0, 77, 64),
+                    secondary: const Color.fromARGB(255, 76, 175, 80),
                   ),
                   useMaterial3: true,
-                  textTheme: ThemeData.light().textTheme.copyWith(
-                    bodyLarge: TextStyle(fontSize: fontSizeProvider.fontSize),
-                    bodyMedium: TextStyle(fontSize: fontSizeProvider.fontSize),
-                    bodySmall: TextStyle(
-                      fontSize: fontSizeProvider.fontSize - 2,
-                    ),
-                    headlineLarge: TextStyle(
-                      fontSize: fontSizeProvider.fontSize + 4,
-                    ),
-                    headlineMedium: TextStyle(
-                      fontSize: fontSizeProvider.fontSize + 2,
-                    ),
-                    headlineSmall: TextStyle(
-                      fontSize: fontSizeProvider.fontSize,
-                    ),
-                    titleLarge: TextStyle(
-                      fontSize: fontSizeProvider.fontSize + 2,
-                    ),
-                    titleMedium: TextStyle(fontSize: fontSizeProvider.fontSize),
-                    titleSmall: TextStyle(
-                      fontSize: fontSizeProvider.fontSize - 2,
-                    ),
-                    labelLarge: TextStyle(fontSize: fontSizeProvider.fontSize),
-                    labelMedium: TextStyle(
-                      fontSize: fontSizeProvider.fontSize - 1,
-                    ),
-                    labelSmall: TextStyle(
-                      fontSize: fontSizeProvider.fontSize - 2,
-                    ),
+                  fontFamily: fontFamily,
+                  scaffoldBackgroundColor: Colors.white,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Color.fromARGB(255, 0, 77, 64),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
                   ),
-                ),
-                darkTheme: ThemeData.dark().copyWith(
-                  primaryColor: const Color.fromARGB(255, 0, 77, 64),
-                  colorScheme: const ColorScheme.dark(
-                    primary: Color.fromARGB(255, 0, 77, 64),
-                    secondary: Color.fromARGB(255, 76, 175, 80),
-                    surface: Color(0xFF1E1E1E),
-                    onSurface: Colors.white,
-                  ),
-                  textTheme: ThemeData.dark().textTheme
-                      .apply(
-                        bodyColor: Colors.white,
-                        displayColor: Colors.white,
-                      )
-                      .copyWith(
+                  textTheme: ThemeData.light().textTheme.apply(
+                        bodyColor: Colors.black87,
+                        displayColor: Colors.black87,
+                      ).copyWith(
                         bodyLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        bodyMedium: TextStyle(
+                          fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        bodySmall: TextStyle(
+                          fontSize: fontSizeProvider.fontSize - 2,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        headlineLarge: TextStyle(
+                          fontSize: fontSizeProvider.fontSize + 4,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        headlineMedium: TextStyle(
+                          fontSize: fontSizeProvider.fontSize + 2,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        headlineSmall: TextStyle(
+                          fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        titleLarge: TextStyle(
+                          fontSize: fontSizeProvider.fontSize + 2,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        titleMedium: TextStyle(
+                          fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        titleSmall: TextStyle(
+                          fontSize: fontSizeProvider.fontSize - 2,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        labelLarge: TextStyle(
+                          fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        labelMedium: TextStyle(
+                          fontSize: fontSizeProvider.fontSize - 1,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                        labelSmall: TextStyle(
+                          fontSize: fontSizeProvider.fontSize - 2,
+                          fontFamily: fontFamily,
+                          color: Colors.black87,
+                        ),
+                      ),
+                ),
+                darkTheme: ThemeData.dark().copyWith(
+                  colorScheme: ColorScheme.dark(
+                    primary: const Color.fromARGB(255, 0, 136, 113),
+                    secondary: const Color.fromARGB(255, 76, 175, 80),
+                    surface: const Color(0xFF1E1E1E),
+                    onSurface: Colors.white,
+                    onPrimary: Colors.white,
+                    surfaceContainerHighest: const Color(0xFF2A2A2A),
+                    onSurfaceVariant: Colors.white70,
+                    error: Colors.red[400]!,
+                    onError: Colors.white,
+                  ),
+                  scaffoldBackgroundColor: const Color(0xFF121212),
+                  cardColor: const Color(0xFF2A2A2A),
+                  dividerColor: Colors.white24,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Color.fromARGB(255, 0, 77, 64),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                  ),
+                  textTheme: ThemeData.dark().textTheme.apply(
+                        bodyColor: Colors.white,
+                        displayColor: Colors.white,
+                      ).copyWith(
+                        bodyLarge: TextStyle(
+                          fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         bodyMedium: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         bodySmall: TextStyle(
                           fontSize: fontSizeProvider.fontSize - 2,
-                          color: Colors.white,
+                          fontFamily: fontFamily,
+                          color: Colors.white70,
                         ),
                         headlineLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize + 4,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         headlineMedium: TextStyle(
                           fontSize: fontSizeProvider.fontSize + 2,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         headlineSmall: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         titleLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize + 2,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         titleMedium: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         titleSmall: TextStyle(
                           fontSize: fontSizeProvider.fontSize - 2,
-                          color: Colors.white,
+                          fontFamily: fontFamily,
+                          color: Colors.white70,
                         ),
                         labelLarge: TextStyle(
                           fontSize: fontSizeProvider.fontSize,
+                          fontFamily: fontFamily,
                           color: Colors.white,
                         ),
                         labelMedium: TextStyle(
                           fontSize: fontSizeProvider.fontSize - 1,
-                          color: Colors.white,
+                          fontFamily: fontFamily,
+                          color: Colors.white70,
                         ),
                         labelSmall: TextStyle(
                           fontSize: fontSizeProvider.fontSize - 2,
-                          color: Colors.white,
+                          fontFamily: fontFamily,
+                          color: Colors.white70,
                         ),
                       ),
-                  cardColor: const Color(0xFF2A2A2A),
-                  scaffoldBackgroundColor: const Color(0xFF121212),
-                  appBarTheme: const AppBarTheme(
-                    backgroundColor: Color.fromARGB(255, 0, 77, 64),
-                    foregroundColor: Colors.white,
-                  ),
                 ),
                 themeMode: themeProvider.themeMode,
                 localizationsDelegates: [

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/crops_database_service.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../utils/data_utils.dart';
+import '../providers/localization_provider.dart';
+import '../utils/translations.dart';
+import '../utils/translation_helper.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -131,114 +135,124 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 77, 64),
         elevation: 0,
-        title: const Text(
-          'Analytics',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Consumer<LocalizationProvider>(
+          builder: (context, localizationProvider, child) {
+            return Text(
+              Translations.translate(localizationProvider.locale, 'analytics'),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            );
+          },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Crop Selector
-            const Text(
-              'Select Crop',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _selectedCrop,
-              isExpanded: true,
-              underline: Container(
-                height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
-              ),
-              items: _crops.map((crop) {
-                return DropdownMenuItem(
-                  value: crop,
-                  child: Text(crop.toTitleCase()),
-                );
-              }).toList(),
-              onChanged: (crop) {
-                if (crop != null) {
-                  setState(() {
-                    _selectedCrop = crop;
-                  });
-                  _loadData();
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            // District Selector
-            const Text(
-              'Select Region/District',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _selectedDisplayDistrict,
-              isExpanded: true,
-              underline: Container(
-                height: 2,
-                color: const Color.fromARGB(255, 0, 77, 64),
-              ),
-              items: _displayDistricts.map((district) {
-                return DropdownMenuItem(value: district, child: Text(district));
-              }).toList(),
-              onChanged: (district) {
-                if (district != null) {
-                  setState(() {
-                    _selectedDisplayDistrict = district;
-                    _selectedDistrict = _districts.firstWhere(
-                      (d) => cleanDistrict(d) == district,
-                    );
-                  });
-                  _loadData();
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Crop Yield Analysis',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            if (_isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (_yieldByYears.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Text(
-                    'No data available for selected crop and district',
+      body: Consumer<LocalizationProvider>(
+        builder: (context, localizationProvider, child) {
+          final locale = localizationProvider.locale;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Crop Selector
+                Text(
+                  Translations.translate(locale, 'selectCrop'),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              )
-            else ...[
-              const Text(
-                'Total Yield by Years',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: _selectedCrop,
+                  isExpanded: true,
+                  underline: Container(
+                    height: 2,
+                    color: const Color.fromARGB(255, 0, 77, 64),
+                  ),
+                  items: _crops.map((crop) {
+                    final translatedCrop = TranslationHelper.formatCropName(crop, locale);
+                    return DropdownMenuItem(
+                      value: crop,
+                      child: Text(translatedCrop),
+                    );
+                  }).toList(),
+                  onChanged: (crop) {
+                    if (crop != null) {
+                      setState(() {
+                        _selectedCrop = crop;
+                      });
+                      _loadData();
+                    }
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 20),
+                // District Selector
+                Text(
+                  Translations.translate(locale, 'selectDistrict'),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: _selectedDisplayDistrict,
+                  isExpanded: true,
+                  underline: Container(
+                    height: 2,
+                    color: const Color.fromARGB(255, 0, 77, 64),
+                  ),
+                  items: _displayDistricts.map((district) {
+                    final translatedDistrict = TranslationHelper.formatDistrictName(district, locale);
+                    return DropdownMenuItem(value: district, child: Text(translatedDistrict));
+                  }).toList(),
+                  onChanged: (district) {
+                    if (district != null) {
+                      setState(() {
+                        _selectedDisplayDistrict = district;
+                        _selectedDistrict = _districts.firstWhere(
+                          (d) => cleanDistrict(d) == district,
+                        );
+                      });
+                      _loadData();
+                    }
+                  },
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  Translations.translate(locale, 'yield'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+
+                if (_isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_yieldByYears.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Text(
+                        Translations.translate(locale, 'noData'),
+                      ),
+                    ),
+                  )
+                else ...[
+                  Text(
+                    Translations.translate(locale, 'yield'),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const SizedBox(height: 16),
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -269,9 +283,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
               const SizedBox(height: 24),
               // Data Table
-              const Text(
-                'Year-over-Year Data',
-                style: TextStyle(
+              Text(
+                Translations.translate(locale, 'yield'),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -331,7 +345,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  data['year'] as String? ?? '',
+                                  TranslationHelper.formatNumber(data['year'] as String? ?? '', useBengaliNumerals: locale.languageCode == 'bn'),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -339,15 +353,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               ),
                               Expanded(
                                 child: Text(
-                                  (data['production_mt'] as num? ?? 0)
-                                      .toStringAsFixed(2),
+                                  TranslationHelper.formatNumberWithCommas((data['production_mt'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
                               Expanded(
                                 child: Text(
-                                  (data['yield_per_hectare'] as num? ?? 0)
-                                      .toStringAsFixed(2),
+                                  TranslationHelper.formatNumberWithCommas((data['yield_per_hectare'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
@@ -361,9 +373,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ],
             const Divider(height: 40),
-            const Text(
-              'Crop Area Distribution',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              Translations.translate(locale, 'area'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             GridView.count(
@@ -385,6 +397,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ],
         ),
+      );
+        },
       ),
     );
   }

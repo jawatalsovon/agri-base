@@ -6,6 +6,7 @@ import '../providers/theme_provider.dart';
 import '../providers/localization_provider.dart';
 import '../providers/font_size_provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/translations.dart';
 import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -22,93 +23,114 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final localizationProvider = Provider.of<LocalizationProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final isAuthenticated = authProvider.isAuthenticated;
+    final theme = Theme.of(context);
+    final locale = localizationProvider.locale;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: const Color.fromARGB(255, 0, 77, 64),
+        title: Text(Translations.translate(locale, 'settings')),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
       ),
       body: ListView(
         children: [
           // Theme Switching
           SwitchListTile(
-            title: const Text('Dark Mode'),
+            title: Text(Translations.translate(locale, 'darkMode')),
             value: themeProvider.themeMode == ThemeMode.dark,
             onChanged: (value) {
               themeProvider.toggleTheme();
             },
           ),
-          const Divider(),
+          Divider(color: theme.dividerColor),
           // Localization
           ListTile(
-            title: const Text('Language'),
-            subtitle: Text(localizationProvider.language),
+            title: Text(Translations.translate(locale, 'language')),
             trailing: DropdownButton<String>(
-              value: localizationProvider.language,
-              items: ['English', 'Bangla'].map((lang) {
-                return DropdownMenuItem(value: lang, child: Text(lang));
-              }).toList(),
+              value: locale.languageCode == 'bn' ? 'bangla' : 'english',
+              items: [
+                DropdownMenuItem(
+                  value: 'english',
+                  child: Text(Translations.translate(locale, 'english')),
+                ),
+                DropdownMenuItem(
+                  value: 'bangla',
+                  child: Text(Translations.translate(locale, 'bangla')),
+                ),
+              ],
               onChanged: (value) {
                 if (value != null) {
-                  localizationProvider.setLanguage(value);
+                  localizationProvider.setLanguage(
+                    value == 'bangla' ? 'Bangla' : 'English',
+                  );
                 }
               },
             ),
           ),
-          const Divider(),
+          Divider(color: theme.dividerColor),
           // Font Size
-          const Text(
-            'Font Size',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              Translations.translate(locale, 'fontSize'),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
           ),
           const SizedBox(height: 8),
           Consumer<FontSizeProvider>(
             builder: (context, fontSizeProvider, child) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      fontSizeProvider.setFontSize(12.0);
-                    },
-                    child: const Text('Small'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      fontSizeProvider.setFontSize(14.0);
-                    },
-                    child: const Text('Default'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      fontSizeProvider.setFontSize(16.0);
-                    },
-                    child: const Text('Large'),
-                  ),
-                ],
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        fontSizeProvider.setFontSize(12.0);
+                      },
+                      child: Text(Translations.translate(locale, 'small')),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        fontSizeProvider.setFontSize(14.0);
+                      },
+                      child: Text(Translations.translate(locale, 'default')),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        fontSizeProvider.setFontSize(16.0);
+                      },
+                      child: Text(Translations.translate(locale, 'large')),
+                    ),
+                  ],
+                ),
               );
             },
           ),
-          const Divider(),
+          Divider(color: theme.dividerColor),
           // Other Options
           ListTile(
-            title: const Text('Privacy Policy'),
+            title: Text(Translations.translate(locale, 'privacyPolicy')),
             onTap: () {
               // Navigate to Privacy Policy
             },
           ),
           ListTile(
-            title: const Text('About Us'),
+            title: Text(Translations.translate(locale, 'aboutUs')),
             onTap: () {
               // Navigate to About Us
             },
           ),
           // Show Login button if user is in guest mode (not authenticated)
           if (!isAuthenticated) ...[
-            const Divider(),
+            Divider(color: theme.dividerColor),
             ListTile(
-              title: const Text('Login'),
-              leading: const Icon(Icons.login),
+              title: Text(Translations.translate(locale, 'login')),
+              leading: Icon(Icons.login, color: theme.colorScheme.primary),
               onTap: () {
                 Navigator.push(
                   context,
@@ -126,10 +148,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
           // Show Log Out button only if user is authenticated
           if (isAuthenticated) ...[
-            const Divider(),
+            Divider(color: theme.dividerColor),
             ListTile(
-              title: const Text('Log Out'),
-              leading: const Icon(Icons.logout),
+              title: Text(Translations.translate(locale, 'logOut')),
+              leading: Icon(Icons.logout, color: theme.colorScheme.error),
               onTap: () async {
                 await authProvider.signOut();
                 // Navigate back to root so AuthWrapper can show login screen
