@@ -79,6 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final surfaceColor = Theme.of(context).scaffoldBackgroundColor;
+    final errorColor = Theme.of(context).colorScheme.error;
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -90,22 +94,22 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo/Title
-                const Icon(Icons.eco, size: 80, color: Color(0xFF2E7D32)),
+                Icon(Icons.eco, size: 80, color: primaryColor),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'AgriBase',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2E7D32),
+                    color: primaryColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Smart Farming Solutions',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 48),
 
@@ -158,13 +162,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: errorColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
+                      border: Border.all(color: errorColor.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red.shade800),
+                      style: TextStyle(color: errorColor),
                     ),
                   ),
 
@@ -174,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _signIn,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
+                    backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -220,16 +224,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     }
                   },
-                  child: const Text(
+                  child: Text(
                     "Don't have an account? Sign Up",
-                    style: TextStyle(color: Color(0xFF2E7D32)),
+                    style: TextStyle(color: primaryColor),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Or',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
                 // Google sign in button
@@ -239,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: const Text('Sign in with Google'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.grey),
+                    side: BorderSide(color: Colors.grey[400]!),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -250,11 +254,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 // View as guest button
                 TextButton(
                   onPressed: widget.onGuestMode,
-                  child: const Text(
+                  child: Text(
                     'View as Guest',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF2E7D32),
+                      color: primaryColor,
                       decoration: TextDecoration.underline,
                     ),
                   ),

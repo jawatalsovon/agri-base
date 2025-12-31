@@ -142,7 +142,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
             clipBehavior: Clip.antiAlias,
             child: Container(
               height: 400,
-              color: Colors.blue[50],
+              color: Colors.green[50],
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -170,7 +170,7 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
             children: [
               Container(
                 height: 400,
-                color: Colors.blue[50],
+                color: Colors.green[50],
                 child: _shapeSource == null
                     ? const Center(child: CircularProgressIndicator())
                     : SfMaps(

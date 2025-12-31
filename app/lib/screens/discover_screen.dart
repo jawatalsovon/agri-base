@@ -210,18 +210,18 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
+                    color: Colors.green[50],
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue[200]!),
+                    border: Border.all(color: Colors.green[200]!),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                      Icon(Icons.info_outline, color: Colors.green[700], size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Hover over districts to see yield and percentage contribution',
-                          style: TextStyle(fontSize: 12, color: Colors.blue[900]),
+                          style: TextStyle(fontSize: 12, color: Colors.green[900]),
                         ),
                       ),
                     ],
