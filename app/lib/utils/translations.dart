@@ -38,12 +38,15 @@ class Translations {
       // Home Screen
       'welcomeToAgriBase': 'Welcome to AgriBase',
       'helloUser': 'Hello',
+      'appDescription': 'Your comprehensive hub for crop insights, predictions, and agricultural data analysis.',
       'signInForEnhancedFeatures': 'Sign In for Enhanced Features',
       'bangladeshiAgriculture': 'Bangladeshi Agriculture',
+      'bangladeshiFarmingDescription': 'Discover the rich agricultural heritage of Bangladesh, where rice, jute, and tea form the backbone of our economy. Our app celebrates the hardworking farmers who feed the nation.',
       'discoverRichAgricultural':
           'Discover the rich agricultural heritage of Bangladesh',
       'beautifulBangladeshiFarmland': 'Beautiful Bangladeshi Farmland',
       'ourMission': 'Our Mission',
+      'missionStatement': 'To empower Bangladeshi farmers with cutting-edge technology, providing accurate crop predictions, real-time market insights, and sustainable farming practices that ensure food security and economic prosperity for all.',
       'missionDescription':
           'To empower Bangladeshi farmers with cutting-edge technology',
       'whatAgribaseOffers': 'What AgriBase Offers',
@@ -178,11 +181,14 @@ class Translations {
       // Home Screen
       'welcomeToAgriBase': 'এগ্রিবেসে স্বাগতম',
       'helloUser': 'হ্যালো',
+      'appDescription': 'ফসলের অন্তর্দৃষ্টি, পূর্বাভাস এবং কৃষি ডেটা বিশ্লেষণের জন্য আপনার ব্যাপক হাব।',
       'signInForEnhancedFeatures': 'উন্নত বৈশিষ্ট্যগুলির জন্য সাইন ইন করুন',
       'bangladeshiAgriculture': 'বাংলাদেশী কৃষি',
+      'bangladeshiFarmingDescription': 'বাংলাদেশের সমৃদ্ধ কৃষি ঐতিহ্য আবিষ্কার করুন, যেখানে ধান, পাট এবং চা আমাদের অর্থনীতির মেরুদণ্ড। আমাদের অ্যাপ সেই কঠোর পরিশ্রমী কৃষকদের উদযাপন করে যারা দেশকে খাবার সরবরাহ করেন।',
       'discoverRichAgricultural': 'বাংলাদেশের সমৃদ্ধ কৃষি ঐতিহ্য আবিষ্কার করুন',
       'beautifulBangladeshiFarmland': 'সুন্দর বাংলাদেশী কৃষিভূমি',
       'ourMission': 'আমাদের মিশন',
+      'missionStatement': 'অত্যাধুনিক প্রযুক্তির মাধ্যমে বাংলাদেশী কৃষকদের ক্ষমতায়ন করা, নির্ভুল ফসলের ফলন পূর্বাভাস, রিয়েল-টাইম বাজার অন্তর্দৃষ্টি এবং টেকসই কৃষি অনুশীলন প্রদান করা যা খাদ্য নিরাপত্তা এবং সকলের জন্য অর্থনৈতিক সমৃদ্ধি নিশ্চিত করে।',
       'missionDescription':
           'অত্যাধুনিক প্রযুক্তির মাধ্যমে বাংলাদেশী কৃষকদের ক্ষমতায়ন করা',
       'whatAgribaseOffers': 'এগ্রিবেস কী অফার করে',

@@ -18,7 +18,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   final CropsDatabaseService _cropsService = CropsDatabaseService();
 
   static const List<Color> _pieColors = [
-    Colors.green,
+    Colors.blue,
     Colors.green,
     Colors.red,
     Colors.orange,

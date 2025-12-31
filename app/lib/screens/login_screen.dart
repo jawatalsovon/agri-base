@@ -80,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-    final surfaceColor = Theme.of(context).scaffoldBackgroundColor;
     final errorColor = Theme.of(context).colorScheme.error;
     
     return Scaffold(

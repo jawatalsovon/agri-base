@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
@@ -125,7 +126,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your comprehensive hub for crop insights, predictions, and agricultural data analysis.',
+            Translations.translate(locale, 'appDescription'),
             style: TextStyle(
               fontSize: 18,
               color: Colors.white70,
@@ -175,7 +176,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Discover the rich agricultural heritage of Bangladesh, where rice, jute, and tea form the backbone of our economy. Our app celebrates the hardworking farmers who feed the nation.',
+                Translations.translate(locale, 'bangladeshiFarmingDescription'),
                 style: TextStyle(
                   fontSize: 16,
                   color: theme.colorScheme.onSurface,
@@ -258,7 +259,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'To empower Bangladeshi farmers with cutting-edge technology, providing accurate crop predictions, real-time market insights, and sustainable farming practices that ensure food security and economic prosperity for all.',
+                Translations.translate(locale, 'missionStatement'),
                 style: const TextStyle(fontSize: 18, color: Colors.white, height: 1.6),
                 textAlign: TextAlign.center,
               ),
@@ -432,7 +433,7 @@ class HomeScreen extends StatelessWidget {
                       locale: locale,
                       icon: Icons.email,
                       titleKey: 'emailSupport',
-                      subtitle: 'support@agribase.com',
+                      subtitle: 'shafin2954@gmail.com',
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -442,11 +443,12 @@ class HomeScreen extends StatelessWidget {
                       locale: locale,
                       icon: Icons.phone,
                       titleKey: 'phoneSupport',
-                      subtitle: '+1 (555) 123-4567',
+                      subtitle: '+8801551552954',
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 35),
             ],
           ),
         );
@@ -484,15 +486,26 @@ class HomeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark
-                    ? theme.colorScheme.onSurfaceVariant
-                    : const Color(0xFF9E9E9E),
+            GestureDetector(
+              onLongPress: () {
+                Clipboard.setData(ClipboardData(text: subtitle));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${subtitle} copied to clipboard'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark
+                      ? theme.colorScheme.onSurfaceVariant
+                      : const Color(0xFF9E9E9E),
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
