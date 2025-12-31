@@ -139,7 +139,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           builder: (context, localizationProvider, child) {
             return Text(
               Translations.translate(localizationProvider.locale, 'analytics'),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             );
           },
         ),
@@ -170,7 +173,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     color: const Color.fromARGB(255, 0, 77, 64),
                   ),
                   items: _crops.map((crop) {
-                    final translatedCrop = TranslationHelper.formatCropName(crop, locale);
+                    final translatedCrop = TranslationHelper.formatCropName(
+                      crop,
+                      locale,
+                    );
                     return DropdownMenuItem(
                       value: crop,
                       child: Text(translatedCrop),
@@ -204,8 +210,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     color: const Color.fromARGB(255, 0, 77, 64),
                   ),
                   items: _displayDistricts.map((district) {
-                    final translatedDistrict = TranslationHelper.formatDistrictName(district, locale);
-                    return DropdownMenuItem(value: district, child: Text(translatedDistrict));
+                    final translatedDistrict =
+                        TranslationHelper.formatDistrictName(district, locale);
+                    return DropdownMenuItem(
+                      value: district,
+                      child: Text(translatedDistrict),
+                    );
                   }).toList(),
                   onChanged: (district) {
                     if (district != null) {
@@ -222,7 +232,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 const SizedBox(height: 24),
                 Text(
                   Translations.translate(locale, 'yield'),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -237,12 +250,43 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
-                      child: Text(
-                        Translations.translate(locale, 'noData'),
-                      ),
+                      child: Text(Translations.translate(locale, 'noData')),
                     ),
                   )
                 else ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      height: 300,
+                      padding: const EdgeInsets.all(16),
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        primaryYAxis: NumericAxis(
+                          title: const AxisTitle(text: 'Production (MT)'),
+                        ),
+                        series: <CartesianSeries>[
+                          LineSeries<Map<String, dynamic>, String>(
+                            dataSource: _yieldByYears,
+                            xValueMapper: (data, _) =>
+                                data['year'] as String? ?? '',
+                            yValueMapper: (data, _) =>
+                                (data['production_mt'] as num? ?? 0).toDouble(),
+                            name: 'Production',
+                            color: const Color.fromARGB(255, 0, 77, 64),
+                            markerSettings: const MarkerSettings(
+                              isVisible: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Data Table
                   Text(
                     Translations.translate(locale, 'yield'),
                     style: const TextStyle(
@@ -251,153 +295,136 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  const SizedBox(height: 16),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Container(
-                  height: 300,
-                  padding: const EdgeInsets.all(16),
-                  child: SfCartesianChart(
-                    primaryXAxis: CategoryAxis(),
-                    primaryYAxis: NumericAxis(
-                      title: const AxisTitle(text: 'Production (MT)'),
+                  const SizedBox(height: 12),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    series: <CartesianSeries>[
-                      LineSeries<Map<String, dynamic>, String>(
-                        dataSource: _yieldByYears,
-                        xValueMapper: (data, _) =>
-                            data['year'] as String? ?? '',
-                        yValueMapper: (data, _) =>
-                            (data['production_mt'] as num? ?? 0).toDouble(),
-                        name: 'Production',
-                        color: const Color.fromARGB(255, 0, 77, 64),
-                        markerSettings: const MarkerSettings(isVisible: true),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Data Table
-              Text(
-                Translations.translate(locale, 'yield'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(
-                            255,
-                            0,
-                            77,
-                            64,
-                          ).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Year',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(
+                                255,
+                                0,
+                                77,
+                                64,
+                              ).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            Expanded(
-                              child: Text(
-                                'Production (MT)',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'Yield (MT/Ha)',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ..._yieldByYears.map((data) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  TranslationHelper.formatNumber(data['year'] as String? ?? '', useBengaliNumerals: locale.languageCode == 'bn'),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                            child: const Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Year',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  TranslationHelper.formatNumberWithCommas((data['production_mt'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale),
-                                  textAlign: TextAlign.right,
+                                Expanded(
+                                  child: Text(
+                                    'Production (MT)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  TranslationHelper.formatNumberWithCommas((data['yield_per_hectare'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale),
-                                  textAlign: TextAlign.right,
+                                Expanded(
+                                  child: Text(
+                                    'Yield (MT/Ha)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      }),
-                    ],
+                          const SizedBox(height: 8),
+                          ..._yieldByYears.map((data) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      TranslationHelper.formatNumber(
+                                        data['year'] as String? ?? '',
+                                        useBengaliNumerals:
+                                            locale.languageCode == 'bn',
+                                      ),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      TranslationHelper.formatNumberWithCommas(
+                                        (data['production_mt'] as num? ?? 0)
+                                            .toDouble(),
+                                        decimalPlaces: 3,
+                                        locale: locale,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      TranslationHelper.formatNumberWithCommas(
+                                        (data['yield_per_hectare'] as num? ?? 0)
+                                            .toDouble(),
+                                        decimalPlaces: 3,
+                                        locale: locale,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                const Divider(height: 40),
+                Text(
+                  Translations.translate(locale, 'area'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
-            const Divider(height: 40),
-            Text(
-              Translations.translate(locale, 'area'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildPieChart('Total Crop Area', _pieCropArea),
-                _buildPieChart('Fibre Area', _pieFibreArea),
-                _buildPieChart('Narcotics Area', _pieNarcosArea),
-                _buildPieChart('Oilseeds Area', _pieOilseedArea),
-                _buildPieChart('Pulses Area', _piePulseArea),
-                _buildPieChart('Rice Area', _pieRiceArea),
-                _buildPieChart('Spices Area', _pieSpicesArea),
-                _buildPieChart('Sugarcane Area', _pieSugerArea),
+                const SizedBox(height: 12),
+                GridView.count(
+                  crossAxisCount: 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildPieChart('Total Crop Area', _pieCropArea),
+                    _buildPieChart('Fibre Area', _pieFibreArea),
+                    _buildPieChart('Narcotics Area', _pieNarcosArea),
+                    _buildPieChart('Oilseeds Area', _pieOilseedArea),
+                    _buildPieChart('Pulses Area', _piePulseArea),
+                    _buildPieChart('Rice Area', _pieRiceArea),
+                    _buildPieChart('Spices Area', _pieSpicesArea),
+                    _buildPieChart('Sugarcane Area', _pieSugerArea),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      );
+          );
         },
       ),
     );
@@ -407,33 +434,45 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final filteredData = data
         .where((d) => d['Category'] != null && d['Percentage'] != null)
         .toList();
+
+    // Sort by percentage descending and take top 5
+    final sortedData = List.from(filteredData)
+      ..sort((a, b) {
+        final percentA =
+            double.tryParse(a['Percentage'] as String? ?? '0') ?? 0.0;
+        final percentB =
+            double.tryParse(b['Percentage'] as String? ?? '0') ?? 0.0;
+        return percentB.compareTo(percentA);
+      });
+
+    final top5Data = sortedData.take(5).toList().cast<Map<String, dynamic>>();
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             Text(
               title,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            filteredData.isEmpty
+            top5Data.isEmpty
                 ? const SizedBox(
                     height: 200,
                     child: Center(child: Text('No data available')),
                   )
-                : SizedBox(
-                    height: 200,
+                : Expanded(
                     child: SfCircularChart(
                       legend: const Legend(
                         isVisible: true,
                         position: LegendPosition.bottom,
+                        overflowMode: LegendItemOverflowMode.wrap,
                       ),
                       series: <CircularSeries>[
                         PieSeries<Map<String, dynamic>, String>(
-                          dataSource: filteredData,
+                          dataSource: top5Data,
                           xValueMapper: (datum, _) =>
                               datum['Category'] as String? ?? '',
                           yValueMapper: (datum, _) =>
@@ -446,6 +485,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           dataLabelSettings: const DataLabelSettings(
                             isVisible: true,
                             labelPosition: ChartDataLabelPosition.outside,
+                            connectorLineSettings: ConnectorLineSettings(
+                              type: ConnectorType.line,
+                              width: 2,
+                            ),
                           ),
                         ),
                       ],
