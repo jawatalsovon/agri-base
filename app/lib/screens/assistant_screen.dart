@@ -56,6 +56,26 @@ class _AssistantScreenState extends State<AssistantScreen> {
     }
   }
 
+  void _pasteQuestion(String question) {
+    _controller.text = question;
+  }
+
+  Widget _buildQuestionButton(String question) {
+    return OutlinedButton.icon(
+      onPressed: () => _pasteQuestion(question),
+      icon: const Icon(Icons.help_outline, size: 16),
+      label: Text(
+        question,
+        style: const TextStyle(fontSize: 12),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(color: Theme.of(context).primaryColor),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,18 +83,36 @@ class _AssistantScreenState extends State<AssistantScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AgriBase AI Assistant'),
-        backgroundColor: const Color.fromARGB(255, 0, 77, 64),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              'Ask questions like:\n'
-              '• Which crop did best in 2024?\n'
-              '• How to irrigate Aman rice in dry season?\n'
-              '• Show yield statistics for Boro in 2023.',
-              style: TextStyle(fontSize: 14),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ask questions like:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildQuestionButton(
+                      'Which crop did best in 2024?',
+                    ),
+                    _buildQuestionButton(
+                      'How to irrigate Aman rice in dry season?',
+                    ),
+                    _buildQuestionButton(
+                      'Show yield statistics for Boro in 2023.',
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           const Divider(height: 1),
@@ -153,7 +191,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.send),
-                    color: const Color.fromARGB(255, 0, 77, 64),
+                    color: Theme.of(context).primaryColor,
                     onPressed: _isLoading ? null : _send,
                   ),
                 ],

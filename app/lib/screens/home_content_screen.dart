@@ -241,16 +241,17 @@ class HomeScreen extends StatelessWidget {
   Widget _buildAppGoalSection() {
     return Consumer<LocalizationProvider>(
       builder: (context, localizationProvider, child) {
+        final theme = Theme.of(context);
         final locale = localizationProvider.locale;
         return Container(
           padding: const EdgeInsets.all(24.0),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color.fromARGB(255, 0, 77, 64),
-                Color.fromARGB(255, 76, 175, 80),
+                theme.colorScheme.primary,
+                theme.colorScheme.secondary,
               ],
             ),
           ),

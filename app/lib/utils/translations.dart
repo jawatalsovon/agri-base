@@ -259,7 +259,7 @@ class Translations {
       // Languages
       'english': 'ইংরেজি',
       'bangla': 'বাংলা',
-      'agriBase': 'এগ্রিবেস',
+      'agriBase': 'AgriBase',
 
       // Data Fields (Dashboard)
       'historicalData': 'ঐতিহাসিক ডেটা',

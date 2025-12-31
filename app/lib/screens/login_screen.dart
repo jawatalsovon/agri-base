@@ -54,29 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final error = await authProvider.signInWithGoogle();
-
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-      _errorMessage = error;
-    });
-
-    // If login successful (no error), navigate back to root
-    // AuthWrapper will automatically show home screen when auth state changes
-    if (error == null && mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
@@ -226,26 +203,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     "Don't have an account? Sign Up",
                     style: TextStyle(color: primaryColor),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Or',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                // Google sign in button
-                OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _signInWithGoogle,
-                  icon: const Icon(Icons.g_mobiledata), // Placeholder icon
-                  label: const Text('Sign in with Google'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Colors.grey[400]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
                 ),
                 const SizedBox(height: 24),

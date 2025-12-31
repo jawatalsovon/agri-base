@@ -59,28 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final error = await authProvider.signInWithGoogle();
-
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-      _errorMessage = error;
-    });
-
-    // If login successful (no error), navigate back to root
-    // AuthWrapper will automatically show home screen when auth state changes
-    if (error == null && mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +73,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo/Title
-                const Icon(Icons.eco, size: 80, color: Color(0xFF2E7D32)),
+                Icon(Icons.eco, size: 80, color: Theme.of(context).primaryColor),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Create Account',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2E7D32),
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -219,7 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
+                    backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -265,29 +244,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       );
                     }
                   },
-                  child: const Text(
+                  child: Text(
                     'Already have an account? Sign In',
-                    style: TextStyle(color: Color(0xFF2E7D32)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Or',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                // Google sign in button
-                OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _signInWithGoogle,
-                  icon: const Icon(Icons.g_mobiledata, size: 24),
-                  label: const Text('Sign up with Google'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.grey),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -295,11 +254,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // View as guest button
                 TextButton(
                   onPressed: widget.onGuestMode,
-                  child: const Text(
+                  child: Text(
                     'View as Guest',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF2E7D32),
+                      color: Theme.of(context).primaryColor,
                       decoration: TextDecoration.underline,
                     ),
                   ),
