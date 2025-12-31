@@ -1,68 +1,107 @@
-# AgriBase
-#### Video Demo:  https://youtu.be/kCPsaXMOU-8?si=847LGnc8TpdEF4ku
-#### Description:
-   AgriBase is a web app with flask in the backend. I have implemented the data from the National Yearbook of Agricultural Statistics of my Country, Bangladesh, in the project.
+# AgriBase: Cultivating Data-Driven Agriculture
 
-   I got the yearbook as a large pdf file of 696 pages. It contains hundreds of tables and charts. Searching for any specific desired data can be troublesome for us all. That is why I took this project to make the data more accessible to everyone.
-   I first extracted the tables and pie-charts from the pdf and uploaded as seperate csv files each. After cleaning the csvs, I uploaded those to a folder named data in my project folder. I organised the csv files inside the data folder hierarchically in diffrent branch folders.
-   Then, I made the database, importing all the csv files to the database. I implemented the other files as well in the following tree structure depicted by ascii:
+**Video Demo:** [Insert Video Link Here]
 
-                  ├── project
-                  │   ├── static
-                  │   │   ├── favicon.ico
-                  │   │   ├── css
-                  │   │   └── js
-                  │   ├── data(contains the csv files as backup)
-                  │   ├── templates
-                  │   │   ├── area_summary.html
-                  │   │   ├── crop_analysis.html
-                  │   │   ├── crop_yield_info.html
-                  │   │   ├── data.html
-                  │   │   ├── index.html
-                  │   │   ├── pie_chart.html
-                  │   │   ├── top_crop_district.html
-                  │   │   └── yield_summary.html
-                  ├── app.py
-                  ├── database.db
-                  ├── README.md
-                  └── requirements.txt
+AgriBase is a comprehensive digital platform designed to democratize access to agricultural data in Bangladesh. Originally a web application, AgriBase has evolved into a feature-rich Flutter app, serving as a bridge between complex statistical data and the farmers, stakeholders, and researchers who need it most.
 
-   From the data optained from the database, I implemented my project in five distinct sections. The descriptions of each are as follows:
-   Area Summary:
-      It contains the data of production and area allocated for each crop over several years. User can scroll down to see all the data oro seatch any crop in the search bar located above the table.
-   Yield Summary:
-      It contains the per acre yield amount of each crop or crop variety. User can jump to any page py selecting page number at the bottom of the table, or search specific crop in the search bar located above the table to get info about the crop.
-   Crop Analysis:
-      If the user chooses any major cereal and a district, he/she would find all the data of that crop in that district. (I am yet to update the data of crops other than the four major cereals of Bangladesh)
-   Top Producers:
-      Here the user can find two forms. In the first form, he/she can find the top performing districts for any choosen crop variety production. In the other form, the user can select a district to see which crops are produced most in that district.
-   Pie-charts:
-      I have implemented the area distribution summary of each crops through pie-charts for better visuals. Hovering over the pie charts, user can see the percentage of area used by the cop variety pie hoverd over.
+## What's New in the Flutter version:
+We have transitioned from a Flask web backend to a robust Flutter Application to ensure mobile accessibility for users in the field.
 
-   Throughout the project, chatgpt, gemini, grok, and claude were my partners. The AIs helped me solve a lot of problems. I encountered internal server errors a lot of time. Gemini was a savior.
-   In some cases, the errors were called because the null cases of the database were not handled, or with the indentation of loops. Though mostly those were easy solves, the AIs saved a lot of my debugging time.
+- Mobile-First Flutter Architecture: A seamless, cross-platform mobile experience.
 
-   The part I struggled with in the project was the extraction of the tables from the pdf. I had to first convert them in csv structure. I had to convert them all into csv files in text editor, and give them unique name as well. It was very repetative, yet something I could not take help from AI. Otherwise the project was fun, I enjoyed a lot.
+- Integrated AI Agent: A smart assistant that helps users query the database, answering questions like "Which district produces the most rice?" or "What is the yield trend for wheat?".
 
-   The project is not a random placeholder project. Updating the info for all the crops would give the project a good standard that will be suitable for public use as well. I strongly believe that I can reach there someday. The website can be used to analyse which crop would be of best fit for any user for production in his locality. The webapp is dedicated for farmers and other related stakeholders. It provides easy to grash, better visuals to users. It can be a great tool for agricultural decision-making.
+- Statistical Forecasting: Implementation of Damped Holt's Linear Trend to predict crop production for the upcoming year.
 
-   The project is essentially small. However, it has immense scope. With the comprehensive data, a ai model ca be trained that can suggest which crop would be best for production in any particular region and in any particular cropping season. To make it more user friendly and to make it more accessible to its target user, farmars, I will implement this webapp in Bangla as well.
+- Bilingual Support: Full localization in Bangla and English, ensuring the app is accessible to local farmers and international researchers alike.
 
-   It was a great experience with a project. I will complete the full project as soon as I manage time.
+- Dark Mode: Modern UI support for better visibility in different lighting conditions.
+
+## The Data Journey: From PDF to Database
+The backbone of AgriBase is its data. The official agricultural statistics for Bangladesh are locked away in the National Yearbook of Agricultural Statistics—a massive 696-page PDF containing hundreds of static tables and charts.
+
+**The Challenge:** Searching for specific yield data or historical trends in a 700-page document is nearly impossible for the average user.
+
+**Our Solution (The Extraction Process):**
+
+1. Sourcing: We retrieved the official yearbook from the Bangladesh Government Statistics Website.
+
+2. Extraction: We undertook the painstaking process of extracting tables and charts from the PDF.
+
+3. Cleaning: Each dataset was converted into individual CSV files, cleaned of formatting errors, and normalized.
+
+4. Structuring: The data was organized hierarchically into branch folders and then imported into a structured SQLite database.
+
+This rigorous data engineering process allows AgriBase to serve instant, queryable data that was previously buried in digital paperwork.
+
+## Key Features
+1. 🔮 AI & Predictive Analytics
+Production Forecasting: We utilize Damped Holt's Linear Trend method, a robust time-series forecasting technique, to predict the production volume of all crops for the next year based on historical patterns.
+
+The AI Consultant: An intelligent chatbot powered by LLMs that acts as an agricultural consultant, guiding users through data interpretation and app navigation.
+
+2. Deep Data Analysis
+- Area Summary: View production and area allocation for crops over multiple years.
+
+- Yield Summary: Analyze per-acre yield amounts for specific crop varieties.
+
+- Top Producers: Instantly identify which districts are top performers for specific crops, or conversely, which crops thrive in a specific district.
+
+- Visual Insights: Interactive pie charts showing area distribution for better visualization of crop dominance.
+
+3. Crop Analysis
+Detailed breakdowns for major cereals (and expanding to all crops), allowing users to filter by district and crop type to get granular production metrics.
+
+## Tech Stack & Tools
+- Framework: Flutter (Dart)
+
+- Database: SQLite
+
+- Data Science: Python (Pandas), Statsmodels (Holt's Linear Trend)
+
+- AI/LLM Integration: [Specify the API used, e.g., Gemini API, OpenAI, etc.]
+
+**Built with the help of:**
+
+- Github Copilot & Cursor: For rapid code generation and refactoring.
+
+- Google Gemini: For debugging complex logic, internal server error resolution, and brainstorming data structure optimization.
+
+## Future Roadmap
+We are committed to making AgriBase the standard for agricultural intelligence in Bangladesh.
+
+1. Expanded Crop Database: Inputting high-yielding and hybrid varieties with pros/cons for specific geographic locations.
+
+2. Satellite Intelligence: Implementing Google Earth Engine to predict yields based on satellite imagery.
+
+3. Computer Vision: Pest detection and disease identification via phone camera.
+
+4. Introduce more variables: We will try to include more features in our data from official sources, which will help the farmers more.
+
+5. Educational Hub: AI-guided tutoring for modern farming methods (Aquaponics, Hydroponics).
+
+## Installation & Setup
+1. Clone the repository:
 
 
-   New feature: AI chatbot
 
-   Features to work on:
-   1. Android UI
-   2. Bilingal Support (bangla and english)
-   3. Input all crop data first. 
-1. Data of  all possible high yielding and hybrid varieties of different geographic locations of our country, pros and cons of each variety to help people make calculated decisions about growing crops. 
-2. Yield prediction based on satellite imagery from google earth engine. 
-3. Pest Detection and Disease identification through farmer clicked images
-4. New scopes section, where people can learn about possible opportunities, which would also include interviews from people who stood out. E.g., snail shell or fish scale farming. 
-5. AI guided tutoring system for methods like Aquaponics, Hydroponics, Aeroponics, or Rooftop gardening. 
-6. Separate Guidance for Subsistence, semi commercial, and industrial agriculture.
+```{bash}
+git clone https://github.com/yourusername/agribase.git
+```
 
+2. Navigate to the project directory:
 
+```{bash}
+cd app
+```
+3. Install dependencies:
 
+```{bash}
+flutter pub get
+```
+4. Run the app:
+
+```{bash}
+flutter run
+```
+*"AgriBase is not just a project; it is a tool for agricultural decision-making, dedicated to farmers and stakeholders to ensure food security through data."*
