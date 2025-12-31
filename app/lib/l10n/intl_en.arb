@@ -1,0 +1,26 @@
+{
+  "appTitle": "AgriBase",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home screen title"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  "signup": "Sign Up",
+  "@signup": {
+    "description": "Sign up button text"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  }
+}

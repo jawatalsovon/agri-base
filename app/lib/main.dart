@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -160,6 +161,13 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 themeMode: themeProvider.themeMode,
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [Locale('en', ''), Locale('bn', '')],
+                locale: localizationProvider.locale,
                 home: const AuthWrapper(),
               );
             },

@@ -11,11 +11,11 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 /// but prefer dart-define for real builds.
 class GeminiClient {
   GeminiClient._()
-      : _apiKey = "AIzaSyDYEx1xSi9QwRPIGL-qbAdtklFmMjj3JvQ",
-        _model = GenerativeModel(
-          model: 'gemini-2.5-flash-lite',
-          apiKey: "AIzaSyDYEx1xSi9QwRPIGL-qbAdtklFmMjj3JvQ",
-        );
+    : _apiKey = "AIzaSyA_4h_7zuFAEgI877QYfhFgnDp_rRt41d0",
+      _model = GenerativeModel(
+        model: 'gemini-2.5-flash-lite',
+        apiKey: "AIzaSyA_4h_7zuFAEgI877QYfhFgnDp_rRt41d0",
+      );
 
   static final GeminiClient instance = GeminiClient._();
 
@@ -32,14 +32,12 @@ class GeminiClient {
 
     try {
       final response = await _model.generateContent([
-        Content.text(
-          '''
+        Content.text('''
 You are AgriBase AI, an agricultural assistant focused on Bangladesh context.
 Give practical, concise guidance (3–6 sentences). 
 Explain clearly and avoid overly technical language unless needed.
 User question: $userMessage
-''',
-        ),
+'''),
       ]);
 
       return response.text?.trim().isNotEmpty == true
@@ -60,7 +58,8 @@ User question: $userMessage
       return null;
     }
 
-    final prompt = '''
+    final prompt =
+        '''
 You are an expert SQLite analyst for an agricultural database.
 Based on the user's question and the database schema, produce ONE runnable
 SQLite SELECT statement only. No comments, no explanations, no text around it.
@@ -107,7 +106,8 @@ SQL (table name only, no database prefix, single quotes for string values):
       return 'AI is not configured. Please set GEMINI_API_KEY in your build (dart-define).';
     }
 
-    final prompt = '''
+    final prompt =
+        '''
 You are AgriBase AI, an agricultural consultant.
 Use the RETRIEVED DATA to answer the question. Keep it brief (3–6 sentences),
 cite concrete numbers where possible, and mention if they are forecasts or
@@ -135,5 +135,3 @@ Answer:
     }
   }
 }
-
-

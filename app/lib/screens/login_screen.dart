@@ -45,6 +45,21 @@ class _LoginScreenState extends State<LoginScreen> {
     // Navigation will be handled automatically by AuthWrapper when auth state changes
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final error = await authProvider.signInWithGoogle();
+
+    setState(() {
+      _isLoading = false;
+      _errorMessage = error;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,6 +193,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text(
                     "Don't have an account? Sign Up",
                     style: TextStyle(color: Color(0xFF2E7D32)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Or',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                // Google sign in button
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                  icon: const Icon(Icons.g_mobiledata), // Placeholder icon
+                  label: const Text('Sign in with Google'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ],

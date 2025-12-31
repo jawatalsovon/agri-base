@@ -1,0 +1,26 @@
+{
+  "appTitle": "আগ্রিবেস",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "home": "হোম",
+  "@home": {
+    "description": "Home screen title"
+  },
+  "login": "লগইন",
+  "@login": {
+    "description": "Login button text"
+  },
+  "signup": "সাইন আপ",
+  "@signup": {
+    "description": "Sign up button text"
+  },
+  "email": "ইমেইল",
+  "@email": {
+    "description": "Email field label"
+  },
+  "password": "পাসওয়ার্ড",
+  "@password": {
+    "description": "Password field label"
+  }
+}

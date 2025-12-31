@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class LocalizationProvider with ChangeNotifier {
-  String _language = 'English';
+  Locale _locale = const Locale('en');
 
-  String get language => _language;
+  Locale get locale => _locale;
+
+  String get language => _locale.languageCode == 'bn' ? 'Bangla' : 'English';
 
   void setLanguage(String lang) {
-    _language = lang;
+    _locale = lang == 'Bangla' ? const Locale('bn') : const Locale('en');
     notifyListeners();
   }
 }
