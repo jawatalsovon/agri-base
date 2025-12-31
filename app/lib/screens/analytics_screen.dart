@@ -94,7 +94,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         await _loadData();
       }
     } catch (e) {
-      print('Error loading initial data: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -119,7 +119,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading yield data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -296,7 +295,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             0,
                             77,
                             64,
-                          ).withOpacity(0.1),
+                          ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(

@@ -12,12 +12,12 @@ class ExplorerScreen extends StatefulWidget {
 
 class _ExplorerScreenState extends State<ExplorerScreen> {
   final CropsDatabaseService _cropsService = CropsDatabaseService();
-  
+
   List<String> _crops = [];
   List<String> _years = [];
   String? _selectedCrop;
   String? _selectedYear;
-  
+
   Map<String, DistrictData> _districtDataMap = {};
   bool _isLoading = false;
 
@@ -42,7 +42,7 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
         await _loadYearsForCrop(crops.first);
       }
     } catch (e) {
-      print('Error loading crops: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -67,7 +67,7 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
         await _loadMapData();
       }
     } catch (e) {
-      print('Error loading years: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -83,14 +83,17 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
     });
 
     try {
-      final districtData = await _cropsService.getDistrictDataForMap(_selectedCrop!, _selectedYear!);
-      
+      final districtData = await _cropsService.getDistrictDataForMap(
+        _selectedCrop!,
+        _selectedYear!,
+      );
+
       // Convert to DistrictData format for the map
       final districtDataMap = <String, DistrictData>{};
       for (final entry in districtData.entries) {
         final district = entry.key;
         final data = entry.value;
-        
+
         districtDataMap[district] = DistrictData(
           name: district,
           bnName: district, // TODO: Add Bengali name mapping
@@ -107,7 +110,6 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading map data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -148,10 +150,7 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
               items: _crops.map((crop) {
-                return DropdownMenuItem(
-                  value: crop,
-                  child: Text(crop),
-                );
+                return DropdownMenuItem(value: crop, child: Text(crop));
               }).toList(),
               onChanged: (crop) {
                 if (crop != null) {
@@ -183,10 +182,7 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                 color: const Color.fromARGB(255, 0, 77, 64),
               ),
               items: _years.map((year) {
-                return DropdownMenuItem(
-                  value: year,
-                  child: Text(year),
-                );
+                return DropdownMenuItem(value: year, child: Text(year));
               }).toList(),
               onChanged: (year) {
                 if (year != null) {
@@ -213,10 +209,7 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                   Expanded(
                     child: Text(
                       'Hover over districts to see yield and percentage contribution',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[900],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.blue[900]),
                     ),
                   ),
                 ],
@@ -242,4 +235,3 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
     );
   }
 }
-

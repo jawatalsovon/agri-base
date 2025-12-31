@@ -43,7 +43,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         await _loadYearsForCrop(crops.first);
       }
     } catch (e) {
-      print('Error loading crops: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -68,7 +68,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         await _loadMapData();
       }
     } catch (e) {
-      print('Error loading years: $e');
+      // ignore: empty_catches
     } finally {
       setState(() {
         _isLoading = false;
@@ -111,7 +111,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading map data: $e');
       setState(() {
         _isLoading = false;
       });

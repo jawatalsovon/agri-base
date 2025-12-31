@@ -8,11 +8,7 @@ enum AiQueryType { dbQuery, webKnowledge, mixed }
 
 /// Result of an assistant interaction.
 class AiResponse {
-  AiResponse({
-    required this.answer,
-    this.sqlUsed,
-    this.queryType,
-  });
+  AiResponse({required this.answer, this.sqlUsed, this.queryType});
 
   final String answer;
   final String? sqlUsed;
@@ -95,11 +91,7 @@ Year format notes:
           final fallback = await _gemini.askGeneral(
             '$message (Note: database lookup failed, give a general explanation instead.)',
           );
-          return AiResponse(
-            answer: fallback,
-            sqlUsed: null,
-            queryType: type,
-          );
+          return AiResponse(answer: fallback, sqlUsed: null, queryType: type);
         }
 
         final safeSql = _makeSafeSelect(sql);
@@ -207,37 +199,38 @@ Year format notes:
     // Remove database prefixes like "crops.crop_data" -> "crop_data"
     // Match patterns like: database_name.table_name or "database_name"."table_name"
     // Handle both quoted and unquoted cases
-    s = s.replaceAllMapped(
-      RegExp(r'(\w+)\.(\w+)', caseSensitive: false),
-      (match) {
-        // Keep only the table name (second group)
-        return match.group(2) ?? match.group(0)!;
-      },
-    );
+    s = s.replaceAllMapped(RegExp(r'(\w+)\.(\w+)', caseSensitive: false), (
+      match,
+    ) {
+      // Keep only the table name (second group)
+      return match.group(2) ?? match.group(0)!;
+    });
     // Also handle quoted cases like "crops"."crop_data"
-    s = s.replaceAllMapped(
-      RegExp(r'"(\w+)"\."(\w+)"', caseSensitive: false),
-      (match) {
-        // Keep only the table name (second group) with quotes
-        return '"${match.group(2) ?? match.group(0)!}"';
-      },
-    );
+    s = s.replaceAllMapped(RegExp(r'"(\w+)"\."(\w+)"', caseSensitive: false), (
+      match,
+    ) {
+      // Keep only the table name (second group) with quotes
+      return '"${match.group(2) ?? match.group(0)!}"';
+    });
 
     // Fix string literals: convert double-quoted string VALUES to single quotes
     // SQLite uses single quotes for string literals, double quotes for identifiers
     // Pattern: WHERE column = "value" or LIKE "value%" or IN ("val1", "val2")
     // But preserve double quotes for column names (they appear in SELECT, WHERE column comparisons)
-    
+
     // Strategy: Convert double-quoted strings that appear after operators or look like year values
     // Convert double-quoted values after operators (=, LIKE, !=, <>, IS, IS NOT)
     s = s.replaceAllMapped(
-      RegExp(r'(\s*(?:=|LIKE|!=|<>|IS|IS NOT)\s+)"([^"]+)"', caseSensitive: false),
+      RegExp(
+        r'(\s*(?:=|LIKE|!=|<>|IS|IS NOT)\s+)"([^"]+)"',
+        caseSensitive: false,
+      ),
       (match) {
         // Convert double-quoted value to single-quoted
         return '${match.group(1)}\'${match.group(2)}\'';
       },
     );
-    
+
     // Convert double-quoted year values (e.g., "2023-24", "2017-18") anywhere in WHERE clause
     s = s.replaceAllMapped(
       RegExp(r'(\s+)"([0-9]{4}-[0-9]{2})"', caseSensitive: false),
@@ -245,7 +238,7 @@ Year format notes:
         return '${match.group(1)}\'${match.group(2)}\'';
       },
     );
-    
+
     // Convert double-quoted values in IN clauses: IN ("val1", "val2")
     // Match the entire IN clause and replace quotes inside
     s = s.replaceAllMapped(
@@ -263,7 +256,14 @@ Year format notes:
       throw ArgumentError('Only SELECT statements are allowed.');
     }
     // Block obvious modification / pragma commands.
-    final forbidden = ['INSERT ', 'UPDATE ', 'DELETE ', 'DROP ', 'ALTER ', 'PRAGMA '];
+    final forbidden = [
+      'INSERT ',
+      'UPDATE ',
+      'DELETE ',
+      'DROP ',
+      'ALTER ',
+      'PRAGMA ',
+    ];
     for (final bad in forbidden) {
       if (upper.contains(bad)) {
         throw ArgumentError('Unsafe SQL detected.');
@@ -288,8 +288,6 @@ Year format notes:
     }
 
     // If still huge, truncate the string.
-    return jsonText.substring(0, 4000) + '\n... (truncated)';
+    return '${jsonText.substring(0, 4000)}\n... (truncated)';
   }
 }
-
-

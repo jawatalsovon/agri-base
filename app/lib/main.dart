@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'screens/auth_wrapper.dart';
 import 'services/database_service.dart';
 import 'services/database_test_service.dart';
 import 'providers/theme_provider.dart';
 import 'providers/localization_provider.dart';
 import 'providers/font_size_provider.dart';
+import 'providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize database factory for desktop platforms
   await DatabaseService.initializeDatabaseFactory();
@@ -17,10 +23,8 @@ void main() async {
   await DatabaseService.instance.initialize();
 
   // Run database test
-  print('\n\n=== RUNNING DATABASE TEST ===');
   final testService = DatabaseTestService();
   await testService.testDatabase();
-  print('=== DATABASE TEST COMPLETE ===\n\n');
 
   runApp(const MyApp());
 }
@@ -35,6 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
         ChangeNotifierProvider(create: (_) => FontSizeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: Consumer3<ThemeProvider, LocalizationProvider, FontSizeProvider>(
         builder:
@@ -155,7 +160,7 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 themeMode: themeProvider.themeMode,
-                home: const AgriBaseHomeScreen(),
+                home: const AuthWrapper(),
               );
             },
       ),
