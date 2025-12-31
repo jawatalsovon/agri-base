@@ -412,14 +412,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    _buildPieChart('Total Crop Area', _pieCropArea),
-                    _buildPieChart('Fibre Area', _pieFibreArea),
-                    _buildPieChart('Narcotics Area', _pieNarcosArea),
-                    _buildPieChart('Oilseeds Area', _pieOilseedArea),
-                    _buildPieChart('Pulses Area', _piePulseArea),
-                    _buildPieChart('Rice Area', _pieRiceArea),
-                    _buildPieChart('Spices Area', _pieSpicesArea),
-                    _buildPieChart('Sugarcane Area', _pieSugerArea),
+                    _buildPieChart(Translations.translate(locale, 'totalCropArea'), _pieCropArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'fibreArea'), _pieFibreArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'narcoticsArea'), _pieNarcosArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'oilseedsArea'), _pieOilseedArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'pulsesArea'), _piePulseArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'riceArea'), _pieRiceArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'spicesArea'), _pieSpicesArea, locale),
+                    _buildPieChart(Translations.translate(locale, 'sugarcaneArea'), _pieSugerArea, locale),
                   ],
                 ),
               ],
@@ -430,7 +430,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _buildPieChart(String title, List<Map<String, dynamic>> data) {
+  Widget _buildPieChart(String title, List<Map<String, dynamic>> data, Locale locale) {
     final filteredData = data
         .where((d) => d['Category'] != null && d['Percentage'] != null)
         .toList();
@@ -473,8 +473,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       series: <CircularSeries>[
                         PieSeries<Map<String, dynamic>, String>(
                           dataSource: top5Data,
-                          xValueMapper: (datum, _) =>
-                              datum['Category'] as String? ?? '',
+                          xValueMapper: (datum, _) {
+                            final category = datum['Category'] as String? ?? '';
+                            return TranslationHelper.formatCropName(category, locale);
+                          },
                           yValueMapper: (datum, _) =>
                               double.tryParse(
                                 datum['Percentage'] as String? ?? '0',
@@ -482,10 +484,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               0.0,
                           pointColorMapper: (datum, index) =>
                               _pieColors[index % _pieColors.length],
-                          dataLabelSettings: const DataLabelSettings(
+                          dataLabelSettings: DataLabelSettings(
                             isVisible: true,
                             labelPosition: ChartDataLabelPosition.outside,
-                            connectorLineSettings: ConnectorLineSettings(
+                            connectorLineSettings: const ConnectorLineSettings(
                               type: ConnectorType.line,
                               width: 2,
                             ),

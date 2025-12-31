@@ -195,16 +195,15 @@ class HomeScreen extends StatelessWidget {
               // Placeholder for farming images - you can add actual images later
               Container(
                 height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.green[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: Center(
-                  child: Image.asset(
-                    'assets/images/farmer.jpg',
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      'assets/images/farmer.jpg',
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -423,7 +422,7 @@ class HomeScreen extends StatelessWidget {
                       locale: locale,
                       icon: Icons.email,
                       titleKey: 'emailSupport',
-                      subtitle: 'shafin2954@gmail.com',
+                      subtitle: 'agribase5481@gmail.com',
                     ),
                   ),
                   const SizedBox(width: 16),
