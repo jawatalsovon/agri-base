@@ -199,7 +199,7 @@ All 8 districts now translate:
 | barisal | Barisal | বরিশাল |
 | sylhet | Sylhet | সিলেট |
 | rangpur | Rangpur | রংপুর |
-| mymensingh | Mymensingh | ময়মনসিংহ |
+| mymensingh | Mymensinghh | ময়মনসিংহ |
 
 ---
 

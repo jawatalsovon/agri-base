@@ -40,17 +40,22 @@ class Translations {
       'helloUser': 'Hello',
       'signInForEnhancedFeatures': 'Sign In for Enhanced Features',
       'bangladeshiAgriculture': 'Bangladeshi Agriculture',
-      'discoverRichAgricultural': 'Discover the rich agricultural heritage of Bangladesh',
+      'discoverRichAgricultural':
+          'Discover the rich agricultural heritage of Bangladesh',
       'beautifulBangladeshiFarmland': 'Beautiful Bangladeshi Farmland',
       'ourMission': 'Our Mission',
-      'missionDescription': 'To empower Bangladeshi farmers with cutting-edge technology',
+      'missionDescription':
+          'To empower Bangladeshi farmers with cutting-edge technology',
       'whatAgribaseOffers': 'What AgriBase Offers',
       'smartAnalytics': 'Smart Analytics',
-      'smartAnalyticsDesc': 'AI-powered crop yield predictions and market analysis',
+      'smartAnalyticsDesc':
+          'AI-powered crop yield predictions and market analysis',
       'regionalInsights': 'Regional Insights',
-      'regionalInsightsDesc': 'Location-specific agricultural data and weather forecasts',
+      'regionalInsightsDesc':
+          'Location-specific agricultural data and weather forecasts',
       'sustainablePractices': 'Sustainable Practices',
-      'sustainablePracticesDesc': 'Learn modern farming techniques that preserve environment',
+      'sustainablePracticesDesc':
+          'Learn modern farming techniques that preserve environment',
       'marketIntelligence': 'Market Intelligence',
       'marketIntelligenceDesc': 'Real-time price information and market trends',
       'getInTouch': 'Get in Touch',
@@ -178,14 +183,17 @@ class Translations {
       'discoverRichAgricultural': 'বাংলাদেশের সমৃদ্ধ কৃষি ঐতিহ্য আবিষ্কার করুন',
       'beautifulBangladeshiFarmland': 'সুন্দর বাংলাদেশী কৃষিভূমি',
       'ourMission': 'আমাদের মিশন',
-      'missionDescription': 'অত্যাধুনিক প্রযুক্তির মাধ্যমে বাংলাদেশী কৃষকদের ক্ষমতায়ন করা',
+      'missionDescription':
+          'অত্যাধুনিক প্রযুক্তির মাধ্যমে বাংলাদেশী কৃষকদের ক্ষমতায়ন করা',
       'whatAgribaseOffers': 'এগ্রিবেস কী অফার করে',
       'smartAnalytics': 'স্মার্ট বিশ্লেষণ',
       'smartAnalyticsDesc': 'এআই-চালিত ফসলের ফলন পূর্বাভাস এবং বাজার বিশ্লেষণ',
       'regionalInsights': 'আঞ্চলিক অন্তর্দৃষ্টি',
-      'regionalInsightsDesc': 'অবস্থান-নির্দিষ্ট কৃষি ডেটা এবং আবহাওয়া পূর্বাভাস',
+      'regionalInsightsDesc':
+          'অবস্থান-নির্দিষ্ট কৃষি ডেটা এবং আবহাওয়া পূর্বাভাস',
       'sustainablePractices': 'টেকসই অনুশীলন',
-      'sustainablePracticesDesc': 'পরিবেশ সংরক্ষণ করে এমন আধুনিক কৃষি কৌশল শিখুন',
+      'sustainablePracticesDesc':
+          'পরিবেশ সংরক্ষণ করে এমন আধুনিক কৃষি কৌশল শিখুন',
       'marketIntelligence': 'বাজার বুদ্ধিমত্তা',
       'marketIntelligenceDesc': 'রিয়েল-টাইম মূল্য তথ্য এবং বাজার প্রবণতা',
       'getInTouch': 'যোগাযোগ করুন',
@@ -658,7 +666,7 @@ class Translations {
       'barisal': 'Barisal',
       'sylhet': 'Sylhet',
       'rangpur': 'Rangpur',
-      'mymensingh': 'Mymensingh',
+      'mymensingh': 'Mymensinghh',
     },
     'bn': {
       'dhaka': 'ঢাকা',
@@ -692,4 +700,3 @@ class Translations {
     return _districtTranslations[lang]?[normalizedKey];
   }
 }
-

@@ -12,8 +12,8 @@ class MockCropData {
         production: 850000,
         yieldValue: 4.2,
       ),
-      'Mymensingh': DistrictData(
-        name: 'Mymensingh',
+      'Mymensinghh': DistrictData(
+        name: 'Mymensinghh',
         bnName: 'ময়মনসিংহ',
         lat: 24.7471,
         long: 90.4203,
@@ -93,10 +93,30 @@ class MockCropData {
 
   static List<YearStatistics> getYearStatistics(String crop) {
     return [
-      YearStatistics(year: 2020, production: 8500000, yieldValue: 3.2, areaUnder: 2656000),
-      YearStatistics(year: 2021, production: 8750000, yieldValue: 3.4, areaUnder: 2570000),
-      YearStatistics(year: 2022, production: 9100000, yieldValue: 3.6, areaUnder: 2525000),
-      YearStatistics(year: 2023, production: 9450000, yieldValue: 3.8, areaUnder: 2480000),
+      YearStatistics(
+        year: 2020,
+        production: 8500000,
+        yieldValue: 3.2,
+        areaUnder: 2656000,
+      ),
+      YearStatistics(
+        year: 2021,
+        production: 8750000,
+        yieldValue: 3.4,
+        areaUnder: 2570000,
+      ),
+      YearStatistics(
+        year: 2022,
+        production: 9100000,
+        yieldValue: 3.6,
+        areaUnder: 2525000,
+      ),
+      YearStatistics(
+        year: 2023,
+        production: 9450000,
+        yieldValue: 3.8,
+        areaUnder: 2480000,
+      ),
     ];
   }
 

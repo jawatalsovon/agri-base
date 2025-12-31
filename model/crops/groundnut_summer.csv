@@ -1,6 +1,6 @@
 District,Year,Hectares,Production_MT
 Bhola,2018-19,0.0,0.0
-Jhallokati,2018-19,0.0,0.0
+Jhalokathi,2018-19,0.0,0.0
 Patuakhali,2018-19,0.0,0.0
 Pirojpur,2018-19,0.0,0.0
 Barishal Division,2018-19,0.0,0.0
@@ -11,7 +11,7 @@ Chattogram,2018-19,0.0,0.0
 Cumilla,2018-19,0.0,0.0
 Cox’s Bazar,2018-19,1178.0,364.0
 Feni,2018-19,0.0,0.0
-Khagrachari,2018-19,0.0,0.0
+Khagrachhari,2018-19,0.0,0.0
 Lakshmipur,2018-19,0.0,0.0
 Noakhali,2018-19,0.0,0.0
 Rangamati,2018-19,0.0,33.0
@@ -32,7 +32,7 @@ Tangail,2018-19,21.0,87.0
 Dhaka Division,2018-19,732.0,1351.0
 Bagerhat,2018-19,4.0,8.0
 Chuadanga,2018-19,55.0,91.0
-Jashore,2018-19,0.0,0.0
+Jessore,2018-19,0.0,0.0
 Jhenaidah,2018-19,11.0,31.0
 Khulna,2018-19,0.0,0.0
 Kushtia,2018-19,142.0,153.0
@@ -42,10 +42,10 @@ Narail,2018-19,174.0,126.0
 Satkhira,2018-19,0.0,0.0
 Khulna Division,2018-19,423.0,409.0
 Jamalpur,2018-19,0.0,0.0
-Mymensingh,2018-19,38.0,0.0
+Mymensinghh,2018-19,38.0,0.0
 Netrokona,2018-19,0.0,0.0
 Sherpur,2018-19,0.0,0.0
-Mymensingh Division,2018-19,38.0,0.0
+Mymensinghh Division,2018-19,38.0,0.0
 Bogura,2018-19,0.0,0.0
 Joypurhat,2018-19,0.0,0.0
 Naogaon,2018-19,94.0,144.0
@@ -60,12 +60,12 @@ Gaibandha,2018-19,373.0,438.0
 Kurigram,2018-19,364.0,776.0
 Lalmonirhat,2018-19,1240.0,1343.0
 Nilphamari,2018-19,83.0,138.0
-Panchagar,2018-19,3789.0,2678.0
+Panchagarh,2018-19,3789.0,2678.0
 Rangpur,2018-19,60.0,123.0
-Tahkurgaon,2018-19,20.0,57.0
+Thakurgaon,2018-19,20.0,57.0
 Rangpur Division,2018-19,5947.0,5587.0
-Habigonj,2018-19,80.0,72.0
-Moulvibazar,2018-19,11.0,23.0
+Habiganj,2018-19,80.0,72.0
+Maulvibazar,2018-19,11.0,23.0
 Sunamganj,2018-19,266.0,349.0
 Sylhet,2018-19,7.0,8.0
 Sylhet Division,2018-19,364.0,452.0
