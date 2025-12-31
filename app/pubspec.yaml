@@ -84,6 +84,8 @@ flutter:
     - assets/databases/attempt.db
     - assets/databases/predictions.db
     - assets/databases/crops.db
+    - assets/images/logo.png
+    - assets/images/farmer.jpg
 
 
   # https://flutter.dev/to/resolution-aware-images
