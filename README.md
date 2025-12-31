@@ -1,4 +1,4 @@
-# AgriBase: Cultivating Data-Driven Agriculture
+# 🌱 AgriBase: Data-Driven Agriculture
 
 **Video Demo:** [Insert Video Link Here]
 
@@ -81,12 +81,15 @@ We are committed to making AgriBase the standard for agricultural intelligence i
 5. Educational Hub: AI-guided tutoring for modern farming methods (Aquaponics, Hydroponics).
 
 ## Installation & Setup
+
+You can install the apk in the release or to set up the project:
+
 1. Clone the repository:
 
 
 
 ```{bash}
-git clone https://github.com/yourusername/agribase.git
+git clone https://github.com/jawatalsovon/agri-base.git
 ```
 
 2. Navigate to the project directory:
