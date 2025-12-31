@@ -60,7 +60,6 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
   void _updateMapSource() {
     final cropData = widget.districtDataMap[widget.selectedCrop] ?? {};
     _dataList = cropData.values.toList();
-<<<<<<< HEAD
     
     // Calculate min and max production for UV map normalization
     if (_dataList.isNotEmpty) {
@@ -72,9 +71,6 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
       }
     }
     
-=======
-
->>>>>>> 373ec917e154a3d53ab357e30d607728e6c04117
     // Reset selection when crop changes
     _selectedIndex = -1;
     _rebuildShapeSource();
@@ -96,13 +92,8 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
       // -------------------
       dataCount: _dataList.length,
       primaryValueMapper: (index) => _dataList[index].name,
-<<<<<<< HEAD
       
       // UV Map Color Logic - White to Green gradient based on normalized values
-=======
-
-      // Color Logic
->>>>>>> 373ec917e154a3d53ab357e30d607728e6c04117
       shapeColorValueMapper: (index) {
         if (index == _selectedIndex) {
           return const Color(0xFFFFD600); // Yellow when selected
@@ -190,7 +181,6 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                           });
                         },
 
-<<<<<<< HEAD
                   // --- TOOLTIP ---
                   showDataLabels: false,
                   shapeTooltipBuilder: (BuildContext context, int index) {
@@ -223,58 +213,6 @@ class _InteractiveBangladeshMapState extends State<InteractiveBangladeshMap> {
                 ),
               ],
             ),
-=======
-                        // --- TOOLTIP ---
-                        showDataLabels: false,
-                        shapeTooltipBuilder: (BuildContext context, int index) {
-                          final data = _dataList[index];
-                          return Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.9),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  data.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Divider(
-                                  color: Colors.white24,
-                                  height: 12,
-                                ),
-                                Text(
-                                  'Production: ${(data.production / 1000).toStringAsFixed(0)}k MT',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Yield: ${data.yieldValue.toStringAsFixed(2)} MT/Ha',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                if (data.percentage != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Contribution: ${data.percentage!.toStringAsFixed(2)}%',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
->>>>>>> 373ec917e154a3d53ab357e30d607728e6c04117
           ),
 
           // --- SELECTED DISTRICT INFO PANEL (Appears below map when selected) ---
