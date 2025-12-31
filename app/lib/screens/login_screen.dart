@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onGuestMode;
+  
+  const LoginScreen({super.key, this.onGuestMode});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -26,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -37,15 +41,21 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text.trim(),
     );
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _errorMessage = error;
     });
 
-    // Navigation will be handled automatically by AuthWrapper when auth state changes
+    // If login successful (no error), navigate back to root
+    // AuthWrapper will automatically show home screen when auth state changes
+    if (error == null && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   Future<void> _signInWithGoogle() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -54,10 +64,17 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final error = await authProvider.signInWithGoogle();
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _errorMessage = error;
     });
+
+    // If login successful (no error), navigate back to root
+    // AuthWrapper will automatically show home screen when auth state changes
+    if (error == null && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
@@ -185,10 +202,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Sign up link
+                // Sign up link - switch to register tab or navigate to register screen
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/register');
+                    // Try to use TabController if available (when in AuthWrapper)
+                    try {
+                      DefaultTabController.of(context).animateTo(1);
+                    } catch (e) {
+                      // If no TabController, navigate to RegisterScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterScreen(
+                            onGuestMode: widget.onGuestMode,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   child: const Text(
                     "Don't have an account? Sign Up",
@@ -212,6 +242,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     side: const BorderSide(color: Colors.grey),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                // View as guest button
+                TextButton(
+                  onPressed: widget.onGuestMode,
+                  child: const Text(
+                    'View as Guest',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF2E7D32),
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),

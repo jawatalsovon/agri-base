@@ -1,6 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+class AuthException implements Exception {
+  final String message;
+  AuthException(this.message);
+  @override
+  String toString() => message;
+}
+
 class AuthService {
   FirebaseAuth? _auth;
 
@@ -26,7 +33,7 @@ class AuthService {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
+      throw AuthException(_handleAuthException(e));
     }
   }
 
@@ -34,21 +41,35 @@ class AuthService {
   Future<UserCredential> createUserWithEmailAndPassword(
     String email,
     String password,
+    String? username,
   ) async {
     try {
-      return await _firebaseAuth.createUserWithEmailAndPassword(
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      
+      // Update display name if username is provided
+      if (username != null && username.isNotEmpty && userCredential.user != null) {
+        await userCredential.user!.updateProfile(displayName: username);
+        await userCredential.user!.reload();
+      }
+      
+      return userCredential.user != null ? userCredential : throw AuthException('User not found.');
     } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
+      throw AuthException(_handleAuthException(e));
     }
   }
 
   // Sign out
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
-    await GoogleSignIn().signOut();
+    try {
+      await GoogleSignIn().signOut();
+    } catch (e) {
+      // Ignore Google Sign In errors if plugin is not available
+      // This can happen on desktop platforms or when plugin is not initialized
+    }
   }
 
   // Sign in with Google
@@ -56,7 +77,7 @@ class AuthService {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
-        throw 'Google sign in was cancelled.';
+        throw AuthException('Google sign in was cancelled.');
       }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -66,7 +87,8 @@ class AuthService {
       );
       return await _firebaseAuth.signInWithCredential(credential);
     } catch (e) {
-      throw 'Google sign in failed: $e';
+      if (e is AuthException) rethrow;
+      throw AuthException('Google sign in failed: $e');
     }
   }
 

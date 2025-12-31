@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/localization_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,6 +20,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final isAuthenticated = authProvider.isAuthenticated;
 
     return Scaffold(
       appBar: AppBar(
@@ -99,12 +103,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Navigate to About Us
             },
           ),
-          ListTile(
-            title: const Text('Log Out'),
-            onTap: () {
-              // Handle log out
-            },
-          ),
+          // Show Login button if user is in guest mode (not authenticated)
+          if (!isAuthenticated) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Login'),
+              leading: const Icon(Icons.login),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      onGuestMode: () {
+                        // If user chooses guest mode from login screen, just go back
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+          // Show Log Out button only if user is authenticated
+          if (isAuthenticated) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Log Out'),
+              leading: const Icon(Icons.logout),
+              onTap: () async {
+                await authProvider.signOut();
+                // Navigate back to root so AuthWrapper can show login screen
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+            ),
+          ],
         ],
       ),
     );

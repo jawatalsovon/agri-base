@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final VoidCallback? onGuestMode;
+  
+  const RegisterScreen({super.key, this.onGuestMode});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -11,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -19,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -28,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -37,17 +43,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final error = await authProvider.register(
       _emailController.text.trim(),
       _passwordController.text.trim(),
+      _usernameController.text.trim(),
     );
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _errorMessage = error;
     });
 
-    // Navigation will be handled automatically by AuthWrapper when auth state changes
+    // If registration successful (no error), navigate back to root
+    // AuthWrapper will automatically show home screen when auth state changes
+    if (error == null && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   Future<void> _signInWithGoogle() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -56,23 +69,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final error = await authProvider.signInWithGoogle();
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _errorMessage = error;
     });
+
+    // If login successful (no error), navigate back to root
+    // AuthWrapper will automatically show home screen when auth state changes
+    if (error == null && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2E7D32)),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -100,6 +112,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 48),
+
+                // Username field
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a username';
+                    }
+                    if (value.length < 3) {
+                      return 'Username must be at least 3 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
                 // Email field
                 TextFormField(
@@ -215,10 +247,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Sign in link
+                // Sign in link - switch to login tab or navigate to login screen
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    // Try to use TabController if available (when in AuthWrapper)
+                    try {
+                      DefaultTabController.of(context).animateTo(0);
+                    } catch (e) {
+                      // If no TabController, navigate to LoginScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(
+                            onGuestMode: widget.onGuestMode,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   child: const Text(
                     'Already have an account? Sign In',
@@ -235,17 +280,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Google sign in button
                 OutlinedButton.icon(
                   onPressed: _isLoading ? null : _signInWithGoogle,
-                  icon: Image.asset(
-                    'assets/images/google_logo.png', // Placeholder, user needs to add
-                    height: 24,
-                    width: 24,
-                  ),
+                  icon: const Icon(Icons.g_mobiledata, size: 24),
                   label: const Text('Sign up with Google'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: const BorderSide(color: Colors.grey),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                // View as guest button
+                TextButton(
+                  onPressed: widget.onGuestMode,
+                  child: const Text(
+                    'View as Guest',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF2E7D32),
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),

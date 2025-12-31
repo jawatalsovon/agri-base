@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'settings_screen.dart';
+import 'login_screen.dart';
 import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -105,15 +106,20 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            isAuthenticated
-                ? 'Welcome back, ${Provider.of<AuthProvider>(context).user?.email?.split('@')[0] ?? 'User'}!'
-                : 'Welcome to AgriBase',
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              final username = authProvider.username ?? 'User';
+              return Text(
+                isAuthenticated
+                    ? 'Hello $username'
+                    : 'Welcome to AgriBase',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 8),
           const Text(
@@ -425,31 +431,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showAuthPrompt(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign In'),
-        content: const Text(
-          'Sign in to access personalized features and save your preferences.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Later'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // This will be handled by the AuthWrapper
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tap the login button in the top-right corner'),
-                ),
-              );
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
       ),
     );
   }
