@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/localization_provider.dart';
 import '../services/ai_router.dart';
-import '../utils/translation_helper.dart';
 import '../utils/translations.dart';
 
 class AssistantScreen extends StatefulWidget {

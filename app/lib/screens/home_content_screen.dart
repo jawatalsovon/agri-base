@@ -481,7 +481,7 @@ class HomeScreen extends StatelessWidget {
                 Clipboard.setData(ClipboardData(text: subtitle));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${subtitle} copied to clipboard'),
+                    content: Text('$subtitle copied to clipboard'),
                     duration: const Duration(seconds: 2),
                   ),
                 );

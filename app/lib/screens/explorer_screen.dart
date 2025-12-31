@@ -100,8 +100,8 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
 
         districtDataMap[district] = DistrictData(
           name: district,
-          bnName: district, // TODO: Add Bengali name mapping
-          lat: 23.8103, // TODO: Add actual coordinates
+          bnName: district, 
+          lat: 23.8103, 
           long: 90.4125,
           production: (data['production'] as num? ?? 0).toDouble(),
           yieldValue: (data['yield'] as num? ?? 0).toDouble(),

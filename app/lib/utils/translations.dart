@@ -148,7 +148,7 @@ class Translations {
       // AI Assistant
       'agribaseAiAssistant': 'AgriBase AI Assistant',
       'askQuestionsLike': 'Ask questions like:',
-      'cropDidBest': 'Which crop did best in 2024?',
+      'cropDidBest': 'Which crop did best in 2023-24?',
       'irrigateAmanRice': 'How to irrigate Aman rice in dry season?',
       'yieldStatisticsBoro': 'Show yield statistics for Boro in 2023.',
       'askAiPrompt': 'Ask AgriBase AI...',
@@ -298,7 +298,7 @@ class Translations {
       // AI Assistant
       'agribaseAiAssistant': 'এগ্রিবেস এআই সহায়ক',
       'askQuestionsLike': 'এই ধরনের প্রশ্ন জিজ্ঞাসা করুন:',
-      'cropDidBest': 'কোন ফসল ২০২৪ সালে সবচেয়ে ভালো ছিল?',
+      'cropDidBest': 'কোন ফসল ২০২৩-২৪ সালে সবচেয়ে ভালো ছিল?',
       'irrigateAmanRice': 'শুষ্ক মৌসুমে আমান ধান সেচ দেওয়ার উপায়?',
       'yieldStatisticsBoro': 'বোরো ধানের ২০২৩ সালের ফলনের পরিসংখ্যান দেখান।',
       'askAiPrompt': 'এগ্রিবেস এআইকে জিজ্ঞাসা করুন...',

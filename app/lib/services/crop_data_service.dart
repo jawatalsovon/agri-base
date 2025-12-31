@@ -434,8 +434,8 @@ class CropDataService {
 
         districtMap[districtName] = DistrictData(
           name: districtName,
-          bnName: districtName, // TODO: Add Bengali name mapping
-          lat: 23.8103, // TODO: Add actual coordinates from a mapping file
+          bnName: districtName, 
+          lat: 23.8103,
           long: 90.4125,
           production: production,
           yieldValue: yieldValue,
