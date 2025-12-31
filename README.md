@@ -35,7 +35,7 @@ The backbone of AgriBase is its data. The official agricultural statistics for B
 This rigorous data engineering process allows AgriBase to serve instant, queryable data that was previously buried in digital paperwork.
 
 ## Key Features
-1. 🔮 AI & Predictive Analytics
+1. AI & Predictive Analytics
 Production Forecasting: We utilize Damped Holt's Linear Trend method, a robust time-series forecasting technique, to predict the production volume of all crops for the next year based on historical patterns.
 
 The AI Consultant: An intelligent chatbot powered by LLMs that acts as an agricultural consultant, guiding users through data interpretation and app navigation.
