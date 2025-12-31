@@ -184,7 +184,7 @@ class _PredictionSectionState extends State<PredictionSection> {
                             Tooltip(
                               message: 'Predicted average yield per hectare',
                               child: Text(
-                                '${Translations.translate(locale, 'yield')}: ${TranslationHelper.formatNumberWithCommas((_totalYield['average_yield'] as num? ?? 0).toDouble(), locale: locale)} ${Translations.translate(locale, 'mtPerHectare')}',
+                                '${Translations.translate(locale, 'yield')}: ${TranslationHelper.formatNumberWithCommas((_totalYield['average_yield'] as num? ?? 0).toDouble(), decimalPlaces: 3, locale: locale)} ${Translations.translate(locale, 'mtPerHectare')}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.green[600],
