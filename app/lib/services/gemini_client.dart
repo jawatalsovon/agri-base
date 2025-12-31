@@ -20,15 +20,18 @@ class GeminiClient {
   bool get isConfigured => _apiKey.isNotEmpty;
 
   /// Ask a general knowledge / web-style question (no DB context).
-  Future<String> askGeneral(String userMessage) async {
+  Future<String> askGeneral(String userMessage, {String? languageCode}) async {
     if (!isConfigured) {
       return 'AI is not configured.';
     }
+
+    final languageInstruction = _getLanguageInstruction(languageCode);
 
     try {
       final response = await _model.generateContent([
         Content.text('''
 You are AgriBase AI, an agricultural assistant focused on Bangladesh context.
+$languageInstruction
 Give practical, concise guidance (3–6 sentences). 
 Explain clearly and avoid overly technical language unless needed.
 User question: $userMessage
@@ -48,6 +51,7 @@ User question: $userMessage
   Future<String?> generateSql({
     required String userMessage,
     required String schemaSummary,
+    String? languageCode,
   }) async {
     if (!isConfigured) {
       return null;
@@ -96,14 +100,18 @@ SQL (table name only, no database prefix, single quotes for string values):
     required String userMessage,
     required String sql,
     required String dbResultSummary,
+    String? languageCode,
   }) async {
     if (!isConfigured) {
       return 'AI is not configured.';
     }
 
+    final languageInstruction = _getLanguageInstruction(languageCode);
+
     final prompt =
         '''
 You are AgriBase AI, an agricultural consultant.
+$languageInstruction
 Use the RETRIEVED DATA to answer the question. Keep it brief (3–6 sentences),
 cite concrete numbers where possible, and mention if they are forecasts or
 historical values. If the data looks partial or noisy, say so.
@@ -128,5 +136,13 @@ Answer:
     } catch (e) {
       return 'There was a problem generating the answer from data: $e';
     }
+  }
+
+  /// Helper method to generate language instruction based on language code
+  String _getLanguageInstruction(String? languageCode) {
+    if (languageCode == 'bn') {
+      return 'Respond in Bengali (বাংলায় উত্তর দিন).';
+    }
+    return 'Respond in English.';
   }
 }

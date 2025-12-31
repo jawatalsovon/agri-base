@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/localization_provider.dart';
 import '../services/ai_router.dart';
+import '../utils/translation_helper.dart';
+import '../utils/translations.dart';
 
 class AssistantScreen extends StatefulWidget {
   const AssistantScreen({super.key});
@@ -32,7 +36,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
 
     try {
       final router = AiRouter.instance;
-      final res = await router.handleUserMessage(text);
+      final locale = Provider.of<LocalizationProvider>(context, listen: false).locale;
+      final res = await router.handleUserMessage(text, locale: locale);
       setState(() {
         _messages.add(
           _ChatMessage(text: res.answer, isUser: false, sqlUsed: res.sqlUsed),
@@ -79,10 +84,13 @@ class _AssistantScreenState extends State<AssistantScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final locale = Provider.of<LocalizationProvider>(context).locale;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AgriBase AI Assistant'),
+        title: Text(
+          Translations.translate(locale, 'agribaseAiAssistant'),
+        ),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
@@ -93,7 +101,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ask questions like:',
+                  Translations.translate(locale, 'askQuestionsLike'),
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
@@ -102,13 +110,13 @@ class _AssistantScreenState extends State<AssistantScreen> {
                   runSpacing: 8,
                   children: [
                     _buildQuestionButton(
-                      'Which crop did best in 2024?',
+                      Translations.translate(locale, 'cropDidBest'),
                     ),
                     _buildQuestionButton(
-                      'How to irrigate Aman rice in dry season?',
+                      Translations.translate(locale, 'irrigateAmanRice'),
                     ),
                     _buildQuestionButton(
-                      'Show yield statistics for Boro in 2023.',
+                      Translations.translate(locale, 'yieldStatisticsBoro'),
                     ),
                   ],
                 ),
@@ -182,9 +190,9 @@ class _AssistantScreenState extends State<AssistantScreen> {
                       controller: _controller,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(
-                        hintText: 'Ask AgriBase AI...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: Translations.translate(locale, 'askAiPrompt'),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),

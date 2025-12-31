@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import 'db_service.dart';
 import 'gemini_client.dart';
 
@@ -69,27 +71,30 @@ Year format notes:
 ''';
 
   /// Entry point used by the UI.
-  Future<AiResponse> handleUserMessage(String message) async {
+  Future<AiResponse> handleUserMessage(String message, {Locale? locale}) async {
     if (message.trim().isEmpty) {
       return AiResponse(answer: 'Please type a question to ask AgriBase AI.');
     }
 
+    final languageCode = locale?.languageCode;
     final type = _classify(message);
 
     switch (type) {
       case AiQueryType.webKnowledge:
-        final ans = await _gemini.askGeneral(message);
+        final ans = await _gemini.askGeneral(message, languageCode: languageCode);
         return AiResponse(answer: ans, queryType: type);
       case AiQueryType.dbQuery:
       case AiQueryType.mixed:
         final sql = await _gemini.generateSql(
           userMessage: message,
           schemaSummary: _schemaSummary,
+          languageCode: languageCode,
         );
         if (sql == null) {
           // Fall back to general explanation if SQL generation fails.
           final fallback = await _gemini.askGeneral(
             '$message (Note: database lookup failed, give a general explanation instead.)',
+            languageCode: languageCode,
           );
           return AiResponse(answer: fallback, sqlUsed: null, queryType: type);
         }
@@ -102,6 +107,7 @@ Year format notes:
             userMessage: message,
             sql: safeSql,
             dbResultSummary: 'No data rows were returned for this query.',
+            languageCode: languageCode,
           );
           return AiResponse(
             answer: noDataAnswer,
@@ -116,6 +122,7 @@ Year format notes:
           userMessage: message,
           sql: safeSql,
           dbResultSummary: trimmedSummary,
+          languageCode: languageCode,
         );
 
         return AiResponse(
