@@ -5,8 +5,8 @@ Barishal,2020-21,472.0,0.0
 Barishal,2021-22,990.0,990.0
 Bhola,2020-21,210.0,0.0
 Bhola,2021-22,608.0,608.0
-Jhallokati,2020-21,112.0,0.0
-Jhallokati,2021-22,195.0,195.0
+Jhalokathi,2020-21,112.0,0.0
+Jhalokathi,2021-22,195.0,195.0
 Patuakhali,2020-21,516.0,0.0
 Patuakhali,2021-22,981.0,981.0
 Pirojpur,2020-21,200.0,0.0
@@ -27,8 +27,8 @@ Cox’s Bazar,2020-21,0.0,0.0
 Cox’s Bazar,2021-22,0.0,0.0
 Feni,2020-21,3.0,0.0
 Feni,2021-22,2.0,2.0
-Khagrachari,2020-21,108.0,0.0
-Khagrachari,2021-22,217.0,217.0
+Khagrachhari,2020-21,108.0,0.0
+Khagrachhari,2021-22,217.0,217.0
 Lakshmipur,2020-21,120.0,0.0
 Lakshmipur,2021-22,276.0,276.0
 Noakhali,2020-21,44.0,0.0
@@ -71,8 +71,8 @@ Bagerhat,2020-21,37.0,0.0
 Bagerhat,2021-22,402.0,402.0
 Chuadanga,2020-21,2.0,0.0
 Chuadanga,2021-22,11.0,11.0
-Jashore,2020-21,3.0,0.0
-Jashore,2021-22,42.0,42.0
+Jessore,2020-21,3.0,0.0
+Jessore,2021-22,42.0,42.0
 Jhenaidah,2020-21,0.33,0.0
 Jhenaidah,2021-22,1.0,1.0
 Khulna,2020-21,19.0,0.0
@@ -87,19 +87,19 @@ Narail,2020-21,0.0,0.0
 Narail,2021-22,0.0,0.0
 Satkhira,2020-21,60.0,0.0
 Satkhira,2021-22,129.0,129.0
-Khulna Division,2020-21,134.33,0.0
-Khulna Division,2021-22,847.0,865.0
+Khulna,2020-21,134.33,0.0
+Khulna,2021-22,847.0,865.0
 Jamalpur,2020-21,41.0,0.0
 Jamalpur,2021-22,183.0,183.0
-Mymensingh,2020-21,150.0,0.0
-Mymensingh,2021-22,103.0,103.0
+Mymensinghh,2020-21,150.0,0.0
+Mymensinghh,2021-22,103.0,103.0
 Netrokona,2020-21,55.0,0.0
 Netrokona,2021-22,128.0,128.0
 Sherpur,2020-21,3.0,0.0
 Sherpur,2021-22,22.0,22.0
-"Mymensingh
+"Mymensinghh
 Division",2020-21,249.0,0.0
-"Mymensingh
+"Mymensinghh
 Division",2021-22,436.0,436.0
 Bogura,2020-21,0.18,0.0
 Bogura,2021-22,1.0,1.0
@@ -129,8 +129,8 @@ Lalmonirhat,2020-21,8.0,0.0
 Lalmonirhat,2021-22,10.0,10.0
 Nilphamari,2020-21,1.0,0.0
 Nilphamari,2021-22,17.0,17.0
-Panchagar,2020-21,2.0,0.0
-Panchagar,2021-22,3.0,3.0
+Panchagarh,2020-21,2.0,0.0
+Panchagarh,2021-22,3.0,3.0
 Rangpur,2020-21,2.0,0.0
 Rangpur,2021-22,22.0,22.0
 Thakurgaon,2020-21,2.0,0.0
@@ -139,8 +139,8 @@ Rangpur Divison,2020-21,16.68,0.0
 Rangpur Divison,2021-22,88.0,88.0
 Habiganj,2020-21,0.0,0.0
 Habiganj,2021-22,0.0,0.0
-Moulvibazar,2020-21,9.0,0.0
-Moulvibazar,2021-22,74.0,74.0
+Maulvibazar,2020-21,9.0,0.0
+Maulvibazar,2021-22,74.0,74.0
 Sunamganj,2020-21,300.0,0.0
 Sunamganj,2021-22,259.0,259.0
 Sylhet,2020-21,1.0,0.0
@@ -153,8 +153,8 @@ Barishal,2022-23,137.0,0.0
 Barishal,2023-24,1005.0,1005.0
 Bhola,2022-23,61.48,0.0
 Bhola,2023-24,549.6,549.6
-Jhallokati,2022-23,120.0,0.0
-Jhallokati,2023-24,282.0,282.0
+Jhalokathi,2022-23,120.0,0.0
+Jhalokathi,2023-24,282.0,282.0
 Patuakhali,2022-23,242.06,0.0
 Patuakhali,2023-24,1013.59,1013.59
 Pirojpur,2022-23,103.38,0.0
@@ -173,8 +173,8 @@ Cox’s Bazar,2022-23,0.0,0.0
 Cox’s Bazar,2023-24,0.0,0.0
 Feni,2022-23,3.03,0.0
 Feni,2023-24,14.07,14.07
-Khagrachari,2022-23,112.82,0.0
-Khagrachari,2023-24,42.44,42.44
+Khagrachhari,2022-23,112.82,0.0
+Khagrachhari,2023-24,42.44,42.44
 Lakshmipur,2022-23,40.16,0.0
 Lakshmipur,2023-24,0.41,0.41
 Noakhali,2022-23,42.22,0.0
@@ -211,8 +211,8 @@ Bagerhat,2022-23,40.77,0.0
 Bagerhat,2023-24,394.0,394.0
 Chuadanga,2022-23,1.99,0.0
 Chuadanga,2023-24,4.0,4.0
-Jashore,2022-23,2.9,0.0
-Jashore,2023-24,45.0,45.0
+Jessore,2022-23,2.9,0.0
+Jessore,2023-24,45.0,45.0
 Jhenaidah,2022-23,0.23,0.0
 Jhenaidah,2023-24,1.0,1.0
 Khulna,2022-23,18.6,0.0
@@ -229,8 +229,8 @@ Satkhira,2022-23,86.48,0.0
 Satkhira,2023-24,76.0,76.0
 Jamalpur,2022-23,43.0,0.0
 Jamalpur,2023-24,194.0,194.0
-Mymensingh,2022-23,51.0,0.0
-Mymensingh,2023-24,141.0,141.0
+Mymensinghh,2022-23,51.0,0.0
+Mymensinghh,2023-24,141.0,141.0
 Netrokona,2022-23,25.0,0.0
 Netrokona,2023-24,182.0,182.0
 Sherpur,2022-23,4.43,0.0
@@ -261,16 +261,16 @@ Lalmonirhat,2022-23,8.17,0.0
 Lalmonirhat,2023-24,10.85,10.85
 Nilphamari,2022-23,2.13,0.0
 Nilphamari,2023-24,27.67,27.67
-Panchagar,2022-23,2.66,0.0
-Panchagar,2023-24,4.65,4.65
+Panchagarh,2022-23,2.66,0.0
+Panchagarh,2023-24,4.65,4.65
 Rangpur,2022-23,3.77,0.0
 Rangpur,2023-24,64.0,64.0
 Thakurgaon,2022-23,3.89,0.0
 Thakurgaon,2023-24,32.4,32.4
 Habiganj,2022-23,4.39,0.0
 Habiganj,2023-24,1.72,1.72
-Moulvibazar,2022-23,10.79,0.0
-Moulvibazar,2023-24,67.1,67.1
+Maulvibazar,2022-23,10.79,0.0
+Maulvibazar,2023-24,67.1,67.1
 Sunamganj,2022-23,258.0,0.0
 Sunamganj,2023-24,231.0,231.0
 Sylhet,2022-23,22.51,14.34

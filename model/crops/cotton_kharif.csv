@@ -1,6 +1,6 @@
 District,Year,Hectares,Production_MT
 Bhola,2018-19,0.0,0.0
-Jhallokati,2018-19,0.0,0.0
+Jhalokathi,2018-19,0.0,0.0
 Patuakhali,2018-19,0.0,0.0
 Pirojpur,2018-19,0.0,0.0
 Barishal Division,2018-19,0.0,0.0
@@ -11,7 +11,7 @@ Chattogram,2018-19,0.0,0.0
 Cumilla,2018-19,0.0,0.0
 Cox’s Bazar,2018-19,0.0,0.0
 Feni,2018-19,0.0,0.0
-Khagrachari,2018-19,0.0,1831.0
+Khagrachhari,2018-19,0.0,1831.0
 Lakshmipur,2018-19,0.0,0.0
 Noakhali,2018-19,0.0,0.0
 Rangamati,2018-19,0.0,5284.0
@@ -32,7 +32,7 @@ Tangail,2018-19,0.0,0.0
 Dhaka Division,2018-19,0.0,0.0
 Bagerhat,2018-19,0.0,0.0
 Chuadanga,2018-19,0.0,0.0
-Jashore,2018-19,0.0,0.0
+Jessore,2018-19,0.0,0.0
 Jhenaidah,2018-19,0.0,178.0
 Khulna,2018-19,0.0,0.0
 Kushtia,2018-19,0.0,0.0
@@ -40,12 +40,12 @@ Magura,2018-19,0.0,0.0
 Meherpur,2018-19,0.0,0.0
 Narail,2018-19,0.0,0.0
 Satkhira,2018-19,0.0,0.0
-Khulna Division,2018-19,0.0,178.0
+Khulna,2018-19,0.0,178.0
 Jamalpur,2018-19,0.0,0.0
-Mymensingh,2018-19,0.0,0.0
+Mymensinghh,2018-19,0.0,0.0
 Netrokona,2018-19,0.0,0.0
 Sherpur,2018-19,0.0,0.0
-Mymensingh Division,2018-19,0.0,0.0
+Mymensinghh Division,2018-19,0.0,0.0
 Bogura,2018-19,0.0,0.0
 Joypurhat,2018-19,0.0,0.0
 Naogaon,2018-19,0.0,0.0
@@ -60,17 +60,17 @@ Gaibandha,2018-19,0.0,0.0
 Kurigram,2018-19,0.0,0.0
 Lalmonirhat,2018-19,0.0,0.0
 Nilphamari,2018-19,0.0,0.0
-Panchagar,2018-19,0.0,0.0
+Panchagarh,2018-19,0.0,0.0
 Rangpur,2018-19,0.0,0.0
 Thakurgaon,2018-19,0.0,0.0
 Rangpur Divison,2018-19,0.0,8.0
 Habiganj,2018-19,0.0,0.0
-Moulvibazar,2018-19,0.0,0.0
+Maulvibazar,2018-19,0.0,0.0
 Sunamganj,2018-19,0.0,0.0
 Sylhet,2018-19,0.0,0.0
 Sylhet Division,2018-19,0.0,0.0
 Bhola,2020-21,0.0,0.0
-Jhallokati,2020-21,0.0,0.0
+Jhalokathi,2020-21,0.0,0.0
 Patuakhali,2020-21,0.0,0.0
 Pirojpur,2020-21,0.0,0.0
 Barishal Division,2020-21,0.0,0.0
@@ -81,7 +81,7 @@ Chattogram,2020-21,0.0,0.0
 Cumilla,2020-21,0.0,0.0
 Cox’s Bazar,2020-21,0.0,0.0
 Feni,2020-21,0.0,0.0
-Khagrachari,2020-21,123.0,2226.34
+Khagrachhari,2020-21,123.0,2226.34
 Lakshmipur,2020-21,0.0,0.0
 Noakhali,2020-21,0.0,0.0
 Rangamati,2020-21,364.0,4917.0
@@ -102,7 +102,7 @@ Tangail,2020-21,0.0,124.5
 Dhaka Division,2020-21,0.0,124.5
 Bagerhat,2020-21,0.0,0.0
 Chuadanga,2020-21,0.0,0.0
-Jashore,2020-21,0.0,0.0
+Jessore,2020-21,0.0,0.0
 Jhenaidah,2020-21,172.0,164.0
 Khulna,2020-21,0.0,0.0
 Kushtia,2020-21,0.0,0.0
@@ -110,12 +110,12 @@ Magura,2020-21,0.0,0.0
 Meherpur,2020-21,0.0,0.0
 Narail,2020-21,0.0,0.0
 Satkhira,2020-21,0.0,0.0
-Khulna Division,2020-21,172.0,164.0
+Khulna,2020-21,172.0,164.0
 Jamalpur,2020-21,0.0,0.0
-Mymensingh,2020-21,0.0,0.0
+Mymensinghh,2020-21,0.0,0.0
 Netrokona,2020-21,0.0,0.0
 Sherpur,2020-21,0.0,0.0
-Mymensingh Division,2020-21,0.0,0.0
+Mymensinghh Division,2020-21,0.0,0.0
 Bogura,2020-21,0.0,0.0
 Joypurhat,2020-21,0.0,0.0
 Naogaon,2020-21,0.0,0.0
@@ -130,12 +130,12 @@ Gaibandha,2020-21,0.0,0.0
 Kurigram,2020-21,0.0,0.0
 Lalmonirhat,2020-21,0.0,0.0
 Nilphamari,2020-21,0.0,0.0
-Panchagar,2020-21,0.0,0.0
+Panchagarh,2020-21,0.0,0.0
 Rangpur,2020-21,0.0,0.0
 Thakurgaon,2020-21,0.0,0.0
 Rangpur Divison,2020-21,4.0,6.0
 Habiganj,2020-21,0.0,0.0
-Moulvibazar,2020-21,0.0,0.0
+Maulvibazar,2020-21,0.0,0.0
 Sunamganj,2020-21,0.0,0.0
 Sylhet,2020-21,0.0,0.0
 Sylhet Division,2020-21,0.0,0.0

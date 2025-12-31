@@ -1,6 +1,6 @@
 District,Year,Hectares,Production_MT
 Bhola,2018-19,3131.0,713.0
-Jhallokati,2018-19,248.0,103.0
+Jhalokathi,2018-19,248.0,103.0
 Patuakhali,2018-19,332.0,232.0
 Pirojpur,2018-19,1709.0,247.0
 Barishal Division,2018-19,6849.0,1783.0
@@ -11,7 +11,7 @@ Chattogram,2018-19,2414.0,547.0
 Cumilla,2018-19,3512.0,542.0
 Cox’s Bazar,2018-19,1766.0,245.0
 Feni,2018-19,33.0,14.0
-Khagrachari,2018-19,77.0,44.0
+Khagrachhari,2018-19,77.0,44.0
 Lakshmipur,2018-19,250.0,59.0
 Noakhali,2018-19,487.0,74.0
 Rangamati,2018-19,320.0,75.0
@@ -32,7 +32,7 @@ Tangail,2018-19,311.0,103.0
 Dhaka Division,2018-19,14258.0,2533.0
 Bagerhat,2018-19,900.0,184.0
 Chuadanga,2018-19,579.0,111.0
-Jashore,2018-19,566.0,171.0
+Jessore,2018-19,566.0,171.0
 Jhenaidah,2018-19,343.0,107.0
 Khulna,2018-19,324.0,79.0
 Kushtia,2018-19,420.0,103.0
@@ -40,12 +40,12 @@ Magura,2018-19,109.0,41.0
 Meherpur,2018-19,60.0,13.0
 Narail,2018-19,536.0,116.0
 Satkhira,2018-19,0.0,0.0
-Khulna Division,2018-19,3837.0,925.0
+Khulna,2018-19,3837.0,925.0
 Jamalpur,2018-19,245.0,97.0
-Mymensingh,2018-19,191.0,61.0
+Mymensinghh,2018-19,191.0,61.0
 Netrokona,2018-19,191.0,56.0
 Sherpur,2018-19,100.0,79.0
-Mymensingh Division,2018-19,727.0,293.0
+Mymensinghh Division,2018-19,727.0,293.0
 Bogura,2018-19,251.0,71.0
 Joypurhat,2018-19,137.0,44.0
 Naogaon,2018-19,218.0,70.0
@@ -60,17 +60,17 @@ Gaibandha,2018-19,165.0,58.0
 Kurigram,2018-19,30.0,12.0
 Lalmonirhat,2018-19,0.0,0.0
 Nilphamari,2018-19,4.0,5.0
-Panchagar,2018-19,0.0,0.0
+Panchagarh,2018-19,0.0,0.0
 Rangpur,2018-19,123.0,55.0
 Thakurgaon,2018-19,95.0,44.0
 Rangpur Divison,2018-19,595.0,248.0
 Habiganj,2018-19,68.0,18.0
-Moulvibazar,2018-19,3.0,4.0
+Maulvibazar,2018-19,3.0,4.0
 Sunamganj,2018-19,6.0,7.0
 Sylhet,2018-19,56.0,23.0
 Sylhet Division,2018-19,133.0,52.0
 Bhola,2020-21,2739.0,759.0
-Jhallokati,2020-21,298.0,113.0
+Jhalokathi,2020-21,298.0,113.0
 Patuakhali,2020-21,984.0,332.0
 Pirojpur,2020-21,1331.0,249.0
 Barishal Division,2020-21,7031.0,1959.0
@@ -81,7 +81,7 @@ Chattogram,2020-21,1863.0,575.07
 Cumilla,2020-21,33497.0,557.0
 Cox’s Bazar,2020-21,1322.0,247.32
 Feni,2020-21,33.0,14.52
-Khagrachari,2020-21,113.0,51.1
+Khagrachhari,2020-21,113.0,51.1
 Lakshmipur,2020-21,249.0,117.6
 Noakhali,2020-21,269.0,70.0
 Rangamati,2020-21,336.0,71.28
@@ -101,7 +101,7 @@ Tangail,2020-21,306.0,101.67
 Dhaka Division,2020-21,15077.0,2536.57
 Bagerhat,2020-21,699.0,215.0
 Chuadanga,2020-21,574.0,115.2
-Jashore,2020-21,553.0,171.0
+Jessore,2020-21,553.0,171.0
 Jhenaidah,2020-21,324.0,109.5
 Khulna,2020-21,258.0,112.08
 Kushtia,2020-21,396.0,113.0
@@ -109,12 +109,12 @@ Magura,2020-21,141.0,43.81
 Meherpur,2020-21,61.0,15.0
 Narail,2020-21,378.0,128.5
 Satkhira,2020-21,0.0,0.0
-Khulna Division,2020-21,3384.0,1023.09
+Khulna,2020-21,3384.0,1023.09
 Jamalpur,2020-21,270.0,96.0
-Mymensingh,2020-21,212.0,62.0
+Mymensinghh,2020-21,212.0,62.0
 Netrokona,2020-21,183.0,52.0
 Sherpur,2020-21,298.0,76.0
-Mymensingh Division,2020-21,963.0,286.0
+Mymensinghh Division,2020-21,963.0,286.0
 Bogura,2020-21,231.0,69.14
 Joypurhat,2020-21,140.0,35.42
 Naogaon,2020-21,238.0,75.02
@@ -129,17 +129,17 @@ Gaibandha,2020-21,139.0,60.0
 Kurigram,2020-21,36.0,48.75
 Lalmonirhat,2020-21,0.0,0.0
 Nilphamari,2020-21,13.0,6.01
-Panchagar,2020-21,0.0,0.0
+Panchagarh,2020-21,0.0,0.0
 Rangpur,2020-21,180.0,60.0
 Thakurgaon,2020-21,107.0,43.4
 Rangpur Divison,2020-21,672.0,298.16
 Habiganj,2020-21,47.0,15.0
-Moulvibazar,2020-21,7.0,0.0
+Maulvibazar,2020-21,7.0,0.0
 Sunamganj,2020-21,19.0,8.0
 Sylhet,2020-21,61.0,28.0
 Sylhet Division,2020-21,134.0,51.0
 Bhola,2022-23,2792.0,751.0
-Jhallokati,2022-23,353.0,94.0
+Jhalokathi,2022-23,353.0,94.0
 Patuakhali,2022-23,482.6,336.0
 Pirojpur,2022-23,1255.0,268.0
 Bandarban,2022-23,181.6,59.6
@@ -149,7 +149,7 @@ Chattogram,2022-23,3261.63,535.57
 Cumilla,2022-23,3613.0,563.22
 Cox’s Bazar,2022-23,1321.71,241.17
 Feni,2022-23,34.45,14.98
-Khagrachari,2022-23,137.32,46.6
+Khagrachhari,2022-23,137.32,46.6
 Lakshmipur,2022-23,489.96,126.0
 Noakhali,2022-23,395.0,78.0
 Rangamati,2022-23,336.27,68.0
@@ -168,7 +168,7 @@ Shariatpur,2022-23,575.0,217.7
 Tangail,2022-23,269.43,102.59
 Bagerhat,2022-23,925.69,215.0
 Chuadanga,2022-23,589.8,36.21
-Jashore,2022-23,563.8,161.5
+Jessore,2022-23,563.8,161.5
 Jhenaidah,2022-23,337.69,121.0
 Khulna,2022-23,451.46,122.93
 Kushtia,2022-23,437.0,85.0
@@ -177,7 +177,7 @@ Meherpur,2022-23,78.0,4.0
 Narail,2022-23,441.76,138.0
 Satkhira,2022-23,0.0,0.0
 Jamalpur,2022-23,277.0,105.0
-Mymensingh,2022-23,225.0,62.0
+Mymensinghh,2022-23,225.0,62.0
 Netrokona,2022-23,168.0,51.0
 Sherpur,2022-23,293.0,83.0
 Bogura,2022-23,221.27,63.98
@@ -193,10 +193,10 @@ Gaibandha,2022-23,162.42,69.0
 Kurigram,2022-23,89.46,49.0
 Lalmonirhat,2022-23,0.0,0.0
 Nilphamari,2022-23,16.53,6.0
-Panchagar,2022-23,0.0,0.0
+Panchagarh,2022-23,0.0,0.0
 Rangpur,2022-23,132.0,62.0
 Thakurgaon,2022-23,134.49,45.0
 Habiganj,2022-23,34.86,21.8
-Moulvibazar,2022-23,0.0,0.0
+Maulvibazar,2022-23,0.0,0.0
 Sunamganj,2022-23,63.0,10.5
 Sylhet,2022-23,81.0,24.0
