@@ -89,13 +89,13 @@ You can install the apk in the release or to set up the project:
 
 
 ```{bash}
-git clone https://github.com/jawatalsovon/agri-base.git
+git clone https://github.com/jawatalsovon/MXB2026-Dhaka-AgriBase-AgriBase.git
 ```
 
 2. Navigate to the project directory:
 
 ```{bash}
-cd app
+cd MXB2026-Dhaka-AgriBase-AgriBase/app
 ```
 3. Install dependencies:
 
