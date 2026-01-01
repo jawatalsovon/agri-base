@@ -24,7 +24,7 @@ The backbone of AgriBase is its data. The official agricultural statistics for B
 
 **Our Solution (The Extraction Process):**
 
-1. Sourcing: We retrieved the official yearbook from the Bangladesh Government Statistics Website.
+1. Sourcing: We retrieved the official yearbook from the Bangladesh Government Statistics Website: https://bbs.gov.bd/site/page/3e838eb6-30a2-4709-be85-40484b0c16c6/Yearbook-of-Agricultural-Statistics
 
 2. Extraction: We undertook the painstaking process of extracting tables and charts from the PDF.
 
