@@ -193,7 +193,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               // Placeholder for farming images - you can add actual images later
-              Container(
+              SizedBox(
                 height: 200,
                 child: Center(
                   child: ClipRRect(
