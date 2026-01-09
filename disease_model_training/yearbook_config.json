@@ -1,0 +1,52 @@
+{
+  "pdfs": [
+    {
+      "year": 2024,
+      "url": "https://bbs.portal.gov.bd/sites/default/files/files/bbs.portal.gov.bd/page/...",
+      "output_prefix": "agri_yearbook_2024",
+      "description": "Agricultural Statistics Yearbook 2023-2024",
+      "pages": null,
+      "priority": 1
+    },
+    {
+      "year": 2023,
+      "url": "https://bbs.portal.gov.bd/...",
+      "output_prefix": "agri_yearbook_2023",
+      "description": "Agricultural Statistics Yearbook 2022-2023",
+      "pages": null,
+      "priority": 1
+    },
+    {
+      "year": 2022,
+      "url": "https://bbs.portal.gov.bd/...",
+      "output_prefix": "agri_yearbook_2022",
+      "description": "Agricultural Statistics Yearbook 2021-2022",
+      "pages": null,
+      "priority": 1
+    },
+    {
+      "year": 2017,
+      "url": "https://bbs.portal.gov.bd/sites/default/files/files/bbs.portal.gov.bd/page/1b1eb817_9325_4354_a756_3d18412203e2/Agriculture1%20Year%20Book%202017-18.pdf",
+      "output_prefix": "agri_yearbook_2017",
+      "description": "Agricultural Statistics Yearbook 2017-2018",
+      "pages": null,
+      "priority": 2
+    },
+    {
+      "year": 2016,
+      "url": "https://bbs.portal.gov.bd/...",
+      "output_prefix": "agri_yearbook_2016",
+      "description": "Agricultural Statistics Yearbook 2015-2016",
+      "pages": null,
+      "priority": 2
+    }
+  ],
+  "extraction_config": {
+    "extract_production": true,
+    "extract_area": true,
+    "extract_yield": true,
+    "standardize_units": true,
+    "merge_years": true
+  },
+  "notes": "Replace ... with actual PDF URLs from BBS portal. Download from: https://bbs.portal.gov.bd/"
+}

@@ -26,6 +26,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
 
   List<Map<String, dynamic>> _topCrops = [];
   bool _isLoading = false;
+  int _topCount = 10;
 
   @override
   void initState() {
@@ -106,9 +107,11 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
     });
 
     try {
+      final limit = _topCount == -1 ? 0 : _topCount;
       final topCrops = await _cropsService.getTopCropsForDistrict(
         _selectedDistrict!,
         _selectedYear!,
+        limit: limit,
       );
       setState(() {
         _topCrops = topCrops;
@@ -126,14 +129,17 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
     final localizationProvider = Provider.of<LocalizationProvider>(context);
     final locale = localizationProvider.locale;
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         elevation: 0,
         title: Text(
           Translations.translate(locale, 'myRegion'),
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -151,30 +157,110 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _selectedDisplayDistrict,
-              isExpanded: true,
-              underline: Container(
-                height: 2,
-                color: theme.colorScheme.primary,
-              ),
-              items: _displayDistricts.map((district) {
-                final translatedDistrict = TranslationHelper.formatDistrictName(district, locale);
-                return DropdownMenuItem(value: district, child: Text(translatedDistrict));
-              }).toList(),
-              onChanged: (district) {
-                if (district != null) {
+            GestureDetector(
+              onTap: () async {
+                final choice = await showDialog<String?>(
+                  context: context,
+                  builder: (ctx) {
+                    List<String> results = List.from(_displayDistricts);
+                    return StatefulBuilder(
+                      builder: (c, setInner) {
+                        return AlertDialog(
+                          title: Text(
+                            Translations.translate(locale, 'selectDistrict'),
+                          ),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  decoration: InputDecoration(
+                                    prefixIcon: const Icon(Icons.search),
+                                    hintText: 'Search district',
+                                  ),
+                                  onChanged: (q) {
+                                    setInner(() {
+                                      results = _displayDistricts
+                                          .where(
+                                            (d) => d.toLowerCase().contains(
+                                              q.toLowerCase(),
+                                            ),
+                                          )
+                                          .toList();
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: results.isEmpty
+                                      ? const Center(child: Text('No results'))
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: results.length,
+                                          itemBuilder: (context, index) {
+                                            final district = results[index];
+                                            final translated =
+                                                TranslationHelper.formatDistrictName(
+                                                  district,
+                                                  locale,
+                                                );
+                                            return ListTile(
+                                              title: Text(translated),
+                                              onTap: () => Navigator.of(
+                                                ctx,
+                                              ).pop(district),
+                                            );
+                                          },
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(null),
+                              child: const Text('Cancel'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+
+                if (choice != null) {
                   setState(() {
-                    _selectedDisplayDistrict = district;
+                    _selectedDisplayDistrict = choice;
                     _selectedDistrict = _districts.firstWhere(
-                      (d) => cleanDistrict(d) == district,
+                      (d) => cleanDistrict(d) == choice,
                     );
                     _selectedYear = null;
                     _years = [];
                   });
-                  _loadYearsForDistrict(_selectedDistrict!);
+                  await _loadYearsForDistrict(_selectedDistrict!);
                 }
               },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedDisplayDistrict ??
+                            Translations.translate(locale, 'selectDistrict'),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             // Year Selector
@@ -190,12 +276,12 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
             DropdownButton<String>(
               value: _selectedYear,
               isExpanded: true,
-              underline: Container(
-                height: 2,
-                color: theme.colorScheme.primary,
-              ),
+              underline: Container(height: 2, color: theme.colorScheme.primary),
               items: _years.map((year) {
-                final displayYear = TranslationHelper.formatNumber(year, useBengaliNumerals: locale.languageCode == 'bn');
+                final displayYear = TranslationHelper.formatNumber(
+                  year,
+                  useBengaliNumerals: locale.languageCode == 'bn',
+                );
                 return DropdownMenuItem(value: year, child: Text(displayYear));
               }).toList(),
               onChanged: (year) {
@@ -207,7 +293,27 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                 }
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Show:'),
+                const SizedBox(width: 8),
+                DropdownButton<int>(
+                  value: _topCount,
+                  items: const [5, 10, 20, -1].map((n) {
+                    final label = n == -1 ? 'All' : n.toString();
+                    return DropdownMenuItem(value: n, child: Text(label));
+                  }).toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() => _topCount = v);
+                      _loadData();
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
             if (_isLoading)
               const Center(
@@ -225,7 +331,7 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
               )
             else ...[
               Text(
-                'Top 10 Most Yielding Crops in $_selectedDistrict ($_selectedYear)',
+                'Top ${_topCount == -1 ? 'All' : _topCount.toString()} Most Yielding Crops in $_selectedDistrict ($_selectedYear)',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -246,7 +352,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -255,21 +363,27 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                               flex: 1,
                               child: Text(
                                 'Rank',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Expanded(
                               flex: 3,
                               child: Text(
                                 Translations.translate(locale, 'crop'),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Expanded(
                               flex: 2,
                               child: Text(
                                 '${Translations.translate(locale, 'production')} (MT)',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -277,7 +391,9 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                               flex: 2,
                               child: Text(
                                 '${Translations.translate(locale, 'yield')} (MT/Ha)',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -286,69 +402,92 @@ class _MyRegionScreenState extends State<MyRegionScreen> {
                       ),
                       const SizedBox(height: 8),
                       // Table Rows
-                      ..._topCrops.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final crop = entry.value;
-                        final production = (crop['production_mt'] as num? ?? 0)
-                            .toDouble();
-                        final yieldValue =
-                            (crop['yield_per_hectare'] as num? ?? 0).toDouble();
-                        final cropName = crop['crop_name'] as String? ?? '';
-                        final translatedCrop = TranslationHelper.formatCropName(cropName, locale);
-                        
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  // decoration: BoxDecoration(
-                                  //   color: index < 3
-                                  //       ? Colors.amber.withValues(alpha: 0.2)
-                                  //       : Colors.grey.withValues(alpha: 0.1),
-                                  //   borderRadius: BorderRadius.circular(8),
-                                  // ),
-                                  child: Text(
-                                    TranslationHelper.formatNumber((index + 1).toString(), useBengaliNumerals: locale.languageCode == 'bn'),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: index < 3
-                                          ? Colors.amber[900]
-                                          : Colors.grey[700],
+                      ...((_topCount == -1
+                              ? _topCrops
+                              : _topCrops.take(_topCount).toList())
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                            final index = entry.key;
+                            final crop = entry.value;
+                            final production =
+                                (crop['production_mt'] as num? ?? 0).toDouble();
+                            final yieldValue =
+                                (crop['yield_per_hectare'] as num? ?? 0)
+                                    .toDouble();
+                            final cropName = crop['crop_name'] as String? ?? '';
+                            final translatedCrop =
+                                TranslationHelper.formatCropName(
+                                  cropName,
+                                  locale,
+                                );
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      // decoration: BoxDecoration(
+                                      //   color: index < 3
+                                      //       ? Colors.amber.withValues(alpha: 0.2)
+                                      //       : Colors.grey.withValues(alpha: 0.1),
+                                      //   borderRadius: BorderRadius.circular(8),
+                                      // ),
+                                      child: Text(
+                                        TranslationHelper.formatNumber(
+                                          (index + 1).toString(),
+                                          useBengaliNumerals:
+                                              locale.languageCode == 'bn',
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: index < 3
+                                              ? Colors.amber[900]
+                                              : Colors.grey[700],
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  translatedCrop,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      translatedCrop,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      TranslationHelper.formatNumberWithCommas(
+                                        production,
+                                        decimalPlaces: 3,
+                                        locale: locale,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      TranslationHelper.formatNumberWithCommas(
+                                        yieldValue,
+                                        decimalPlaces: 3,
+                                        locale: locale,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  TranslationHelper.formatNumberWithCommas(production, decimalPlaces: 3, locale: locale),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  TranslationHelper.formatNumberWithCommas(yieldValue,  decimalPlaces: 3, locale: locale),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                            );
+                          })
+                          .toList()),
                     ],
                   ),
                 ),

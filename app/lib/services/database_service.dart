@@ -1,8 +1,9 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'database_factory_init.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DatabaseService {
@@ -20,13 +21,15 @@ class DatabaseService {
     return _instance!;
   }
 
-  /// Initialize database factory for desktop platforms
+  /// Initialize database factory for desktop platforms only
   static Future<void> initializeDatabaseFactory() async {
-    if (!kIsWeb &&
-        (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-      // Initialize FFI for desktop platforms
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
+    try {
+      // Only initialize FFI on non-web, non-mobile platforms
+      if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
+        DatabaseFactoryInitializer.initialize();
+      }
+    } catch (e) {
+      debugPrint('Error initializing database factory: $e');
     }
   }
 
@@ -39,15 +42,25 @@ class DatabaseService {
       return; // Already initialized
     }
 
+    // Skip file operations on web platform and use in-memory database
+    if (kIsWeb) {
+      // For web, do not attempt to open databases since FFI is not available
+      // Web users will get "not initialized" errors but app won't crash
+      debugPrint(
+        'Web platform: database initialization skipped. Using fallback.',
+      );
+      _initialized = true;
+      return;
+    }
+
     // Get database path based on platform
     String databasesPath;
-    if (!kIsWeb &&
-        (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       // Use application documents directory for desktop
       final appDir = await getApplicationDocumentsDirectory();
       databasesPath = appDir.path;
     } else {
-      // Use standard path provider for mobile/web
+      // Use standard path provider for mobile
       databasesPath = await getDatabasesPath();
     }
 
@@ -105,6 +118,9 @@ class DatabaseService {
   /// Get connection to attempt.db (historical data 2017-2024)
   Database get attemptDb {
     if (_attemptDb == null) {
+      if (kIsWeb) {
+        throw Exception('Databases not available on web platform.');
+      }
       throw Exception('Database not initialized. Call initialize() first.');
     }
     return _attemptDb!;
@@ -113,6 +129,9 @@ class DatabaseService {
   /// Get connection to predictions.db (prediction data for 2025)
   Database get predictionsDb {
     if (_predictionsDb == null) {
+      if (kIsWeb) {
+        throw Exception('Databases not available on web platform.');
+      }
       throw Exception('Database not initialized. Call initialize() first.');
     }
     return _predictionsDb!;
@@ -121,6 +140,9 @@ class DatabaseService {
   /// Get connection to crops.db (crop data from CSVs)
   Database get cropsDb {
     if (_cropsDb == null) {
+      if (kIsWeb) {
+        throw Exception('Databases not available on web platform.');
+      }
       throw Exception('Database not initialized. Call initialize() first.');
     }
     return _cropsDb!;

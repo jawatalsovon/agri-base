@@ -10,6 +10,10 @@ import 'providers/theme_provider.dart';
 import 'providers/localization_provider.dart';
 import 'providers/font_size_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/disease_detection_provider.dart';
+import 'providers/weather_provider.dart';
+import 'providers/soil_provider.dart';
+import 'providers/location_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +45,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
         ChangeNotifierProvider(create: (_) => FontSizeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => DiseaseDetectionProvider()),
+        ChangeNotifierProvider(create: (_) => WeatherProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => SoilProvider()),
       ],
       child: Consumer3<ThemeProvider, LocalizationProvider, FontSizeProvider>(
         builder:

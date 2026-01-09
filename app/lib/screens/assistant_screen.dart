@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/localization_provider.dart';
 import '../services/ai_router.dart';
+import '../services/rag_service.dart';
 import '../utils/translations.dart';
 
 class AssistantScreen extends StatefulWidget {
@@ -16,6 +17,50 @@ class _AssistantScreenState extends State<AssistantScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<_ChatMessage> _messages = [];
   bool _isLoading = false;
+  late RAGService _ragService;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeRAG();
+  }
+
+  void _initializeRAG() {
+    _ragService = RAGService();
+    // Initialize with default agricultural documents
+    _ragService.initialize([
+      Document(
+        id: '1',
+        content:
+            'Rice is the primary staple crop of Bangladesh. Key growing seasons include Aman (monsoon), Boro (winter), and Aus (spring). Rice requires 120-150 days to mature and needs adequate water and nitrogen fertilizer.',
+        source: 'Rice Cultivation Guide',
+      ),
+      Document(
+        id: '2',
+        content:
+            'Wheat cultivation in Bangladesh starts in October-November. It requires cooler weather and less water than rice. Wheat yields 2-3 tons per hectare. Common varieties include BARI Gom-26.',
+        source: 'Wheat Cultivation Guide',
+      ),
+      Document(
+        id: '3',
+        content:
+            'Potato is grown primarily in winter season (October-March). It requires well-drained soil and moderate irrigation. Yield ranges from 15-20 tons per hectare. Seed rate is 2-2.5 tons per hectare.',
+        source: 'Potato Cultivation Guide',
+      ),
+      Document(
+        id: '4',
+        content:
+            'Soil health is critical for sustainable farming. Organic matter content should be maintained between 3-5%. Regular soil testing helps determine pH level and nutrient status. pH of 6.5-7.5 is optimal for most crops.',
+        source: 'Soil Management Guide',
+      ),
+      Document(
+        id: '5',
+        content:
+            'Crop rotation is an effective way to maintain soil health and manage pests. A good rotation might be: Rice-Wheat-Legume. Legumes like lentil and chickpea help fix nitrogen in soil.',
+        source: 'Crop Rotation Systems Guide',
+      ),
+    ]);
+  }
 
   @override
   void dispose() {
@@ -34,12 +79,37 @@ class _AssistantScreenState extends State<AssistantScreen> {
     });
 
     try {
+      // Get RAG context for enhanced response
+      final ragContext = await _ragService.retrieveContext(text);
+
+      if (!mounted) return;
+
       final router = AiRouter.instance;
-      final locale = Provider.of<LocalizationProvider>(context, listen: false).locale;
-      final res = await router.handleUserMessage(text, locale: locale);
+      final locale = Provider.of<LocalizationProvider>(
+        context,
+        listen: false,
+      ).locale;
+
+      // If RAG found relevant documents, use them to enhance the prompt
+      String enhancedQuestion = text;
+      if (ragContext.relevantDocs.isNotEmpty) {
+        enhancedQuestion = await _ragService.buildRAGPrompt(text);
+      }
+
+      if (!mounted) return;
+
+      final res = await router.handleUserMessage(
+        enhancedQuestion,
+        locale: locale,
+      );
       setState(() {
         _messages.add(
-          _ChatMessage(text: res.answer, isUser: false, sqlUsed: res.sqlUsed),
+          _ChatMessage(
+            text: res.answer,
+            isUser: false,
+            sqlUsed: res.sqlUsed,
+            hasRAGContext: ragContext.relevantDocs.isNotEmpty,
+          ),
         );
       });
     } catch (e) {
@@ -87,9 +157,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          Translations.translate(locale, 'agribaseAiAssistant'),
-        ),
+        title: Text(Translations.translate(locale, 'agribaseAiAssistant')),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
@@ -212,9 +280,15 @@ class _AssistantScreenState extends State<AssistantScreen> {
 }
 
 class _ChatMessage {
-  _ChatMessage({required this.text, required this.isUser, this.sqlUsed});
+  _ChatMessage({
+    required this.text,
+    required this.isUser,
+    this.sqlUsed,
+    this.hasRAGContext = false,
+  });
 
   final String text;
   final bool isUser;
   final String? sqlUsed;
+  final bool hasRAGContext;
 }

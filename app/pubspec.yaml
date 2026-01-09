@@ -51,6 +51,25 @@ dependencies:
   intl: ^0.20.2
   google_sign_in: ^6.2.1
   image_compression: ^1.0.5
+  
+  # Weather & Soil APIs
+  geolocator: ^11.0.0
+  weather: ^3.1.1
+  
+  # Disease Detection & Image Processing
+  tflite_flutter: ^0.11.0
+  image_picker: ^1.0.7
+  image: ^4.1.1
+  camera: ^0.10.5+5
+  
+  # RAG & Vector Database
+  dart_openai: ^6.1.1
+  
+  # UI Improvements
+  get: ^4.6.6
+  
+  # Data & Storage
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

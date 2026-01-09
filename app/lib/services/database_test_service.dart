@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'database_service.dart';
 
 class DatabaseTestService {
@@ -5,6 +6,12 @@ class DatabaseTestService {
 
   /// Test database connection and output sample data
   Future<void> testDatabase() async {
+    // Skip database tests on web platform
+    if (kIsWeb) {
+      debugPrint('Web platform: skipping database tests');
+      return;
+    }
+
     try {
       // Test 1: List all tables in attempt.db
 

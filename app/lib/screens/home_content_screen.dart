@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/localization_provider.dart';
 import '../utils/translations.dart';
+import '../widgets/weather_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -86,6 +87,13 @@ class HomeScreen extends StatelessWidget {
 
                 // Bangladeshi Farming Section
                 _buildBangladeshiFarmingSection(context),
+
+                // Weather widget (only for authenticated users)
+                if (isAuthenticated)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    child: WeatherWidget(),
+                  ),
 
                 // App Goal Section
                 _buildAppGoalSection(),

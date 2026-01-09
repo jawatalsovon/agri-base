@@ -165,31 +165,111 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: _selectedCrop,
-                  isExpanded: true,
-                  underline: Container(
-                    height: 2,
-                    color: const Color.fromARGB(255, 0, 77, 64),
-                  ),
-                  items: _crops.map((crop) {
-                    final translatedCrop = TranslationHelper.formatCropName(
-                      crop,
-                      locale,
+                GestureDetector(
+                  onTap: () async {
+                    final choice = await showDialog<String?>(
+                      context: context,
+                      builder: (ctx) {
+                        List<String> results = List.from(_crops);
+                        return StatefulBuilder(
+                          builder: (c, setInner) {
+                            return AlertDialog(
+                              title: Text(
+                                Translations.translate(locale, 'selectCrop'),
+                              ),
+                              content: SizedBox(
+                                width: double.maxFinite,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Icon(Icons.search),
+                                        hintText: 'Search crop',
+                                      ),
+                                      onChanged: (q) {
+                                        setInner(() {
+                                          results = _crops
+                                              .where(
+                                                (c) => c.toLowerCase().contains(
+                                                  q.toLowerCase(),
+                                                ),
+                                              )
+                                              .toList();
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Expanded(
+                                      child: results.isEmpty
+                                          ? const Center(
+                                              child: Text('No results'),
+                                            )
+                                          : ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: results.length,
+                                              itemBuilder: (context, index) {
+                                                final crop = results[index];
+                                                final translated =
+                                                    TranslationHelper.formatCropName(
+                                                      crop,
+                                                      locale,
+                                                    );
+                                                return ListTile(
+                                                  title: Text(translated),
+                                                  onTap: () => Navigator.of(
+                                                    ctx,
+                                                  ).pop(crop),
+                                                );
+                                              },
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(null),
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                     );
-                    return DropdownMenuItem(
-                      value: crop,
-                      child: Text(translatedCrop),
-                    );
-                  }).toList(),
-                  onChanged: (crop) {
-                    if (crop != null) {
+
+                    if (choice != null) {
                       setState(() {
-                        _selectedCrop = crop;
+                        _selectedCrop = choice;
                       });
                       _loadData();
                     }
                   },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _selectedCrop == null
+                                ? Translations.translate(locale, 'selectCrop')
+                                : TranslationHelper.formatCropName(
+                                    _selectedCrop!,
+                                    locale,
+                                  ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 // District Selector
@@ -202,32 +282,116 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: _selectedDisplayDistrict,
-                  isExpanded: true,
-                  underline: Container(
-                    height: 2,
-                    color: const Color.fromARGB(255, 0, 77, 64),
-                  ),
-                  items: _displayDistricts.map((district) {
-                    final translatedDistrict =
-                        TranslationHelper.formatDistrictName(district, locale);
-                    return DropdownMenuItem(
-                      value: district,
-                      child: Text(translatedDistrict),
+                GestureDetector(
+                  onTap: () async {
+                    final choice = await showDialog<String?>(
+                      context: context,
+                      builder: (ctx) {
+                        List<String> results = List.from(_displayDistricts);
+                        return StatefulBuilder(
+                          builder: (c, setInner) {
+                            return AlertDialog(
+                              title: Text(
+                                Translations.translate(
+                                  locale,
+                                  'selectDistrict',
+                                ),
+                              ),
+                              content: SizedBox(
+                                width: double.maxFinite,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Icon(Icons.search),
+                                        hintText: 'Search district',
+                                      ),
+                                      onChanged: (q) {
+                                        setInner(() {
+                                          results = _displayDistricts
+                                              .where(
+                                                (d) => d.toLowerCase().contains(
+                                                  q.toLowerCase(),
+                                                ),
+                                              )
+                                              .toList();
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Expanded(
+                                      child: results.isEmpty
+                                          ? const Center(
+                                              child: Text('No results'),
+                                            )
+                                          : ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: results.length,
+                                              itemBuilder: (context, index) {
+                                                final district = results[index];
+                                                final translated =
+                                                    TranslationHelper.formatDistrictName(
+                                                      district,
+                                                      locale,
+                                                    );
+                                                return ListTile(
+                                                  title: Text(translated),
+                                                  onTap: () => Navigator.of(
+                                                    ctx,
+                                                  ).pop(district),
+                                                );
+                                              },
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(null),
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                     );
-                  }).toList(),
-                  onChanged: (district) {
-                    if (district != null) {
+
+                    if (choice != null) {
                       setState(() {
-                        _selectedDisplayDistrict = district;
+                        _selectedDisplayDistrict = choice;
                         _selectedDistrict = _districts.firstWhere(
-                          (d) => cleanDistrict(d) == district,
+                          (d) => cleanDistrict(d) == choice,
                         );
                       });
                       _loadData();
                     }
                   },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _selectedDisplayDistrict ??
+                                Translations.translate(
+                                  locale,
+                                  'selectDistrict',
+                                ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -412,14 +576,46 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    _buildPieChart(Translations.translate(locale, 'totalCropArea'), _pieCropArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'fibreArea'), _pieFibreArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'narcoticsArea'), _pieNarcosArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'oilseedsArea'), _pieOilseedArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'pulsesArea'), _piePulseArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'riceArea'), _pieRiceArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'spicesArea'), _pieSpicesArea, locale),
-                    _buildPieChart(Translations.translate(locale, 'sugarcaneArea'), _pieSugerArea, locale),
+                    _buildPieChart(
+                      Translations.translate(locale, 'totalCropArea'),
+                      _pieCropArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'fibreArea'),
+                      _pieFibreArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'narcoticsArea'),
+                      _pieNarcosArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'oilseedsArea'),
+                      _pieOilseedArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'pulsesArea'),
+                      _piePulseArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'riceArea'),
+                      _pieRiceArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'spicesArea'),
+                      _pieSpicesArea,
+                      locale,
+                    ),
+                    _buildPieChart(
+                      Translations.translate(locale, 'sugarcaneArea'),
+                      _pieSugerArea,
+                      locale,
+                    ),
                   ],
                 ),
               ],
@@ -430,7 +626,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _buildPieChart(String title, List<Map<String, dynamic>> data, Locale locale) {
+  Widget _buildPieChart(
+    String title,
+    List<Map<String, dynamic>> data,
+    Locale locale,
+  ) {
     final filteredData = data
         .where((d) => d['Category'] != null && d['Percentage'] != null)
         .toList();
@@ -475,7 +675,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           dataSource: top5Data,
                           xValueMapper: (datum, _) {
                             final category = datum['Category'] as String? ?? '';
-                            return TranslationHelper.formatCropName(category, locale);
+                            return TranslationHelper.formatCropName(
+                              category,
+                              locale,
+                            );
                           },
                           yValueMapper: (datum, _) =>
                               double.tryParse(

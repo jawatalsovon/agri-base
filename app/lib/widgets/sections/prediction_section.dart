@@ -17,6 +17,7 @@ class _PredictionSectionState extends State<PredictionSection> {
 
   List<String> _crops = [];
   String? _selectedCrop;
+  int _topCount = 10;
 
   List<Map<String, dynamic>> _topDistricts = [];
   Map<String, dynamic> _totalYield = {};
@@ -83,13 +84,15 @@ class _PredictionSectionState extends State<PredictionSection> {
       builder: (context, localizationProvider, child) {
         final locale = localizationProvider.locale;
         final theme = Theme.of(context);
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Crop Selector
             Text(
-              locale.languageCode == 'bn' ? 'পূর্বাভাসের জন্য ফসল নির্বাচন করুন' : 'Select Crop for Prediction',
+              locale.languageCode == 'bn'
+                  ? 'পূর্বাভাসের জন্য ফসল নির্বাচন করুন'
+                  : 'Select Crop for Prediction',
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -97,28 +100,129 @@ class _PredictionSectionState extends State<PredictionSection> {
               ),
             ),
             const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _selectedCrop,
-              isExpanded: true,
-              underline: Container(
-                height: 2,
-                color: theme.colorScheme.primary,
-              ),
-              items: _crops.map((crop) {
-                final translatedCrop = TranslationHelper.formatCropName(crop, locale);
-                return DropdownMenuItem(
-                  value: crop,
-                  child: Text(translatedCrop),
+            GestureDetector(
+              onTap: () async {
+                final choice = await showDialog<String?>(
+                  context: context,
+                  builder: (ctx) {
+                    List<String> results = List.from(_crops);
+                    return StatefulBuilder(
+                      builder: (c, setInner) {
+                        return AlertDialog(
+                          title: Text(
+                            locale.languageCode == 'bn'
+                                ? 'ফসল নির্বাচন করুন'
+                                : 'Select Crop for Prediction',
+                          ),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  decoration: InputDecoration(
+                                    prefixIcon: const Icon(Icons.search),
+                                    hintText: 'Search crop',
+                                  ),
+                                  onChanged: (q) {
+                                    setInner(() {
+                                      results = _crops
+                                          .where(
+                                            (c) => c.toLowerCase().contains(
+                                              q.toLowerCase(),
+                                            ),
+                                          )
+                                          .toList();
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: results.isEmpty
+                                      ? const Center(child: Text('No results'))
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: results.length,
+                                          itemBuilder: (context, index) {
+                                            final crop = results[index];
+                                            final translated =
+                                                TranslationHelper.formatCropName(
+                                                  crop,
+                                                  locale,
+                                                );
+                                            return ListTile(
+                                              title: Text(translated),
+                                              onTap: () =>
+                                                  Navigator.of(ctx).pop(crop),
+                                            );
+                                          },
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(null),
+                              child: const Text('Cancel'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 );
-              }).toList(),
-              onChanged: (crop) {
-                if (crop != null) {
+
+                if (choice != null) {
                   setState(() {
-                    _selectedCrop = crop;
+                    _selectedCrop = choice;
                   });
                   _loadData();
                 }
               },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedCrop == null
+                            ? (locale.languageCode == 'bn'
+                                  ? 'কোনো ফসল নির্বাচন করা হয়নি'
+                                  : 'Select crop')
+                            : TranslationHelper.formatCropName(
+                                _selectedCrop!,
+                                locale,
+                              ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Show:'),
+                const SizedBox(width: 8),
+                DropdownButton<int>(
+                  value: _topCount,
+                  items: const [5, 10, 20, -1].map((n) {
+                    final label = n == -1 ? 'All' : n.toString();
+                    return DropdownMenuItem(value: n, child: Text(label));
+                  }).toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _topCount = v);
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
@@ -133,7 +237,9 @@ class _PredictionSectionState extends State<PredictionSection> {
               // Total Yield Card
               InkWell(
                 onTap: () {},
-                highlightColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                highlightColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.1,
+                ),
                 splashColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 child: Card(
@@ -150,10 +256,13 @@ class _PredictionSectionState extends State<PredictionSection> {
                         Tooltip(
                           message: 'Predicted total production for 2025',
                           child: Text(
-                            locale.languageCode == 'bn' 
-                              ? 'পূর্বাভাসিত মোট উৎপাদন (2025)'
-                              : 'Predicted Total Production (2025)',
-                            style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurfaceVariant),
+                            locale.languageCode == 'bn'
+                                ? 'পূর্বাভাসিত মোট উৎপাদন (2025)'
+                                : 'Predicted Total Production (2025)',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -198,7 +307,9 @@ class _PredictionSectionState extends State<PredictionSection> {
               const SizedBox(height: 20),
               // Top Yield Districts
               Text(
-                locale.languageCode == 'bn' ? 'শীর্ষ পূর্বাভাসিত ফলন জেলা' : 'Top Predicted Yield Districts',
+                locale.languageCode == 'bn'
+                    ? 'শীর্ষ পূর্বাভাসিত ফলন জেলা'
+                    : 'Top Predicted Yield Districts',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -208,7 +319,9 @@ class _PredictionSectionState extends State<PredictionSection> {
               const SizedBox(height: 12),
               InkWell(
                 onTap: () {},
-                highlightColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                highlightColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.1,
+                ),
                 splashColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 child: Card(
@@ -225,7 +338,9 @@ class _PredictionSectionState extends State<PredictionSection> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -233,24 +348,30 @@ class _PredictionSectionState extends State<PredictionSection> {
                               Expanded(
                                 child: Text(
                                   Translations.translate(locale, 'district'),
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 child: Text(
-                                  locale.languageCode == 'bn' 
-                                    ? 'পূর্বাভাসিত ফলন (MT/Ha)'
-                                    : 'Predicted Yield (MT/Ha)',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  locale.languageCode == 'bn'
+                                      ? 'পূর্বাভাসিত ফলন (MT/Ha)'
+                                      : 'Predicted Yield (MT/Ha)',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
                               Expanded(
                                 child: Text(
                                   locale.languageCode == 'bn'
-                                    ? 'পূর্বাভাসিত উৎপাদন (MT)'
-                                    : 'Predicted Production (MT)',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ? 'পূর্বাভাসিত উৎপাদন (MT)'
+                                      : 'Predicted Production (MT)',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
@@ -263,59 +384,80 @@ class _PredictionSectionState extends State<PredictionSection> {
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
-                              locale.languageCode == 'bn' 
-                                ? 'কোনো পূর্বাভাস ডেটা পাওয়া যায়নি'
-                                : 'No prediction data available',
+                              locale.languageCode == 'bn'
+                                  ? 'কোনো পূর্বাভাস ডেটা পাওয়া যায়নি'
+                                  : 'No prediction data available',
                             ),
                           )
                         else
-                          ..._topDistricts.map((district) {
-                            final yieldValue =
-                                (district['yield_per_hectare'] as num? ?? 0)
-                                    .toDouble();
-                            final production =
-                                (district['production_mt_pred'] as num? ?? 0)
-                                    .toDouble();
-                            final districtName = district['district'] as String? ?? '';
-                            final translatedDistrict = TranslationHelper.formatDistrictName(districtName, locale);
-                            
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Tooltip(
-                                      message: 'District name',
-                                      child: Text(
-                                        translatedDistrict,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w500,
+                          ...((_topCount == -1
+                                  ? _topDistricts
+                                  : _topDistricts.take(_topCount).toList())
+                              .map((district) {
+                                final yieldValue =
+                                    (district['yield_per_hectare'] as num? ?? 0)
+                                        .toDouble();
+                                final production =
+                                    (district['production_mt_pred'] as num? ??
+                                            0)
+                                        .toDouble();
+                                final districtName =
+                                    district['district'] as String? ?? '';
+                                final translatedDistrict =
+                                    TranslationHelper.formatDistrictName(
+                                      districtName,
+                                      locale,
+                                    );
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Tooltip(
+                                          message: 'District name',
+                                          child: Text(
+                                            translatedDistrict,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Tooltip(
-                                      message: 'Predicted yield per hectare',
-                                      child: Text(
-                                        TranslationHelper.formatNumberWithCommas(yieldValue, decimalPlaces: 3, locale: locale),
-                                        textAlign: TextAlign.right,
+                                      Expanded(
+                                        child: Tooltip(
+                                          message:
+                                              'Predicted yield per hectare',
+                                          child: Text(
+                                            TranslationHelper.formatNumberWithCommas(
+                                              yieldValue,
+                                              decimalPlaces: 3,
+                                              locale: locale,
+                                            ),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Tooltip(
-                                      message: 'Predicted total production',
-                                      child: Text(
-                                        TranslationHelper.formatNumberWithCommas(production, decimalPlaces: 3, locale: locale),
-                                        textAlign: TextAlign.right,
+                                      Expanded(
+                                        child: Tooltip(
+                                          message: 'Predicted total production',
+                                          child: Text(
+                                            TranslationHelper.formatNumberWithCommas(
+                                              production,
+                                              decimalPlaces: 3,
+                                              locale: locale,
+                                            ),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          }),
+                                );
+                              })
+                              .toList()),
                       ],
                     ),
                   ),

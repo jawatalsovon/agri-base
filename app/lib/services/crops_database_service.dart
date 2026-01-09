@@ -12,7 +12,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query);
       return results.map((row) => row['crop_name'] as String).toList();
     } catch (e) {
-
       return [];
     }
   }
@@ -29,7 +28,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName]);
       return results.map((row) => row['year'] as String).toList();
     } catch (e) {
-
       return [];
     }
   }
@@ -45,7 +43,6 @@ class CropsDatabaseService {
           .toList();
       return districts;
     } catch (e) {
-
       return [];
     }
   }
@@ -78,7 +75,6 @@ class CropsDatabaseService {
       ]);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -106,7 +102,6 @@ class CropsDatabaseService {
       }
       return {};
     } catch (e) {
-
       return {};
     }
   }
@@ -133,7 +128,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName, district]);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -185,19 +179,20 @@ class CropsDatabaseService {
 
       return districtMap;
     } catch (e) {
-
       return {};
     }
   }
 
   /// Get top crops for a district and year (for My Region)
+  /// Set limit to 0 to return all results (no LIMIT clause)
   Future<List<Map<String, dynamic>>> getTopCropsForDistrict(
     String district,
     String year, {
     int limit = 10,
   }) async {
     try {
-      final query = '''
+      final query =
+          '''
         SELECT 
           crop_name,
           production_mt,
@@ -209,16 +204,15 @@ class CropsDatabaseService {
         FROM crop_data
         WHERE district = ? AND year = ? AND production_mt IS NOT NULL
         ORDER BY production_mt DESC
-        LIMIT ?
-      ''';
-      final results = await _dbService.queryCrops(query, [
-        district,
-        year,
-        limit,
-      ]);
+        ${limit > 0 ? 'LIMIT ?' : ''}
+      '''
+              .trim();
+
+      final params = limit > 0 ? [district, year, limit] : [district, year];
+
+      final results = await _dbService.queryCrops(query, params);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -238,7 +232,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName]);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -266,7 +259,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryCrops(query, [cropName, limit]);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -293,7 +285,6 @@ class CropsDatabaseService {
       }
       return {};
     } catch (e) {
-
       return {};
     }
   }
@@ -305,7 +296,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -317,7 +307,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -329,7 +318,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -341,7 +329,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -353,7 +340,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -365,7 +351,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -377,7 +362,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
@@ -389,7 +373,6 @@ class CropsDatabaseService {
       final results = await _dbService.queryAttempt(query);
       return results;
     } catch (e) {
-
       return [];
     }
   }
