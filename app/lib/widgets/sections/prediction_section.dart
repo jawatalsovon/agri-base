@@ -60,8 +60,9 @@ class _PredictionSectionState extends State<PredictionSection> {
     });
 
     try {
+      final limit = _topCount == -1 ? 0 : _topCount;
       final topDistricts = await _cropsService
-          .getTopYieldDistrictsFromPredictions(_selectedCrop!);
+          .getTopYieldDistrictsFromPredictions(_selectedCrop!, limit: limit);
       final totalYield = await _cropsService.getTotalYieldFromPredictions(
         _selectedCrop!,
       );
@@ -122,17 +123,30 @@ class _PredictionSectionState extends State<PredictionSection> {
                                 TextField(
                                   decoration: InputDecoration(
                                     prefixIcon: const Icon(Icons.search),
-                                    hintText: 'Search crop',
+                                    hintText: locale.languageCode == 'bn'
+                                        ? 'ফসল খুঁজুন'
+                                        : 'Search crop',
                                   ),
                                   onChanged: (q) {
                                     setInner(() {
-                                      results = _crops
-                                          .where(
-                                            (c) => c.toLowerCase().contains(
+                                      if (q.isEmpty) {
+                                        results = _crops;
+                                      } else {
+                                        final isBangla =
+                                            q.isNotEmpty &&
+                                            q.codeUnitAt(0) > 127;
+                                        results = _crops.where((c) {
+                                          if (isBangla) {
+                                            return c.toLowerCase().contains(
                                               q.toLowerCase(),
-                                            ),
-                                          )
-                                          .toList();
+                                            );
+                                          } else {
+                                            return c.toLowerCase().startsWith(
+                                              q.toLowerCase(),
+                                            );
+                                          }
+                                        }).toList();
+                                      }
                                     });
                                   },
                                 ),
@@ -210,7 +224,7 @@ class _PredictionSectionState extends State<PredictionSection> {
             const SizedBox(height: 12),
             Row(
               children: [
-                const Text('Show:'),
+                Text(locale.languageCode == 'bn' ? 'শীর্ষ দেখান:' : 'Show:'),
                 const SizedBox(width: 8),
                 DropdownButton<int>(
                   value: _topCount,
@@ -219,7 +233,10 @@ class _PredictionSectionState extends State<PredictionSection> {
                     return DropdownMenuItem(value: n, child: Text(label));
                   }).toList(),
                   onChanged: (v) {
-                    if (v != null) setState(() => _topCount = v);
+                    if (v != null) {
+                      setState(() => _topCount = v);
+                      _loadData();
+                    }
                   },
                 ),
               ],

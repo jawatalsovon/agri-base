@@ -89,9 +89,11 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
     });
 
     try {
+      final limit = _topCount == -1 ? 0 : _topCount;
       final topDistricts = await _cropsService.getTopYieldDistricts(
         _selectedCrop!,
         _selectedYear!,
+        limit: limit,
       );
       final totalYield = await _cropsService.getTotalYield(
         _selectedCrop!,
@@ -150,17 +152,30 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                                 TextField(
                                   decoration: InputDecoration(
                                     prefixIcon: const Icon(Icons.search),
-                                    hintText: 'Search crop',
+                                    hintText: locale.languageCode == 'bn'
+                                        ? 'ফসল খুঁজুন'
+                                        : 'Search crop',
                                   ),
                                   onChanged: (q) {
                                     setInner(() {
-                                      results = _crops
-                                          .where(
-                                            (c) => c.toLowerCase().contains(
+                                      if (q.isEmpty) {
+                                        results = _crops;
+                                      } else {
+                                        final isBangla =
+                                            q.isNotEmpty &&
+                                            q.codeUnitAt(0) > 127;
+                                        results = _crops.where((c) {
+                                          if (isBangla) {
+                                            return c.toLowerCase().contains(
                                               q.toLowerCase(),
-                                            ),
-                                          )
-                                          .toList();
+                                            );
+                                          } else {
+                                            return c.toLowerCase().startsWith(
+                                              q.toLowerCase(),
+                                            );
+                                          }
+                                        }).toList();
+                                      }
                                     });
                                   },
                                 ),
@@ -239,7 +254,7 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
             // Top count selector
             Row(
               children: [
-                const Text('Show:'),
+                Text(locale.languageCode == 'bn' ? 'শীর্ষ দেখান:' : 'Show:'),
                 const SizedBox(width: 8),
                 DropdownButton<int>(
                   value: _topCount,
@@ -248,7 +263,10 @@ class _HistoricalDataSectionState extends State<HistoricalDataSection> {
                     return DropdownMenuItem(value: n, child: Text(label));
                   }).toList(),
                   onChanged: (v) {
-                    if (v != null) setState(() => _topCount = v);
+                    if (v != null) {
+                      setState(() => _topCount = v);
+                      _loadData();
+                    }
                   },
                 ),
               ],
